@@ -68,7 +68,7 @@ window.CATALOGO = {
       sabado: "11:00-19:00",
       domingo: "11:00-19:00"
     },
-    intervalo: 60,
+    intervalo: 30,
     diasAdelante: 21,
     direccion: "Calle 46a4 #965 x 143 y 145, Villamagna del Sur, Mérida, Yucatán",
     referencias: "",
