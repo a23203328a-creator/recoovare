@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Notas de venta – Recoovare</title>
+<link rel="icon" href="../fotos/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="notas.css">
+</head>
+<body class="ancho-80">
+
+<header class="barra no-imprimir">
+  <div class="barra-in">
+    <a href="../" class="logo"><img src="../fotos/logo.png" alt="Recoovare"></a>
+    <h1>Notas de venta</h1>
+    <div class="barra-acciones">
+      <button type="button" class="btn btn-claro" id="btn-historial">Historial</button>
+      <button type="button" class="btn btn-cafe" id="btn-nueva">Nueva nota</button>
+    </div>
+  </div>
+</header>
+
+<main class="contenedor no-imprimir">
+  <section class="editor">
+    <p class="aviso" id="aviso-editando" hidden></p>
+
+    <div class="panel">
+      <h2>Cliente</h2>
+      <div class="fila-2">
+        <div class="campo"><label for="c-nombre">Nombre</label><input id="c-nombre" type="text" placeholder="Ej. María López" autocomplete="off"></div>
+        <div class="campo"><label for="c-tel">WhatsApp (10 dígitos)</label><input id="c-tel" type="tel" inputmode="numeric" placeholder="Ej. 999 123 4567" autocomplete="off"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Productos</h2>
+      <div class="agregar">
+        <div class="fila-3">
+          <div class="campo"><label for="p-tipo">Tipo</label>
+            <select id="p-tipo">
+              <option value="placas">Placa domiciliaria</option>
+              <option value="lapidas">Lápida</option>
+              <option value="otro">Otro concepto</option>
+            </select>
+          </div>
+          <div class="campo" id="caja-codigo"><label for="p-codigo">Código del modelo</label><input id="p-codigo" type="text" list="lista-modelos" placeholder="Ej. 047 o L03" autocomplete="off"></div>
+          <div class="campo" id="caja-medida"><label for="p-medida">Medida</label><select id="p-medida"></select></div>
+        </div>
+        <p class="modelo-encontrado" id="p-encontrado"></p>
+        <div class="campo"><label for="p-desc">Descripción</label><input id="p-desc" type="text" placeholder="Se llena sola con el modelo; puedes cambiarla"></div>
+        <div class="campo"><label for="p-detalle">Texto / detalles (opcional)</label><textarea id="p-detalle" placeholder="Ej. Familia Canul Canul, C. 79B #573 x 98 y 100, letras en azul"></textarea></div>
+        <div class="fila-3">
+          <div class="campo"><label for="p-cant">Cantidad</label><input id="p-cant" type="number" min="1" step="1" value="1" inputmode="numeric"></div>
+          <div class="campo"><label for="p-precio">Precio unitario ($)</label><input id="p-precio" type="number" min="0" step="1" inputmode="decimal"></div>
+          <div class="campo campo-boton"><button type="button" class="btn btn-cafe" id="btn-agregar">Agregar a la nota</button></div>
+        </div>
+        <p class="msg-error" id="p-error" hidden></p>
+      </div>
+
+      <div class="rapidos">
+        <span>Agregar rápido:</span>
+        <button type="button" class="chip" data-rapido="cemento">Instalación con cemento blanco $150</button>
+        <button type="button" class="chip" data-rapido="taquetes">Instalación con taquetes y tornillos $125</button>
+        <button type="button" class="chip" data-rapido="envio">Envío a domicilio</button>
+      </div>
+
+      <ul class="lista-items" id="lista-items"></ul>
+      <p class="vacio" id="items-vacio">Todavía no hay productos en la nota.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Pago y entrega</h2>
+      <div class="fila-3">
+        <div class="campo"><label for="pg-anticipo">Anticipo ($)</label><input id="pg-anticipo" type="number" min="0" step="1" inputmode="decimal"></div>
+        <div class="campo"><label for="pg-metodo">Forma de pago</label>
+          <select id="pg-metodo"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select>
+        </div>
+        <div class="campo"><label for="pg-entrega">Fecha de entrega</label><input id="pg-entrega" type="date"></div>
+      </div>
+      <div class="campo"><label for="pg-notas">Notas (opcional)</label><textarea id="pg-notas" placeholder="Ej. Pasa a recogerla después de las 4 p.m."></textarea></div>
+      <div class="totales" id="totales"></div>
+    </div>
+  </section>
+
+  <aside class="lado">
+    <div class="panel panel-ticket">
+      <div class="ticket-cabecera">
+        <h2>Vista previa</h2>
+        <label class="ancho">Papel
+          <select id="ancho"><option value="80">80 mm</option><option value="58">58 mm</option></select>
+        </label>
+      </div>
+      <div class="ticket-marco"><div id="ticket-vista"></div></div>
+      <div class="acciones">
+        <button type="button" class="btn btn-cafe" id="btn-imprimir">Imprimir ticket</button>
+        <button type="button" class="btn btn-claro" id="btn-pdf">Descargar PDF</button>
+        <button type="button" class="btn btn-verde" id="btn-compartir">Mandar PDF por WhatsApp</button>
+      </div>
+      <p class="ayuda" id="ayuda-compartir">En el celular se abre el menú para compartir: elige WhatsApp y el chat del cliente. En la computadora se descarga el PDF y se abre el chat del cliente para que lo adjuntes.</p>
+      <p class="estado" id="estado" role="status"></p>
+    </div>
+  </aside>
+</main>
+
+<div class="modal no-imprimir" id="modal-historial" hidden>
+  <div class="modal-caja" role="dialog" aria-modal="true" aria-labelledby="titulo-historial">
+    <div class="modal-cabecera">
+      <h2 id="titulo-historial">Historial de notas</h2>
+      <button type="button" class="btn btn-claro" id="btn-cerrar-historial">Cerrar</button>
+    </div>
+    <input id="buscar-nota" type="search" placeholder="Buscar por folio, cliente o teléfono" autocomplete="off">
+    <ul class="historial" id="historial"></ul>
+    <p class="ayuda">Las notas se guardan en este dispositivo y navegador. Si cambias de computadora, no aparecerán.</p>
+  </div>
+</div>
+
+<!-- Ticket que se imprime -->
+<div id="ticket-imprimir" class="solo-imprimir"></div>
+
+<datalist id="lista-modelos"></datalist>
+<script src="../datos.js"></script>
+<script src="jspdf.umd.min.js"></script>
+<script src="notas.js"></script>
+</body>
+</html>

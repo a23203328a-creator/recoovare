@@ -134,3 +134,19 @@ Casi siempre es una coma o una comilla en `datos.js`. Si la página muestra el a
 ## Fotos: recomendaciones
 - Mínimo 1000 px de ancho, fondo limpio, mismo encuadre en todas.
 - Que pesen menos de 300 KB cada una para que cargue rápido en el celular (puedes comprimirlas gratis en squoosh.app).
+
+---
+
+## Generador de notas de venta
+
+Entra a **https://recoovare.pages.dev/notas/** (no aparece en el menú de la página; guárdala en favoritos).
+
+1. Escribe el nombre y WhatsApp del cliente.
+2. Agrega productos: elige Placa o Lápida, escribe el código (ej. 047 o L03) y la medida; el precio se pone solo. Puedes cambiarlo.
+3. Botones rápidos: instalación con cemento ($150), con taquetes ($125) y envío (escribes el costo).
+4. Pon el anticipo, la forma de pago y la fecha de entrega. Se calcula lo que resta.
+5. **Imprimir ticket**: en la ventana de impresión elige tu impresora de tickets, márgenes "Ninguno" y escala 100%. Arriba eliges papel de 80 mm o 58 mm.
+6. **Mandar PDF por WhatsApp**: en el celular abre el menú de compartir (eliges WhatsApp y el chat). En la computadora descarga el PDF y abre el chat del cliente para que lo adjuntes.
+
+Cada nota recibe un folio (R-0001, R-0002…) y queda en **Historial**, donde puedes abrirla, reimprimirla o marcarla como pagada.
+Las notas se guardan en ese navegador y dispositivo; no se suben a internet.
