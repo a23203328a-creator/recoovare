@@ -60,7 +60,8 @@ p { margin: 0; }
 .hero-btns { display: flex; flex-wrap: wrap; gap: 12px; }
 .hero-facts { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 15px; font-weight: 700; color: var(--salvia); }
 .hero-collage { flex: 1 1 380px; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.hero-collage > div { min-width: 0; background: #fff; border-radius: 18px; padding: 14px; box-shadow: 0 1px 2px rgba(74,38,24,.08); }
+.hero-collage > div { min-width: 0; display: flex; align-items: center; justify-content: center; aspect-ratio: 4 / 3; background: #fff; border-radius: 18px; padding: 14px; box-shadow: 0 1px 2px rgba(74,38,24,.08); }
+.hero-collage img { width: 100%; height: 100%; object-fit: contain; }
 .hero-collage .down { margin-top: 36px; }
 
 /* ============ Cómo pedir ============ */
