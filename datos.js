@@ -70,7 +70,7 @@ window.CATALOGO = {
     },
     intervalo: 60,
     diasAdelante: 21,
-    direccion: "Recoovare · Mérida, Yucatán",
+    direccion: "Calle 46a4 #965 x 143 y 145, Villamagna del Sur, Mérida, Yucatán",
     referencias: "",
     // coordenadas de tu local en Google Maps (para el mapa) y el link para "Cómo llegar"
     coordenadas: "20.9192507,-89.6147589",
