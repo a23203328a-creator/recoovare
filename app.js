@@ -409,14 +409,22 @@
         })(t1);
       })(t0);
     }
-    var temporizador = setInterval(function () { if (!document.hidden && !usuario) cambiar((actual + 1) % lista.length); }, 4500);
+    function automatico(ms) {
+      return setInterval(function () { if (!document.hidden && !usuario) cambiar((actual + 1) % lista.length); }, ms);
+    }
+    var temporizador = automatico(4500);
+    function elegir(i) {
+      clearInterval(temporizador);
+      temporizador = automatico(6000);
+      cambiar((i + lista.length) % lista.length);
+    }
     puntos.addEventListener('click', function (e) {
       var b = e.target.closest('button[data-i]'); if (!b) return;
-      clearInterval(temporizador);
-      temporizador = setInterval(function () { if (!document.hidden && !usuario) cambiar((actual + 1) % lista.length); }, 6000);
-      cambiar(Number(b.getAttribute('data-i')));
+      elegir(Number(b.getAttribute('data-i')));
     });
-    escena.addEventListener('click', function () { cambiar((actual + 1) % lista.length); });
+    document.getElementById('p3d-ant').addEventListener('click', function (e) { e.stopPropagation(); elegir(actual - 1); });
+    document.getElementById('p3d-sig').addEventListener('click', function (e) { e.stopPropagation(); elegir(actual + 1); });
+    escena.addEventListener('click', function () { elegir(actual + 1); });
     pie.addEventListener('click', function () {
       var x = lista[Number(pie.getAttribute('data-i')) || 0];
       irA(x.tipo);

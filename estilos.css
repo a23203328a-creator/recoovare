@@ -76,6 +76,12 @@ p { margin: 0; }
   background: linear-gradient(115deg, rgba(255,255,255,0) 35%, rgba(255,255,255,.55) 48%, rgba(255,255,255,0) 62%);
   background-size: 300% 300%; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
 .sombra3d { position: absolute; left: 14%; right: 14%; bottom: 2%; height: 9%; border-radius: 50%; background: radial-gradient(closest-side, rgba(46,22,12,.35), rgba(46,22,12,0)); filter: blur(4px); }
+.p3d-flecha { position: absolute; top: 44%; transform: translateY(-50%); z-index: 2; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid var(--borde-fuerte); background: rgba(255,255,255,.92); color: var(--cafe); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(46,22,12,.15); transition: background .15s, transform .15s; }
+.p3d-flecha:hover { background: #fff; border-color: var(--cafe); }
+.p3d-flecha:active { transform: translateY(-50%) scale(.94); }
+.p3d-flecha.anterior { left: -6px; }
+.p3d-flecha.siguiente { right: -6px; }
+@media (max-width: 640px) { .p3d-flecha.anterior { left: 0; } .p3d-flecha.siguiente { right: 0; } }
 .p3d-pie { font-size: 15px; font-weight: 700; color: var(--texto-suave); text-decoration: none; text-align: center; min-height: 24px; }
 .p3d-pie:hover { color: var(--cafe); text-decoration: underline; }
 .p3d-puntos { display: flex; gap: 6px; }
