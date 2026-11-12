@@ -150,3 +150,15 @@ Entra a **https://recoovare.pages.dev/notas/** (no aparece en el menú de la pá
 
 Cada nota recibe un folio (R-0001, R-0002…) y queda en **Historial**, donde puedes abrirla, reimprimirla o marcarla como pagada.
 Las notas se guardan en ese navegador y dispositivo; no se suben a internet.
+
+---
+
+## Control de pedidos
+
+Entra a **https://recoovare.pages.dev/pedidos/** (privado, no aparece en el menú).
+
+- Mismas columnas que tu Excel "Mi parte": folio RC, cliente, producto, estado, pago del cliente, intermediario, mi parte (50% × (precio del producto − intermediario)), si tu mamá ya te pagó y cuánto te debe.
+- Además: pagos/abonos del cliente, costos por pedido (solo para ver la ganancia) y fecha de entrega.
+- Cada nota que guardas en Notas de venta crea su pedido (RC-xxxx) automáticamente y guarda el folio R de la nota.
+- "Respaldo y Excel": descarga un .csv para Excel y un respaldo completo (pedidos + notas) para pasarlo a otra computadora.
+- Los datos se guardan en ese navegador y dispositivo.

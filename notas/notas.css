@@ -37,7 +37,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--cafe); outline: 
 .modelo-encontrado.no { color: var(--error); }
 .msg-error { color: var(--error); font-weight: 700; margin: 0; font-size: 14px; }
 
-.btn { font: inherit; font-size: 15px; font-weight: 800; min-height: 46px; padding: 10px 16px; border-radius: 10px; cursor: pointer; border: 1.5px solid transparent; }
+.btn { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font: inherit; font-size: 15px; font-weight: 800; min-height: 46px; padding: 10px 16px; border-radius: 10px; cursor: pointer; border: 1.5px solid transparent; }
 .btn-cafe { background: var(--cafe); color: #fff; }
 .btn-cafe:hover { background: var(--cafe-oscuro); }
 .btn-claro { background: #fff; color: var(--cafe); border-color: var(--cafe); }

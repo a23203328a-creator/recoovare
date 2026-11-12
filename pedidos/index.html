@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Control de pedidos – Recoovare</title>
+<link rel="icon" href="../fotos/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="pedidos.css">
+</head>
+<body>
+
+<header class="barra">
+  <div class="barra-in">
+    <a href="../" class="logo"><img src="../fotos/logo.png" alt="Recoovare"></a>
+    <h1>Control de pedidos</h1>
+    <nav class="barra-acciones" aria-label="Acciones">
+      <a class="btn btn-claro" href="../notas/">Notas de venta</a>
+      <button type="button" class="btn btn-claro" id="btn-datos">Respaldo y Excel</button>
+      <button type="button" class="btn btn-cafe" id="btn-nuevo">Nuevo pedido</button>
+    </nav>
+  </div>
+</header>
+
+<main class="contenedor">
+  <section class="kpis" id="kpis" aria-label="Resumen"></section>
+
+  <section class="panel">
+    <div class="filtros">
+      <div class="campo buscar"><label for="buscar">Buscar</label><input id="buscar" type="search" placeholder="Folio, cliente, producto o teléfono" autocomplete="off"></div>
+      <div class="campo"><label for="f-periodo">Periodo</label>
+        <select id="f-periodo"><option value="todos">Todos</option><option value="este">Este mes</option><option value="pasado">Mes pasado</option></select>
+      </div>
+      <div class="campo"><label for="f-mama">Pago de mi mamá</label>
+        <select id="f-mama"><option value="todos">Todos</option><option value="debe">Me debe</option><option value="pagado">Ya me pagó</option></select>
+      </div>
+      <div class="regla">
+        <span class="label">Mi parte se calcula como</span>
+        <div class="regla-in">
+          <select id="cfg-modo" aria-label="Tipo de cálculo"><option value="porcentaje">% del precio</option><option value="fijo">Monto fijo</option></select>
+          <input id="cfg-valor" type="number" min="0" step="1" aria-label="Valor">
+          <span id="cfg-unidad">%</span>
+        </div>
+      </div>
+    </div>
+    <div class="chips" role="group" aria-label="Estado del pedido" id="chips-estado"></div>
+    <p class="regla-txt" id="regla-txt"></p>
+
+    <div class="tabla-caja">
+      <table class="tabla" id="tabla">
+        <thead>
+          <tr>
+            <th scope="col">Folio</th><th scope="col">Fecha</th><th scope="col">Cliente</th><th scope="col">Producto</th>
+            <th scope="col">Estado del pedido</th><th scope="col">Pago del cliente</th>
+            <th scope="col" class="num">Total</th><th scope="col" class="num">Saldo cliente</th>
+            <th scope="col" class="num">Mi parte</th><th scope="col">¿Me pagó mi mamá?</th><th scope="col" class="num">Me debe</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <ul class="tarjetas" id="tarjetas"></ul>
+    <p class="vacio" id="vacio" hidden>No hay pedidos con estos filtros.</p>
+  </section>
+  <p class="ayuda pie">Los pedidos se guardan en este navegador y dispositivo. Descarga un respaldo de vez en cuando en "Respaldo y Excel".</p>
+</main>
+
+<!-- Editor de pedido -->
+<div class="modal" id="modal" hidden>
+  <form class="modal-caja" id="form" role="dialog" aria-modal="true" aria-labelledby="m-titulo" novalidate>
+    <div class="modal-cabecera">
+      <h2 id="m-titulo">Pedido</h2>
+      <button type="button" class="btn btn-claro" id="m-cerrar">Cerrar</button>
+    </div>
+
+    <fieldset class="seccion">
+      <legend>Pedido</legend>
+      <div class="fila-3">
+        <div class="campo"><label for="m-fecha">Fecha del pedido</label><input id="m-fecha" type="date"></div>
+        <div class="campo"><label for="m-estado">Estado del pedido</label><select id="m-estado"></select></div>
+        <div class="campo"><label for="m-entrega">Fecha de entrega</label><input id="m-entrega" type="date"></div>
+      </div>
+      <div class="fila-2">
+        <div class="campo"><label for="m-cliente">Cliente</label><input id="m-cliente" type="text" autocomplete="off"></div>
+        <div class="campo"><label for="m-tel">WhatsApp</label><input id="m-tel" type="tel" inputmode="numeric" autocomplete="off"></div>
+      </div>
+      <div class="campo"><label for="m-producto">Producto</label><input id="m-producto" type="text" placeholder="Ej. Lápida 45 × 32 cm" autocomplete="off"></div>
+      <div class="fila-3">
+        <div class="campo"><label for="m-precio">Precio del producto ($)</label><input id="m-precio" type="number" min="0" step="1" inputmode="decimal"></div>
+        <div class="campo"><label for="m-extras">Instalación / envío ($)</label><input id="m-extras" type="number" min="0" step="1" inputmode="decimal"></div>
+        <div class="campo"><label for="m-extras-det">Detalle de extras</label><input id="m-extras-det" type="text" placeholder="Ej. Instalación con cemento"></div>
+      </div>
+      <p class="ayuda">Tu parte se calcula solo con el precio del producto; la instalación y el envío no se reparten.</p>
+      <p class="vinculo" id="m-nota"></p>
+    </fieldset>
+
+    <fieldset class="seccion">
+      <legend>Pagos del cliente</legend>
+      <ul class="lista" id="m-pagos"></ul>
+      <div class="fila-agregar">
+        <div class="campo"><label for="pg-monto">Monto ($)</label><input id="pg-monto" type="number" min="0" step="1" inputmode="decimal"></div>
+        <div class="campo"><label for="pg-fecha">Fecha</label><input id="pg-fecha" type="date"></div>
+        <div class="campo"><label for="pg-metodo">Forma de pago</label><select id="pg-metodo"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></div>
+        <div class="campo campo-boton"><button type="button" class="btn btn-claro" id="pg-agregar">Agregar pago</button></div>
+      </div>
+      <button type="button" class="btn btn-claro btn-mini" id="pg-liquidar">Registrar que liquidó el saldo</button>
+    </fieldset>
+
+    <fieldset class="seccion">
+      <legend>Intermediario (si hubo)</legend>
+      <div class="fila-2">
+        <div class="campo"><label for="m-int-nombre">Nombre</label><input id="m-int-nombre" type="text" autocomplete="off"></div>
+        <div class="campo"><label for="m-int-monto">Pago al intermediario ($)</label><input id="m-int-monto" type="number" min="0" step="1" inputmode="decimal"></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="seccion">
+      <legend>Costos del pedido</legend>
+      <p class="ayuda">Solo para ver la ganancia; no cambian tu parte.</p>
+      <ul class="lista" id="m-costos"></ul>
+      <div class="fila-agregar">
+        <div class="campo"><label for="cs-concepto">Concepto</label><input id="cs-concepto" type="text" list="lista-costos" placeholder="Ej. Material" autocomplete="off"></div>
+        <div class="campo"><label for="cs-monto">Monto ($)</label><input id="cs-monto" type="number" min="0" step="1" inputmode="decimal"></div>
+        <div class="campo campo-boton"><button type="button" class="btn btn-claro" id="cs-agregar">Agregar costo</button></div>
+      </div>
+      <datalist id="lista-costos"><option value="Material"><option value="Envío"><option value="Instalación"><option value="Publicidad"><option value="Transporte"></datalist>
+    </fieldset>
+
+    <fieldset class="seccion">
+      <legend>Mi parte y pago de mi mamá</legend>
+      <div class="fila-3">
+        <div class="campo"><span class="label">Mi parte calculada</span><p class="dato" id="m-parte-calc"></p></div>
+        <div class="campo"><label for="m-ajuste">Mi parte ajustada (opcional)</label><input id="m-ajuste" type="number" min="0" step="1" inputmode="decimal" placeholder="Vacío = usar la calculada"></div>
+        <div class="campo"><span class="label">Mi parte</span><p class="dato grande" id="m-parte"></p></div>
+      </div>
+      <label class="check"><input type="checkbox" id="m-mama-pagado"> <span>Ya me pagó mi mamá</span></label>
+      <div class="fila-2">
+        <div class="campo"><label for="m-mama-fecha">Fecha en que me pagó</label><input id="m-mama-fecha" type="date"></div>
+        <div class="campo"><label for="m-mama-monto">Monto recibido (si fue distinto o parcial)</label><input id="m-mama-monto" type="number" min="0" step="1" inputmode="decimal"></div>
+      </div>
+    </fieldset>
+
+    <div class="campo"><label for="m-notas">Notas (ej. nombre del intermediario, detalles)</label><textarea id="m-notas"></textarea></div>
+
+    <div class="resumen" id="m-resumen"></div>
+
+    <div class="modal-acciones">
+      <button type="button" class="btn btn-rojo" id="m-borrar">Borrar pedido</button>
+      <a class="btn btn-verde" id="m-wa" href="#" target="_blank" rel="noopener">Recordar saldo por WhatsApp</a>
+      <button type="submit" class="btn btn-cafe">Guardar</button>
+    </div>
+  </form>
+</div>
+
+<!-- Respaldo -->
+<div class="modal" id="modal-datos" hidden>
+  <div class="modal-caja chica" role="dialog" aria-modal="true" aria-labelledby="d-titulo">
+    <div class="modal-cabecera"><h2 id="d-titulo">Respaldo y Excel</h2><button type="button" class="btn btn-claro" id="d-cerrar">Cerrar</button></div>
+    <button type="button" class="btn btn-cafe" id="d-excel">Descargar para Excel (.csv)</button>
+    <p class="ayuda">Abre el archivo con Excel o Google Sheets. Trae las mismas columnas de tu hoja "Mi parte" más pagos, costos y ganancia.</p>
+    <button type="button" class="btn btn-claro" id="d-respaldo">Descargar respaldo completo</button>
+    <p class="ayuda">Guarda pedidos, notas y folios. Sirve para pasarlos a otra computadora o recuperarlos si se borra el navegador.</p>
+    <label class="btn btn-claro archivo">Restaurar un respaldo<input type="file" id="d-restaurar" accept=".json,application/json"></label>
+    <p class="estado" id="d-estado" role="status"></p>
+  </div>
+</div>
+
+<script src="sync.js"></script>
+<script src="pedidos.js"></script>
+</body>
+</html>

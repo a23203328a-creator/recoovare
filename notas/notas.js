@@ -110,14 +110,14 @@
     var err = $('p-error');
     if (!desc) { err.textContent = 'Escribe la descripción del producto.'; err.hidden = false; $('p-desc').focus(); return; }
     if ($('p-precio').value === '') { err.textContent = 'Escribe el precio.'; err.hidden = false; $('p-precio').focus(); return; }
-    nota.items.push({ desc: desc, detalle: $('p-detalle').value.trim(), cant: cant, precio: precio });
+    nota.items.push({ desc: desc, detalle: $('p-detalle').value.trim(), cant: cant, precio: precio, clase: $('p-tipo').value === 'otro' ? 'extra' : 'producto' });
     limpiarProducto(); cambio();
   });
   document.querySelector('.rapidos').addEventListener('click', function (e) {
     var b = e.target.closest('[data-rapido]'); if (!b) return;
     var r = b.getAttribute('data-rapido');
-    if (r === 'cemento') { nota.items.push({ desc: 'Instalación con cemento blanco', detalle: '', cant: 1, precio: 150 }); cambio(); }
-    else if (r === 'taquetes') { nota.items.push({ desc: 'Instalación con taquetes y tornillos', detalle: '', cant: 1, precio: 125 }); cambio(); }
+    if (r === 'cemento') { nota.items.push({ desc: 'Instalación con cemento blanco', detalle: '', cant: 1, precio: 150, clase: 'extra' }); cambio(); }
+    else if (r === 'taquetes') { nota.items.push({ desc: 'Instalación con taquetes y tornillos', detalle: '', cant: 1, precio: 125, clase: 'extra' }); cambio(); }
     else if (r === 'envio') {
       $('p-tipo').value = 'otro'; llenarDatalist(); actualizarProducto(false);
       $('p-desc').value = 'Envío a domicilio'; descEditada = true; $('p-precio').value = ''; $('p-precio').focus();
@@ -242,7 +242,9 @@
     if (i >= 0) todas[i] = copia; else todas.unshift(copia);
     guardar(CLAVE_NOTAS, todas);
     guardar(CLAVE_BORRADOR, nota);
+    var ped = window.RecoovareSync ? window.RecoovareSync.desdeNota(nota) : null;
     pintar();
+    if (ped) { var av = $('aviso-editando'); av.hidden = false; av.innerHTML = esc('Nota ' + nota.folio + ' guardada · Pedido ' + ped.folio + ' ') + '<a href="../pedidos/?abrir=' + encodeURIComponent(ped.id) + '">ver en Pedidos</a>'; }
   }
   function validarNota() {
     if (!nota.items.length) { mostrarEstado('Agrega al menos un producto a la nota.', true); $('p-codigo').focus(); return false; }
@@ -419,14 +421,14 @@
       if (n) { nota = n; cambio(); $('modal-historial').hidden = true; window.scrollTo(0, 0); }
     } else if ((b = e.target.closest('[data-pagado]'))) {
       var id = b.getAttribute('data-pagado');
-      todas.forEach(function (x) { if (x.id === id) x.pagado = !x.pagado; });
+      todas.forEach(function (x) { if (x.id === id) { x.pagado = !x.pagado; if (window.RecoovareSync) window.RecoovareSync.desdeNota(x); } });
       guardar(CLAVE_NOTAS, todas);
       if (nota.id === id) { nota.pagado = !nota.pagado; cambio(); }
       pintarHistorial();
     } else if ((b = e.target.closest('[data-borrar]'))) {
       var idb = b.getAttribute('data-borrar');
       var nb = todas.find(function (x) { return x.id === idb; });
-      if (!window.confirm('¿Borrar la nota ' + (nb ? nb.folio : '') + '? No se puede deshacer.')) return;
+      if (!window.confirm('¿Borrar la nota ' + (nb ? nb.folio : '') + '? No se puede deshacer. (Su pedido en Pedidos no se borra.)')) return;
       guardar(CLAVE_NOTAS, todas.filter(function (x) { return x.id !== idb; }));
       if (nota.id === idb) { nota = notaVacia(); cambio(); }
       pintarHistorial();
@@ -434,6 +436,8 @@
   });
 
   /* ---------- inicio ---------- */
+  var abrirId = new URLSearchParams(location.search).get('abrir');
+  if (abrirId) { var na = leer(CLAVE_NOTAS, []).find(function (x) { return x.id === abrirId; }); if (na) nota = na; }
   ponerAncho(ancho === '58' ? '58' : '80');
   llenarDatalist();
   actualizarProducto(false);
