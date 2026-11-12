@@ -148,7 +148,7 @@
       var com = ps.reduce(function (s, p) { return s + num(p.intermediario.monto); }, 0);
       var pag = ps.reduce(function (s, p) { return s + (p.intermediario.pagado ? num(p.intermediario.monto) : 0); }, 0);
       porPagarTotal += com - pag;
-      var link = base + '?v=' + v.codigo;
+      var link = base + v.codigo;
       return '<tr><td><b>' + esc(v.nombre) + '</b></td><td><span class="link-asesor"><code>' + esc(link.replace(/^https?:\/\//, '')) + '</code><button type="button" class="btn-copiar" data-copiar="' + esc(link) + '">Copiar</button></span></td>' +
         '<td class="num">' + ps.length + '</td><td class="num">' + dinero(ventas) + '</td><td class="num">' + dinero(com) + '</td><td class="num">' + dinero(pag) + '</td><td class="num' + (com - pag > 0 ? ' debe' : '') + '">' + dinero(com - pag) + '</td></tr>';
     }).join('');
