@@ -161,6 +161,16 @@ fieldset.opciones legend { font-size: 14px; font-weight: 700; color: var(--texto
 .campo .ayuda { margin: 4px 0 0; }
 .nota { font-size: 13px; color: var(--texto-suave); }
 
+/* ============ Diseño propio ============ */
+#mi-diseno { background: #fff; }
+.md-campos { display: flex; flex-direction: column; gap: 14px; }
+.md-campos [hidden] { display: none !important; }
+.pasos-diseno { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 12px; font-size: 16px; color: var(--texto-suave); }
+.pasos-diseno strong { color: var(--texto); }
+.aviso-diseno { margin: 0; font-size: 16px; font-weight: 700; color: var(--texto-suave); }
+.aviso-diseno a { font-weight: 800; }
+#form-diseno .fila-2 .opcion + .opcion { margin-top: 0; }
+
 /* ============ Cita ============ */
 #cita { background: var(--fondo); border-top: 0; }
 .cita-grid { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }

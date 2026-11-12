@@ -126,9 +126,9 @@
   }
 
   /* ---------- tarjetas ---------- */
-  function htmlCampos(tipo, m) {
+  function htmlCampos(tipo, m, solo) {
     var id = claveModelo(tipo, m).replace(/[^a-zA-Z0-9]/g, '-');
-    return D.tipos[tipo].campos.map(function (c) {
+    return D.tipos[tipo].campos.filter(function (c) { return !solo || solo.indexOf(c.id) >= 0; }).map(function (c) {
       var fid = id + '-' + c.id;
       if (c.opciones) {
         return '<fieldset class="campo opciones" data-campo="' + esc(c.id) + '"><legend>' + esc(c.etiqueta) + '</legend>' +
@@ -432,6 +432,109 @@
       document.getElementById('buscar').value = x.codigo;
       pintarModelos();
     });
+  })();
+
+  /* ---------- ya tengo mi diseño ---------- */
+  (function miDiseno() {
+    var form = document.getElementById('form-diseno');
+    if (!form) return;
+    var SOLO = ['instalacion', 'entrega', 'domicilio', 'cementerio', 'envio'];
+    var FORMAS = { placas: ['ovalada', 'rectangular', 'cuadrada'], lapidas: (D.tipos.lapidas && D.tipos.lapidas.medidas) || ['rectangular', 'cuadrada'] };
+    var est = { tipo: 'placas', forma: 'ovalada', idx: 0 };
+    function recomendada(f) { var i = (D.precios[f] || []).findIndex(function (p) { return p.recomendada; }); return i >= 0 ? i : 0; }
+    est.idx = recomendada(est.forma);
+    var caja = document.getElementById('md-campos');
+    function camposDe() { return D.tipos[est.tipo].campos.filter(function (c) { return SOLO.indexOf(c.id) >= 0; }); }
+    function visibles() {
+      for (var k = 0; k < 2; k++) camposDe().forEach(function (c) {
+        var el = caja.querySelector('[data-campo="' + c.id + '"]'); if (el) el.hidden = !campoVisible(c, caja);
+      });
+    }
+    function precio() { return (D.precios[est.forma] || [])[est.idx] || { medida: '', precio: 0 }; }
+    function calcular() {
+      var p = precio(), extras = [], cotizar = false, zona = false, lineas = [];
+      camposDe().forEach(function (c) {
+        var el = caja.querySelector('[data-campo="' + c.id + '"]');
+        if (!el || el.hidden) return;
+        if (c.opciones) {
+          var mk = caja.querySelector('input[name="' + c.id + '"]:checked');
+          var o = c.opciones[mk ? Number(mk.value) : 0];
+          if (o.costo) extras.push({ n: c.etiqueta, c: o.costo });
+          if (o.cotizar) cotizar = true; if (o.confirmarZona) zona = true;
+          lineas.push('• ' + c.etiqueta + ': ' + o.texto + (o.costo ? ' (+' + dinero(o.costo) + ')' : ''));
+        }
+      });
+      var total = p.precio + extras.reduce(function (s, e) { return s + e.c; }, 0);
+      return { p: p, extras: extras, total: total, cotizar: cotizar, zona: zona, lineas: lineas };
+    }
+    function resumen() {
+      var r = calcular();
+      document.getElementById('md-precio').textContent = dinero(r.p.precio);
+      var det = 'Diseño propio ' + NOMBRES_FORMA[est.forma].toLowerCase() + ' ' + r.p.medida + ' cm: ' + dinero(r.p.precio);
+      r.extras.forEach(function (e) { det += '<br>' + esc(e.n) + ': ' + dinero(e.c); });
+      document.getElementById('md-resumen').innerHTML = '<p>' + det + '</p><p class="total">Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') + '</p>' +
+        (r.zona ? '<p>La instalación se confirma al revisar tu ubicación.</p>' : '') +
+        (D.negocio.anticipo ? '<p>Anticipo para iniciar: <strong>' + dinero(D.negocio.anticipo) + '</strong></p>' : '');
+    }
+    function pintarMedidas() {
+      document.getElementById('md-medidas').innerHTML = FORMAS[est.tipo].map(function (f) {
+        return '<span class="grupo-medida">' + esc(NOMBRES_FORMA[f] || f) + '</span><div class="sizes" role="group" aria-label="Tamaño ' + esc(NOMBRES_FORMA[f] || f) + '">' +
+          (D.precios[f] || []).map(function (p, i) {
+            var on = est.forma === f && est.idx === i;
+            return '<button type="button" data-forma="' + f + '" data-i="' + i + '" aria-pressed="' + on + '">' + esc(p.medida) + '</button>';
+          }).join('') + '</div>';
+      }).join('');
+    }
+    function pintarTipo() {
+      if (FORMAS[est.tipo].indexOf(est.forma) < 0) { est.forma = FORMAS[est.tipo][0]; est.idx = recomendada(est.forma); }
+      pintarMedidas();
+      caja.innerHTML = htmlCampos(est.tipo, { codigo: 'propio' }, SOLO);
+      visibles(); resumen();
+    }
+    form.addEventListener('change', function (e) {
+      if (e.target.name === 'md-tipo') { est.tipo = e.target.value; pintarTipo(); return; }
+      if (e.target.type === 'radio') { visibles(); resumen(); }
+    });
+    document.getElementById('md-medidas').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-forma]'); if (!b) return;
+      est.forma = b.getAttribute('data-forma'); est.idx = Number(b.getAttribute('data-i'));
+      pintarMedidas(); resumen();
+    });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var faltan = null;
+      var nombre = form.elements.nombre;
+      function marcar(el, mal) {
+        var cj = el.closest('.campo'); var err = cj && cj.querySelector('.msg-error');
+        if (cj) cj.classList.toggle('con-error', mal); if (err) err.hidden = !mal;
+        if (mal) { el.setAttribute('aria-invalid', 'true'); if (!faltan) faltan = el; } else el.removeAttribute('aria-invalid');
+      }
+      marcar(nombre, !nombre.value.trim());
+      var extrasTexto = [];
+      camposDe().forEach(function (c) {
+        if (c.opciones) return;
+        var cj = caja.querySelector('[data-campo="' + c.id + '"]'); if (!cj || cj.hidden) return;
+        var el = cj.querySelector('input, textarea'); var v = (el.value || '').trim();
+        marcar(el, !!c.obligatorio && !v);
+        if (v) extrasTexto.push('• ' + c.etiqueta.replace(/\s*\(.*\)/, '') + ': ' + v);
+      });
+      if (faltan) { faltan.focus(); return; }
+      var r = calcular();
+      var t = D.tipos[est.tipo];
+      var notas = form.elements.notas.value.trim();
+      var mensaje = 'Hola ' + D.negocio.nombre + ', ya tengo mi diseño y quiero mandarlo a hacer:\n\n' +
+        '• Nombre: ' + nombre.value.trim() + '\n' +
+        '• Producto: ' + mayus(t.singular) + ' con diseño propio\n' +
+        '• Forma y tamaño: ' + NOMBRES_FORMA[est.forma] + ' ' + r.p.medida + ' cm – ' + dinero(r.p.precio) + '\n' +
+        r.lineas.concat(extrasTexto).join('\n') +
+        (notas ? '\n• Comentarios: ' + notas : '') + '\n\n' +
+        'Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') +
+        (D.negocio.anticipo ? '\nAnticipo para iniciar: ' + dinero(D.negocio.anticipo) : '') +
+        (r.zona ? '\n\n¿Me confirman si mi ubicación está dentro de la zona de instalación?' : '') +
+        '\n\nLes mando mi diseño por aquí. Quedo en espera de la prueba para aprobarla antes de imprimir.';
+      window.open(linkWA(mensaje), '_blank', 'noopener');
+    });
+    pintarTipo();
   })();
 
   /* ---------- cita para diseñar en persona ---------- */

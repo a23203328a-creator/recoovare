@@ -69,12 +69,12 @@
   }
   function actualizarProducto(cambioMedida) {
     var tipo = $('p-tipo').value;
-    var esOtro = tipo === 'otro';
-    $('caja-codigo').hidden = esOtro; $('caja-medida').hidden = esOtro;
+    var esOtro = tipo === 'otro', esPropio = tipo === 'propio';
+    $('caja-codigo').hidden = esOtro || esPropio; $('caja-medida').hidden = esOtro;
     var info = $('p-encontrado');
     if (esOtro) { info.textContent = ''; if (!descEditada) $('p-desc').value = ''; return; }
     var codigo = $('p-codigo').value;
-    var m = buscarModelo(tipo, codigo);
+    var m = esPropio ? null : buscarModelo(tipo, codigo);
     if (codigo.trim() && !m) { info.textContent = 'No encontré ese código en el catálogo; puedes escribir la descripción a mano.'; info.className = 'modelo-encontrado no'; }
     else if (m) { info.textContent = '#' + m.codigo + ' · ' + m.nombre + ' (' + m.categoria + ')'; info.className = 'modelo-encontrado'; }
     else { info.textContent = ''; info.className = 'modelo-encontrado'; }
@@ -90,7 +90,7 @@
     if (sel) $('p-precio').value = sel.precio;
     if (!descEditada) {
       var t = D.tipos[tipo];
-      var nombre = (t ? t.singular.charAt(0).toUpperCase() + t.singular.slice(1) : '') + (m ? ' #' + m.codigo + ' ' + m.nombre : '');
+      var nombre = esPropio ? 'Diseño propio' + (sel ? ' ' + (NOMBRES_FORMA[sel.forma] || '').toLowerCase() : '') : (t ? t.singular.charAt(0).toUpperCase() + t.singular.slice(1) : '') + (m ? ' #' + m.codigo + ' ' + m.nombre : '');
       $('p-desc').value = nombre + (sel ? ' – ' + sel.medida + ' cm' : '');
     }
   }

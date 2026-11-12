@@ -79,8 +79,60 @@
     </div>
   </div>
   <div class="chips" role="group" aria-label="Categorías" id="categorias"></div>
+  <p class="aviso-diseno">¿Ya tienes tu diseño hecho? <a href="#mi-diseno">Mándalo aquí</a></p>
   <p class="vacio" id="vacio" hidden>No encontramos ese modelo. Prueba con otro número o categoría.</p>
   <div class="grid" id="grid"></div>
+</section>
+
+<section id="mi-diseno" class="band">
+  <div class="wrap stack">
+    <div>
+      <h2>¿Ya tienes tu diseño?</h2>
+      <p class="muted">Si ya traes tu diseño hecho, lo hacemos en cerámica encapsulada en resina. Mismo precio por medida que los modelos del catálogo.</p>
+    </div>
+    <div class="cita-grid">
+      <form id="form-diseno" class="cita-form" novalidate>
+        <div class="campo">
+          <label for="md-nombre">Tu nombre <span class="req" aria-hidden="true">*</span></label>
+          <input id="md-nombre" name="nombre" type="text" placeholder="Ej. María López" autocomplete="name">
+          <p class="msg-error" hidden>Escribe tu nombre.</p>
+        </div>
+        <fieldset class="campo opciones">
+          <legend>¿Qué es?</legend>
+          <div class="fila-2">
+            <label class="opcion"><input type="radio" name="md-tipo" value="placas" checked><span>Placa domiciliaria</span></label>
+            <label class="opcion"><input type="radio" name="md-tipo" value="lapidas"><span>Lápida</span></label>
+          </div>
+        </fieldset>
+        <div class="campo">
+          <span class="label-sm">Forma y tamaño (cm)</span>
+          <div id="md-medidas"></div>
+        </div>
+        <p class="price"><span id="md-precio">$700</span> <span class="mxn">MXN</span></p>
+        <div id="md-campos" class="md-campos"></div>
+        <div class="campo">
+          <label for="md-notas">Comentarios (opcional)</label>
+          <textarea id="md-notas" name="notas" placeholder="Ej. es para la fachada, quiero que se vea igual a mi imagen…"></textarea>
+        </div>
+        <p class="ayuda">Antes de imprimir te mandamos una prueba de tu diseño para que la apruebes.</p>
+        <div class="resumen" id="md-resumen"></div>
+        <button type="submit" class="btn-wa">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.5A8.4 8.4 0 1 1 21 11.5z"/></svg>
+          Enviar y mandar mi diseño por WhatsApp
+        </button>
+        <p class="nota">Al abrirse el chat, adjunta tu diseño (imagen o PDF) en el mismo mensaje.</p>
+      </form>
+      <div class="ubicacion">
+        <h3>Así funciona</h3>
+        <ol class="pasos-diseno">
+          <li><strong>Llena el formulario</strong> con la medida, instalación o entrega.</li>
+          <li><strong>Manda tu diseño</strong> por WhatsApp en el chat que se abre.</li>
+          <li><strong>Revisa la prueba</strong> que te enviamos y apruébala.</li>
+          <li><strong>Lo hacemos</strong> en máximo 3 días después de tu anticipo.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section id="cita" class="band">
