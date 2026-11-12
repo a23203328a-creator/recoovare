@@ -60,19 +60,21 @@ window.CATALOGO = {
      Si "direccion" está vacía, no se muestra el mapa. */
   cita: {
     horario: {
-      lunes: "9:00-18:00",
-      martes: "9:00-18:00",
-      miercoles: "9:00-18:00",
-      jueves: "9:00-18:00",
-      viernes: "9:00-18:00",
-      sabado: "9:00-14:00",
-      domingo: ""
+      lunes: "11:00-19:00",
+      martes: "11:00-19:00",
+      miercoles: "11:00-19:00",
+      jueves: "11:00-19:00",
+      viernes: "11:00-19:00",
+      sabado: "11:00-19:00",
+      domingo: "11:00-19:00"
     },
     intervalo: 60,
     diasAdelante: 21,
-    direccion: "",
+    direccion: "Recoovare · Mérida, Yucatán",
     referencias: "",
-    mapa: ""
+    // coordenadas de tu local en Google Maps (para el mapa) y el link para "Cómo llegar"
+    coordenadas: "20.9192507,-89.6147589",
+    mapa: "https://maps.app.goo.gl/8GmmaSbQXzLBScMY9"
   },
 
   /* ---------- Sección "Lo que debes saber" ---------- */

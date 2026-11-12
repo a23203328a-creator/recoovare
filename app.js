@@ -384,7 +384,7 @@
       var link = C.mapa || ('https://www.google.com/maps/search/?api=1&query=' + q);
       info.innerHTML = '<p class="dir">' + esc(C.direccion) + '</p>' +
         (C.referencias ? '<p class="muted">' + esc(C.referencias) + '</p>' : '') +
-        '<iframe title="Mapa de ubicación de ' + esc(D.negocio.nombre) + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=' + q + '&output=embed"></iframe>' +
+        '<iframe title="Mapa de ubicación de ' + esc(D.negocio.nombre) + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=' + encodeURIComponent(C.coordenadas || C.direccion) + '&z=17&output=embed"></iframe>' +
         '<a class="btn btn-primary btn-mapa" href="' + esc(link) + '" target="_blank" rel="noopener">Cómo llegar</a>';
     } else {
       info.innerHTML = '<p class="muted">Te compartimos la ubicación exacta por WhatsApp al confirmar tu cita. Estamos en ' + esc(D.negocio.ciudad) + '.</p>';
