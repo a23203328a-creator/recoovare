@@ -86,6 +86,9 @@
   /* ---------- datos del negocio en la página ---------- */
   document.querySelectorAll('.js-ciudad').forEach(function (el) { el.textContent = D.negocio.ciudad; });
   document.querySelectorAll('.js-anticipo').forEach(function (el) { el.textContent = dinero(D.negocio.anticipo || 0); });
+  document.querySelectorAll('.js-wa-otra').forEach(function (a) {
+    a.href = linkWA('Hola ' + D.negocio.nombre + ', quiero cotizar una placa de otra medida: ');
+  });
   document.querySelectorAll('.js-wa-general').forEach(function (a) {
     a.href = linkWA('Hola ' + D.negocio.nombre + ', quiero información sobre sus placas y lápidas.');
   });
@@ -151,16 +154,19 @@
     var clave = claveModelo(tipo, m);
     var lista = preciosDe(m, tipo);
     var idx = estado.medida[clave] != null ? estado.medida[clave] : medidaInicial(m, tipo);
-    var p = lista[idx] || { medida: '', precio: 0 };
+    var p = idx === -1 ? { medida: 'Otra medida', precio: 0, otra: true } : (lista[idx] || { medida: '', precio: 0 });
     return '<article class="card" data-clave="' + esc(clave) + '">' +
       '<div class="card-img"><img loading="lazy" src="' + esc(t.carpeta + m.foto) + '" alt="' + esc(mayus(t.singular) + ' modelo ' + m.codigo + ', ' + m.nombre) + '"></div>' +
       '<div class="card-body">' +
         '<div class="card-meta"><span class="code">#' + esc(m.codigo) + '</span><span>' + esc(m.categoria) + ' · ' + esc(formaTexto(tipo, m)) + '</span>' + (m.nuevo ? '<span class="tag-nuevo">Nuevo</span>' : '') + '</div>' +
         '<h3>' + esc(m.nombre) + '</h3>' +
-        '<div><span class="label-sm">Tamaño (cm)</span>' + htmlMedidas(lista, idx) + '</div>' +
-        '<div class="price-row"><p class="price"><span class="js-precio">' + dinero(p.precio) + '</span> <span class="mxn">MXN</span></p><span class="tag-rec js-rec"' + (p.recomendada ? '' : ' hidden') + '>Medida recomendada</span></div>' +
+        '<div><span class="label-sm">Tamaño (cm)</span>' + htmlMedidas(lista, idx) +
+          '<button type="button" class="otra-medida" data-medida="-1" aria-pressed="' + (idx === -1) + '">Otra medida (cotizar)</button></div>' +
+        '<div class="price-row"><p class="price"><span class="js-precio">' + (p.otra ? 'A cotizar' : dinero(p.precio)) + '</span> <span class="mxn"' + (p.otra ? ' hidden' : '') + '>MXN</span></p><span class="tag-rec js-rec"' + (p.recomendada ? '' : ' hidden') + '>Medida recomendada</span></div>' +
         '<button type="button" class="btn-pedir" aria-expanded="false">Mandar a hacer mi boceto ' + ICONO_FLECHA + '</button>' +
         '<form class="pedido" hidden novalidate>' +
+          '<div class="campo js-otra"' + (p.otra ? '' : ' hidden') + '><label for="otra-' + esc(clave.replace(/[^a-zA-Z0-9]/g, '-')) + '">Medida que necesitas <span class="req" aria-hidden="true">*</span></label>' +
+            '<input id="otra-' + esc(clave.replace(/[^a-zA-Z0-9]/g, '-')) + '" name="medidaOtra" type="text" placeholder="Ej. 60 × 40 cm"><p class="msg-error" hidden>Escribe la medida que necesitas.</p></div>' +
           htmlCampos(tipo, m) +
           '<div class="resumen js-resumen"></div>' +
           '<button type="submit" class="btn-wa">' + ICONO_WA + ' Enviar mi boceto por WhatsApp</button>' +
@@ -200,7 +206,7 @@
     var t = D.tipos[info.tipo];
     var idx = estado.medida[clave];
     if (idx == null) idx = medidaInicial(info.m, info.tipo);
-    var p = preciosDe(info.m, info.tipo)[idx];
+    var p = idx === -1 ? { medida: 'Otra medida', precio: 0, otra: true } : preciosDe(info.m, info.tipo)[idx];
     var form = card.querySelector('.pedido');
     var extras = [];
     var cotizar = false, confirmarZona = false;
@@ -219,11 +225,12 @@
   }
   function actualizarResumen(card) {
     var r = calcular(card);
-    var detalle = mayus(r.t.singular) + ' #' + r.m.codigo + ' en ' + r.p.medida + ' cm: ' + dinero(r.p.precio);
+    var detalle = mayus(r.t.singular) + ' #' + r.m.codigo + (r.p.otra ? ' en otra medida: a cotizar' : ' en ' + r.p.medida + ' cm: ' + dinero(r.p.precio));
     r.extras.forEach(function (e) { detalle += '<br>' + esc(e.nombre) + ': ' + dinero(e.costo); });
     card.querySelector('.js-resumen').innerHTML =
       '<p>' + detalle + '</p>' +
-      '<p class="total">Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') + '</p>' +
+      (r.p.otra ? '<p class="total">Total: a cotizar' + (r.extras.length ? ' (más ' + dinero(r.total) + ' de extras)' : '') + '</p>'
+                : '<p class="total">Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') + '</p>') +
       (r.confirmarZona ? '<p>La instalación se confirma al revisar tu ubicación.</p>' : '') +
       (D.negocio.anticipo ? '<p>Anticipo para iniciar: <strong>' + dinero(D.negocio.anticipo) + '</strong></p>' : '');
   }
@@ -259,10 +266,17 @@
       var i = Number(bm.getAttribute('data-medida'));
       estado.medida[clave] = i;
       var bmod = buscarModelo(clave);
-      var p = preciosDe(bmod.m, bmod.tipo)[i];
+      var p = i === -1 ? { otra: true } : preciosDe(bmod.m, bmod.tipo)[i];
       card.querySelectorAll('button[data-medida]').forEach(function (b) { b.setAttribute('aria-pressed', String(b === bm)); });
-      card.querySelector('.js-precio').textContent = dinero(p.precio);
+      card.querySelector('.js-precio').textContent = p.otra ? 'A cotizar' : dinero(p.precio);
+      card.querySelector('.mxn').hidden = !!p.otra;
       card.querySelector('.js-rec').hidden = !p.recomendada;
+      card.querySelector('.js-otra').hidden = !p.otra;
+      if (p.otra) {
+        var bp2 = card.querySelector('.btn-pedir');
+        if (bp2.getAttribute('aria-expanded') !== 'true') bp2.click();
+        card.querySelector('input[name="medidaOtra"]').focus();
+      }
       actualizarResumen(card);
       return;
     }
@@ -288,6 +302,12 @@
     var faltan = null;
     var lineas = [];
     var notas = [];
+    var otraIn = form.elements.medidaOtra;
+    if (r.p.otra) {
+      var cajaO = otraIn.closest('.campo'), vO = otraIn.value.trim();
+      cajaO.classList.toggle('con-error', !vO); cajaO.querySelector('.msg-error').hidden = !!vO;
+      if (!vO) { otraIn.setAttribute('aria-invalid', 'true'); faltan = otraIn; } else otraIn.removeAttribute('aria-invalid');
+    }
     r.t.campos.forEach(function (c) {
       var cajaC = form.querySelector('[data-campo="' + c.id + '"]');
       if (cajaC && cajaC.hidden) return;
@@ -315,9 +335,9 @@
     var mensaje =
       'Hola ' + D.negocio.nombre + ', quiero mandar a hacer mi boceto:\n\n' +
       '• Producto: ' + mayus(r.t.singular) + ' #' + r.m.codigo + ' – ' + r.m.nombre + '\n' +
-      '• Tamaño: ' + r.p.medida + ' cm – ' + dinero(r.p.precio) + '\n' +
+      (r.p.otra ? '• Tamaño: otra medida – ' + otraIn.value.trim() + ' (por cotizar)\n' : '• Tamaño: ' + r.p.medida + ' cm – ' + dinero(r.p.precio) + '\n') +
       lineas.join('\n') + '\n\n' +
-      'Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') +
+      (r.p.otra ? 'Total: por cotizar' + (r.extras.length ? ' (+' + dinero(r.total) + ' de extras)' : '') : 'Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '')) +
       (D.negocio.anticipo ? '\nAnticipo para iniciar: ' + dinero(D.negocio.anticipo) : '') +
       (r.confirmarZona ? '\n\n¿Me confirman si mi ubicación está dentro de la zona de instalación?' : '') +
       (notas.length ? '\n\n' + notas.join('\n') : '');
