@@ -167,7 +167,7 @@ Entra a **https://recoovare.pages.dev/pedidos/** (privado, no aparece en el men�
 
 ## Asesores de ventas
 
-- Cada asesor tiene su link corto: `recoovare.pages.dev/CODIGO` (ej. `recoovare.pages.dev/soemy`). Los links cortos están en el archivo `_redirects`: al agregar un asesor nuevo, agrega también su línea ahí. Ahí los pedidos, "¿Ya tienes tu diseño?" y las citas llegan a SU WhatsApp, con su nombre al final del mensaje. Arriba sale "Te atiende …".
+- Cada asesor tiene su link corto: `recoovare.pages.dev/CODIGO` (ej. `recoovare.pages.dev/soemy`). Cada link corto es una carpeta con su `index.html` (copia la carpeta `soemy`, renómbrala con el código nuevo y cambia `soemy` por el código dentro del archivo). Ahí los pedidos, "¿Ya tienes tu diseño?" y las citas llegan a SU WhatsApp, con su nombre al final del mensaje. Arriba sale "Te atiende …".
 - El link se recuerda 30 días en el celular del cliente. Para volver a tu número en tu propio celular abre `recoovare.pages.dev/?v=recoovare`.
 - Alta de asesores y tabla de comisiones: en `datos.js` (secciones `vendedores` y `comisiones`).
 - En Notas eliges el asesor y la comisión se calcula sola por medida (no sale en el ticket). En Pedidos aparece como intermediario; si la cambias a mano, se respeta.

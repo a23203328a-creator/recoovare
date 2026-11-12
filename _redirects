@@ -1,7 +1,4 @@
-# Links cortos de asesoras de ventas
-/soemy     /?v=soemy    302
-/Soemy     /?v=soemy    302
-/maryfer   /?v=maryfer  302
-/Maryfer   /?v=maryfer  302
-/ileana    /?v=ileana   302
-/Ileana    /?v=ileana   302
+# Variantes con mayúscula de los links de asesoras (los links en minúscula son carpetas propias)
+/Soemy     /soemy/    302
+/Maryfer   /maryfer/  302
+/Ileana    /ileana/   302
