@@ -52,6 +52,16 @@ window.CATALOGO = {
     ]
   },
 
+  /* ---------- Placa 3D de la portada ----------
+     Diseños que van girando en la portada. "foto" debe estar en fotos/portada/.
+     Las placas ovaladas se ven mejor con fondo transparente (.webp o .png). */
+  portada: [
+    { foto: "fotos/portada/p1.webp", tipo: "placas",  codigo: "047", texto: "Placa tipo talavera azul con colibrí" },
+    { foto: "fotos/portada/p2.webp", tipo: "lapidas", codigo: "L04", texto: "Lápida de granito negro con espigas doradas" },
+    { foto: "fotos/portada/p3.webp", tipo: "placas",  codigo: "034", texto: "Placa Casa Girasol" },
+    { foto: "fotos/portada/p4.webp", tipo: "lapidas", codigo: "L08", texto: "Lápida de mármol con paloma y esquinas doradas" }
+  ],
+
   /* ---------- Citas para diseñar en persona ----------
      horario: escribe "9:00-18:00" en los días que atiendes y deja "" los que no.
      intervalo: cada cuántos minutos se puede agendar.

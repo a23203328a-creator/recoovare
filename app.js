@@ -324,6 +324,108 @@
     window.open(linkWA(mensaje), '_blank', 'noopener');
   });
 
+  /* ---------- placa 3D de la portada ---------- */
+  (function placa3D() {
+    var lista = D.portada || [];
+    var placa = document.getElementById('placa3d');
+    var escena = document.getElementById('escena');
+    if (!lista.length || !placa) return;
+    var quieto = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var CAPAS = 12, PASO = 1.4; // grosor: 12 capas de 1.4px
+    var html = '';
+    for (var k = CAPAS; k >= 1; k--) html += '<div class="capa canto" style="transform:translateZ(' + (-k * PASO) + 'px)"><img alt=""></div>';
+    html += '<div class="capa frente"><img alt=""><span class="brillo"></span></div>';
+    placa.innerHTML = html;
+    var imgs = placa.querySelectorAll('img');
+    var brillo = placa.querySelector('.brillo');
+    var sombra = document.getElementById('sombra3d');
+    var pie = document.getElementById('p3d-pie');
+    var puntos = document.getElementById('p3d-puntos');
+    puntos.innerHTML = lista.map(function (x, i) { return '<button type="button" data-i="' + i + '" aria-label="Ver ' + esc(x.texto) + '" aria-pressed="false"></button>'; }).join('');
+    // precarga
+    lista.forEach(function (x) { var im = new Image(); im.src = x.foto; });
+
+    var actual = 0;
+    function poner(i) {
+      actual = i;
+      var x = lista[i];
+      imgs.forEach(function (im) { im.src = x.foto; });
+      brillo.style.webkitMaskImage = brillo.style.maskImage = 'url("' + x.foto + '")';
+      pie.textContent = '#' + x.codigo + ' · ' + x.texto;
+      pie.setAttribute('data-i', i);
+      puntos.querySelectorAll('button').forEach(function (b, n) { b.setAttribute('aria-pressed', String(n === i)); });
+    }
+    poner(0);
+
+    // movimiento
+    var rx = 0, ry = 0, tx = 0, ty = 0, giro = 0, usuario = false, ultimoMov = 0;
+    function apuntar(e) {
+      var r = escena.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5;
+      var py = (e.clientY - r.top) / r.height - 0.5;
+      ty = Math.max(-1, Math.min(1, px)) * 32;
+      tx = Math.max(-1, Math.min(1, py)) * -22;
+      usuario = true; ultimoMov = performance.now();
+    }
+    if (!quieto) {
+      document.getElementById('inicio').addEventListener('pointermove', apuntar);
+      document.getElementById('inicio').addEventListener('pointerleave', function () { usuario = false; });
+    }
+    function cuadro(t) {
+      if (!usuario || t - ultimoMov > 2500) {
+        usuario = false;
+        tx = quieto ? -6 : -6 + Math.sin(t / 2100) * 6;
+        ty = quieto ? 12 : Math.sin(t / 1700) * 18;
+      }
+      rx += (tx - rx) * 0.08;
+      ry += (ty - ry) * 0.08;
+      placa.style.transform = 'rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + (ry + giro).toFixed(2) + 'deg)';
+      var pos = 50 - (ry + giro) * 1.6;
+      brillo.style.backgroundPosition = pos + '% ' + (50 + rx * 1.2) + '%';
+      var abs = Math.min(1, Math.abs(ry + giro) / 90);
+      sombra.style.transform = 'scaleX(' + (1 - abs * 0.6).toFixed(3) + ') translateX(' + (-(ry) * 0.6).toFixed(1) + 'px)';
+      requestAnimationFrame(cuadro);
+    }
+    requestAnimationFrame(cuadro);
+
+    // cambio de diseño con giro
+    var girando = false;
+    function cambiar(i) {
+      if (girando || i === actual) return;
+      if (quieto) { poner(i); return; }
+      girando = true;
+      var t0 = performance.now();
+      (function fase1(t) {
+        var k = Math.min(1, (t - t0) / 260);
+        giro = 90 * k * k;
+        if (k < 1) return requestAnimationFrame(fase1);
+        poner(i);
+        var t1 = performance.now();
+        (function fase2(t) {
+          var q = Math.min(1, (t - t1) / 380);
+          giro = -90 * Math.pow(1 - q, 2);
+          if (q < 1) return requestAnimationFrame(fase2);
+          giro = 0; girando = false;
+        })(t1);
+      })(t0);
+    }
+    var temporizador = setInterval(function () { if (!document.hidden && !usuario) cambiar((actual + 1) % lista.length); }, 4500);
+    puntos.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-i]'); if (!b) return;
+      clearInterval(temporizador);
+      temporizador = setInterval(function () { if (!document.hidden && !usuario) cambiar((actual + 1) % lista.length); }, 6000);
+      cambiar(Number(b.getAttribute('data-i')));
+    });
+    escena.addEventListener('click', function () { cambiar((actual + 1) % lista.length); });
+    pie.addEventListener('click', function () {
+      var x = lista[Number(pie.getAttribute('data-i')) || 0];
+      irA(x.tipo);
+      estado.busqueda = x.codigo;
+      document.getElementById('buscar').value = x.codigo;
+      pintarModelos();
+    });
+  })();
+
   /* ---------- cita para diseñar en persona ---------- */
   (function citas() {
     var C = D.cita;
