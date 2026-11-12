@@ -89,20 +89,6 @@ p { margin: 0; }
 .p3d-puntos button::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--borde-fuerte); transition: background .2s, transform .2s; }
 .p3d-puntos button[aria-pressed="true"]::before { background: var(--cafe); transform: scale(1.3); }
 
-/* ============ Medidas de referencia ============ */
-.medidas-ref { padding-top: 8px; padding-bottom: 48px; display: flex; flex-direction: column; gap: 18px; }
-.medidas-texto { display: flex; flex-direction: column; gap: 6px; max-width: 760px; }
-.medidas-figura { margin: 0; background: linear-gradient(180deg, #F1F0EF, #E6E5E4); border-radius: 20px; padding: 24px 24px 64px; position: relative; }
-.medidas-figura img { width: 100%; height: auto; border-radius: 8px; mix-blend-mode: multiply; }
-.medidas-etiquetas span { position: absolute; bottom: 14px; transform: translateX(-50%); text-align: center; font-weight: 800; font-size: 18px; color: var(--cafe); white-space: nowrap; display: flex; flex-direction: column; line-height: 1.2; }
-.medidas-etiquetas small { font-size: 13px; font-weight: 700; color: var(--texto-suave); }
-.medidas-otra { margin: 0; font-size: 16px; font-weight: 700; color: var(--texto-suave); }
-.medidas-otra a { font-weight: 800; }
-@media (max-width: 640px) {
-  .medidas-figura { padding: 14px 10px 58px; }
-  .medidas-etiquetas span { font-size: 14px; }
-  .medidas-etiquetas small { font-size: 11px; }
-}
 .otra-medida { font: inherit; font-size: 14px; font-weight: 700; min-height: 44px; margin-top: 6px; width: 100%; border-radius: 10px; border: 1.5px dashed var(--borde-fuerte); background: #fff; color: var(--cafe); cursor: pointer; }
 .otra-medida[aria-pressed="true"] { border-style: solid; border-color: var(--cafe); background: var(--cafe); color: #fff; font-weight: 800; }
 
