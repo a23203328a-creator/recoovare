@@ -251,8 +251,24 @@
 
   /* ---------- imprimir ---------- */
   var ancho = String(leer(CLAVE_ANCHO, '80'));
-  function ponerAncho(a) { ancho = a; document.body.classList.toggle('ancho-58', a === '58'); document.body.classList.toggle('ancho-80', a !== '58'); $('ancho').value = a; guardar(CLAVE_ANCHO, a); }
+  // Área imprimible real: 58 mm imprime ~48 mm; 80 mm imprime ~72 mm. Se puede afinar.
+  var ajustes = leer('recoovare_ajuste_ticket', {});
+  function ajusteDe(a) { var d = a === '58' ? { ancho: 46, margen: 0 } : { ancho: 70, margen: 0 }; return Object.assign(d, ajustes[a] || {}); }
+  function aplicarAjuste() {
+    var aj = ajusteDe(ancho);
+    document.body.style.setProperty('--ancho-ticket', aj.ancho + 'mm');
+    document.body.style.setProperty('--margen-ticket', aj.margen + 'mm');
+    $('aj-ancho').value = aj.ancho; $('aj-margen').value = aj.margen;
+  }
+  function ponerAncho(a) { ancho = a; document.body.classList.toggle('ancho-58', a === '58'); document.body.classList.toggle('ancho-80', a !== '58'); $('ancho').value = a; guardar(CLAVE_ANCHO, a); aplicarAjuste(); }
   $('ancho').addEventListener('change', function () { ponerAncho(this.value); });
+  function guardarAjuste() {
+    var an = Math.min(80, Math.max(30, num($('aj-ancho').value) || ajusteDe(ancho).ancho));
+    var mg = Math.min(10, Math.max(0, num($('aj-margen').value)));
+    ajustes[ancho] = { ancho: an, margen: mg }; guardar('recoovare_ajuste_ticket', ajustes); aplicarAjuste();
+  }
+  $('aj-ancho').addEventListener('change', guardarAjuste);
+  $('aj-margen').addEventListener('change', guardarAjuste);
   $('btn-imprimir').addEventListener('click', function () {
     if (!validarNota()) return;
     asegurarFolio();
@@ -288,7 +304,7 @@
   function hacerPDF(n) {
     var jsPDF = window.jspdf && window.jspdf.jsPDF;
     if (!jsPDF) throw new Error('No cargó la librería de PDF');
-    var W = ancho === '58' ? 58 : 80, M = 4, ANCHO = W - 2 * M;
+    var W = ancho === '58' ? 58 : 80, M = ancho === '58' ? 5 : 5, ANCHO = W - 2 * M;
     var base = ancho === '58' ? 8 : 9.5;
     var LH = base * 0.42; // alto de línea en mm
     function dibujar(doc, real) {
