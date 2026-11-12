@@ -107,7 +107,7 @@ window.CATALOGO = {
   /* ---------- Sección "Lo que debes saber" ---------- */
   info: [
     { titulo: "Material", texto: "Cerámica en losa, encapsulada en resina." },
-    { titulo: "Tiempo de entrega", texto: "Máximo 3 días para realizarla." },
+    { titulo: "Tiempo de entrega", texto: "De 2 a 3 días hábiles después de tu anticipo." },
     { titulo: "Anticipo", texto: "Se pide un anticipo de $150 para iniciar tu pedido." },
     { titulo: "Entrega", texto: "Si no requieres instalación, pasas a recogerla o te la enviamos a domicilio con costo extra." },
     { titulo: "Instalación", texto: "Placas: con orificios para que la instales tú, o la instalamos a domicilio: $150 con cemento blanco o $125 con taquetes y tornillos. Lápidas: instalación solo en cementerios de Mérida. La instalación tiene un rango de cobertura: al mandar tu ubicación te confirmamos si aplica." }
