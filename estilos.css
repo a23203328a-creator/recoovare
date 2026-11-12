@@ -98,6 +98,7 @@ input:focus, textarea:focus { border-color: var(--cafe); outline: none; box-shad
 .tag-nuevo { background: #DCEBFA; color: #123E6B; font-weight: 800; padding: 3px 10px; border-radius: 999px; font-size: 13px; }
 .card h3 { font-size: 20px; font-weight: 800; color: var(--texto); }
 .label-sm { font-size: 13px; font-weight: 700; color: var(--salvia); }
+.grupo-medida { display: block; font-size: 12px; font-weight: 800; color: var(--salvia); text-transform: uppercase; letter-spacing: .05em; margin-top: 10px; }
 .sizes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
 .sizes button { font: inherit; font-size: 14px; font-weight: 700; min-height: 44px; padding: 0 4px; border-radius: 10px; border: 1.5px solid var(--borde-fuerte); background: #fff; color: var(--cafe); cursor: pointer; }
 .sizes button[aria-pressed="true"] { background: var(--cafe); border-color: var(--cafe); color: #fff; font-weight: 800; }
@@ -129,6 +130,8 @@ fieldset.opciones legend { font-size: 14px; font-weight: 700; color: var(--texto
 .opcion .costo { font-weight: 800; color: var(--cafe); white-space: nowrap; }
 .btn-wa { font: inherit; font-size: 16px; font-weight: 800; min-height: 52px; border-radius: 12px; border: 0; background: var(--verde-wa); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; }
 .btn-wa:hover { background: var(--verde-wa-oscuro); }
+.ayuda { font-size: 14px; color: var(--etiqueta-texto); background: var(--etiqueta); border-radius: 10px; padding: 8px 12px; margin: 0 0 8px; }
+.campo .ayuda { margin: 4px 0 0; }
 .nota { font-size: 13px; color: var(--texto-suave); }
 
 /* ============ Precios e info ============ */

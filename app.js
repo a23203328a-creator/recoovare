@@ -23,10 +23,61 @@
   function numeroWA() { return String(D.negocio.whatsapp || '').replace(/\D/g, ''); }
   function linkWA(texto) { return 'https://wa.me/' + numeroWA() + '?text=' + encodeURIComponent(texto); }
   function visibles(tipo) { return D.tipos[tipo].modelos.filter(function (m) { return !m.oculto; }); }
-  function preciosDe(m) { return D.precios[m.forma] || []; }
-  function medidaInicial(m) {
-    var i = preciosDe(m).findIndex(function (p) { return p.recomendada; });
+  // Lista de medidas de un modelo: las de su forma, o todas las que el tipo indique en "medidas"
+  function preciosDe(m, tipo) {
+    var t = tipo ? D.tipos[tipo] : null;
+    var formas = (t && t.medidas) ? t.medidas : [m.forma];
+    var lista = [];
+    formas.forEach(function (f) {
+      (D.precios[f] || []).forEach(function (p) { lista.push({ medida: p.medida, precio: p.precio, recomendada: p.recomendada, grupo: f }); });
+    });
+    return lista;
+  }
+  function medidaInicial(m, tipo) {
+    var i = preciosDe(m, tipo).findIndex(function (p) { return p.recomendada; });
     return i >= 0 ? i : 0;
+  }
+  function formaTexto(tipo, m) {
+    var t = D.tipos[tipo];
+    var formas = t.medidas ? t.medidas : [m.forma];
+    return formas.map(function (f) { return NOMBRES_FORMA[f] || f; }).join(' o ');
+  }
+  function htmlMedidas(lista, idx) {
+    var grupos = [];
+    lista.forEach(function (s, i) {
+      var g = grupos[grupos.length - 1];
+      if (!g || g.nombre !== s.grupo) { g = { nombre: s.grupo, items: [] }; grupos.push(g); }
+      g.items.push({ s: s, i: i });
+    });
+    var conTitulo = grupos.length > 1;
+    return grupos.map(function (g) {
+      return (conTitulo ? '<span class="grupo-medida">' + esc(NOMBRES_FORMA[g.nombre] || g.nombre) + '</span>' : '') +
+        '<div class="sizes" role="group" aria-label="Tamaño ' + esc(NOMBRES_FORMA[g.nombre] || g.nombre) + '">' +
+        g.items.map(function (x) { return '<button type="button" data-medida="' + x.i + '" aria-pressed="' + (x.i === idx) + '">' + esc(x.s.medida) + '</button>'; }).join('') +
+        '</div>';
+    }).join('');
+  }
+  // ¿Se muestra este campo con las respuestas actuales?
+  function campoVisible(c, form) {
+    if (!c.mostrarSi) return true;
+    return c.mostrarSi.some(function (cond) {
+      var dep = form.querySelector('[data-campo="' + cond.campo + '"]');
+      if (dep && dep.hidden) return false;
+      var marcado = form.querySelector('input[name="' + cond.campo + '"]:checked');
+      var v = marcado ? Number(marcado.value) : 0;
+      return cond.en.indexOf(v) >= 0;
+    });
+  }
+  function actualizarVisibles(card) {
+    var r = buscarModelo(card.getAttribute('data-clave'));
+    var form = card.querySelector('.pedido');
+    // dos pasadas por si un campo depende de otro que también es condicional
+    for (var k = 0; k < 2; k++) {
+      D.tipos[r.tipo].campos.forEach(function (c) {
+        var caja = form.querySelector('[data-campo="' + c.id + '"]');
+        if (caja) caja.hidden = !campoVisible(c, form);
+      });
+    }
   }
   function claveModelo(tipo, m) { return tipo + ':' + m.codigo; }
   function ej(t) { t = t || ''; return (!t || /^ej\./i.test(t)) ? t : 'Ej. ' + t; }
@@ -80,7 +131,8 @@
     return D.tipos[tipo].campos.map(function (c) {
       var fid = id + '-' + c.id;
       if (c.opciones) {
-        return '<fieldset class="campo opciones"><legend>' + esc(c.etiqueta) + '</legend>' +
+        return '<fieldset class="campo opciones" data-campo="' + esc(c.id) + '"><legend>' + esc(c.etiqueta) + '</legend>' +
+          (c.ayuda ? '<p class="ayuda">' + esc(c.ayuda) + '</p>' : '') +
           c.opciones.map(function (o, i) {
             var extra = o.costo ? ' <span class="costo">+' + dinero(o.costo) + '</span>' : '';
             return '<label class="opcion"><input type="radio" name="' + esc(c.id) + '" value="' + i + '"' + (i === 0 ? ' checked' : '') + '><span>' + esc(o.texto) + extra + '</span></label>';
@@ -89,30 +141,29 @@
       var control = c.parrafo
         ? '<textarea id="' + fid + '" name="' + esc(c.id) + '" placeholder="' + esc(ej(c.ejemplo)) + '"></textarea>'
         : '<input id="' + fid + '" name="' + esc(c.id) + '" type="text" placeholder="' + esc(ej(c.ejemplo)) + '">';
-      return '<div class="campo"><label for="' + fid + '">' + esc(c.etiqueta) + (c.obligatorio ? ' <span class="req" aria-hidden="true">*</span>' : '') + '</label>' + control +
+      return '<div class="campo" data-campo="' + esc(c.id) + '"><label for="' + fid + '">' + esc(c.etiqueta) + (c.obligatorio ? ' <span class="req" aria-hidden="true">*</span>' : '') + '</label>' + control +
+        (c.ayuda ? '<p class="ayuda">' + esc(c.ayuda) + '</p>' : '') +
         (c.obligatorio ? '<p class="msg-error" hidden>Este dato es necesario.</p>' : '') + '</div>';
     }).join('');
   }
   function htmlTarjeta(tipo, m) {
     var t = D.tipos[tipo];
     var clave = claveModelo(tipo, m);
-    var lista = preciosDe(m);
-    var idx = estado.medida[clave] != null ? estado.medida[clave] : medidaInicial(m);
+    var lista = preciosDe(m, tipo);
+    var idx = estado.medida[clave] != null ? estado.medida[clave] : medidaInicial(m, tipo);
     var p = lista[idx] || { medida: '', precio: 0 };
     return '<article class="card" data-clave="' + esc(clave) + '">' +
       '<div class="card-img"><img loading="lazy" src="' + esc(t.carpeta + m.foto) + '" alt="' + esc(mayus(t.singular) + ' modelo ' + m.codigo + ', ' + m.nombre) + '"></div>' +
       '<div class="card-body">' +
-        '<div class="card-meta"><span class="code">#' + esc(m.codigo) + '</span><span>' + esc(m.categoria) + ' · ' + esc(NOMBRES_FORMA[m.forma] || m.forma) + '</span>' + (m.nuevo ? '<span class="tag-nuevo">Nuevo</span>' : '') + '</div>' +
+        '<div class="card-meta"><span class="code">#' + esc(m.codigo) + '</span><span>' + esc(m.categoria) + ' · ' + esc(formaTexto(tipo, m)) + '</span>' + (m.nuevo ? '<span class="tag-nuevo">Nuevo</span>' : '') + '</div>' +
         '<h3>' + esc(m.nombre) + '</h3>' +
-        '<div><span class="label-sm">Tamaño (cm)</span><div class="sizes" role="group" aria-label="Tamaño">' +
-          lista.map(function (s, i) { return '<button type="button" data-medida="' + i + '" aria-pressed="' + (i === idx) + '">' + esc(s.medida) + '</button>'; }).join('') +
-        '</div></div>' +
+        '<div><span class="label-sm">Tamaño (cm)</span>' + htmlMedidas(lista, idx) + '</div>' +
         '<div class="price-row"><p class="price"><span class="js-precio">' + dinero(p.precio) + '</span> <span class="mxn">MXN</span></p><span class="tag-rec js-rec"' + (p.recomendada ? '' : ' hidden') + '>Medida recomendada</span></div>' +
-        '<button type="button" class="btn-pedir" aria-expanded="false">Personalizar y pedir ' + ICONO_FLECHA + '</button>' +
+        '<button type="button" class="btn-pedir" aria-expanded="false">Mandar a hacer mi boceto ' + ICONO_FLECHA + '</button>' +
         '<form class="pedido" hidden novalidate>' +
           htmlCampos(tipo, m) +
           '<div class="resumen js-resumen"></div>' +
-          '<button type="submit" class="btn-wa">' + ICONO_WA + ' Enviar pedido por WhatsApp</button>' +
+          '<button type="submit" class="btn-wa">' + ICONO_WA + ' Enviar mi boceto por WhatsApp</button>' +
           '<p class="nota">Si quieres agregar una foto o un logo, mándalo en el mismo chat de WhatsApp.</p>' +
         '</form>' +
       '</div></article>';
@@ -132,7 +183,7 @@
     document.getElementById('conteo').textContent = 'Mostrando ' + lista.length + ' de ' + visibles(estado.tipo).length + ' ' + t.nombre.toLowerCase();
     document.getElementById('vacio').hidden = lista.length > 0;
     document.getElementById('grid').innerHTML = lista.map(function (m) { return htmlTarjeta(estado.tipo, m); }).join('');
-    document.querySelectorAll('#grid .card').forEach(actualizarResumen);
+    document.querySelectorAll('#grid .card').forEach(function (c) { actualizarVisibles(c); actualizarResumen(c); });
   }
   function pintarTodo() { pintarPestanas(); pintarCategorias(); pintarModelos(); }
 
@@ -148,20 +199,23 @@
     var info = buscarModelo(clave);
     var t = D.tipos[info.tipo];
     var idx = estado.medida[clave];
-    if (idx == null) idx = medidaInicial(info.m);
-    var p = preciosDe(info.m)[idx];
+    if (idx == null) idx = medidaInicial(info.m, info.tipo);
+    var p = preciosDe(info.m, info.tipo)[idx];
     var form = card.querySelector('.pedido');
     var extras = [];
-    var cotizar = false;
+    var cotizar = false, confirmarZona = false;
     t.campos.forEach(function (c) {
       if (!c.opciones) return;
+      var caja = form.querySelector('[data-campo="' + c.id + '"]');
+      if (caja && caja.hidden) return;
       var marcado = form.querySelector('input[name="' + c.id + '"]:checked');
       var o = c.opciones[marcado ? Number(marcado.value) : 0];
       if (o.costo) extras.push({ nombre: c.etiqueta, costo: o.costo });
       if (o.cotizar) cotizar = true;
+      if (o.confirmarZona) confirmarZona = true;
     });
     var total = p.precio + extras.reduce(function (s, e) { return s + e.costo; }, 0);
-    return { tipo: info.tipo, t: t, m: info.m, p: p, extras: extras, total: total, cotizar: cotizar };
+    return { tipo: info.tipo, t: t, m: info.m, p: p, extras: extras, total: total, cotizar: cotizar, confirmarZona: confirmarZona };
   }
   function actualizarResumen(card) {
     var r = calcular(card);
@@ -170,6 +224,7 @@
     card.querySelector('.js-resumen').innerHTML =
       '<p>' + detalle + '</p>' +
       '<p class="total">Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') + '</p>' +
+      (r.confirmarZona ? '<p>La instalación se confirma al revisar tu ubicación.</p>' : '') +
       (D.negocio.anticipo ? '<p>Anticipo para iniciar: <strong>' + dinero(D.negocio.anticipo) + '</strong></p>' : '');
   }
 
@@ -203,7 +258,8 @@
     if (bm) {
       var i = Number(bm.getAttribute('data-medida'));
       estado.medida[clave] = i;
-      var p = preciosDe(buscarModelo(clave).m)[i];
+      var bmod = buscarModelo(clave);
+      var p = preciosDe(bmod.m, bmod.tipo)[i];
       card.querySelectorAll('button[data-medida]').forEach(function (b) { b.setAttribute('aria-pressed', String(b === bm)); });
       card.querySelector('.js-precio').textContent = dinero(p.precio);
       card.querySelector('.js-rec').hidden = !p.recomendada;
@@ -220,7 +276,7 @@
     }
   });
   grid.addEventListener('change', function (e) {
-    if (e.target.type === 'radio') actualizarResumen(e.target.closest('.card'));
+    if (e.target.type === 'radio') { var cd = e.target.closest('.card'); actualizarVisibles(cd); actualizarResumen(cd); }
   });
 
   grid.addEventListener('submit', function (e) {
@@ -231,11 +287,15 @@
 
     var faltan = null;
     var lineas = [];
+    var notas = [];
     r.t.campos.forEach(function (c) {
+      var cajaC = form.querySelector('[data-campo="' + c.id + '"]');
+      if (cajaC && cajaC.hidden) return;
       if (c.opciones) {
         var marcado = form.querySelector('input[name="' + c.id + '"]:checked');
         var o = c.opciones[marcado ? Number(marcado.value) : 0];
-        lineas.push('• ' + c.etiqueta + ': ' + o.texto + (o.costo ? ' (+' + dinero(o.costo) + ')' : ''));
+        lineas.push('• ' + c.etiqueta.replace(/^¿|\?$/g, '') + ': ' + o.texto + (o.costo ? ' (+' + dinero(o.costo) + ')' : ''));
+        if (o.mensaje) notas.push(o.mensaje);
         return;
       }
       var el = form.elements[c.id];
@@ -248,17 +308,19 @@
       } else {
         caja.classList.remove('con-error'); if (err) err.hidden = true; el.removeAttribute('aria-invalid');
       }
-      if (valor) lineas.push('• ' + c.etiqueta.replace(/\s*\(.*\)/, '') + ': ' + valor);
+      if (valor) lineas.push('• ' + c.etiqueta.replace(/\s*\(.*\)/, '').replace(/^¿(.*)\?.*$/, '$1') + ': ' + valor);
     });
     if (faltan) { faltan.focus(); return; }
 
     var mensaje =
-      'Hola ' + D.negocio.nombre + ', quiero hacer un pedido:\n\n' +
+      'Hola ' + D.negocio.nombre + ', quiero mandar a hacer mi boceto:\n\n' +
       '• Producto: ' + mayus(r.t.singular) + ' #' + r.m.codigo + ' – ' + r.m.nombre + '\n' +
       '• Tamaño: ' + r.p.medida + ' cm – ' + dinero(r.p.precio) + '\n' +
       lineas.join('\n') + '\n\n' +
       'Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') +
-      (D.negocio.anticipo ? '\nAnticipo para iniciar: ' + dinero(D.negocio.anticipo) : '');
+      (D.negocio.anticipo ? '\nAnticipo para iniciar: ' + dinero(D.negocio.anticipo) : '') +
+      (r.confirmarZona ? '\n\n¿Me confirman si mi ubicación está dentro de la zona de instalación?' : '') +
+      (notas.length ? '\n\n' + notas.join('\n') : '');
     window.open(linkWA(mensaje), '_blank', 'noopener');
   });
 

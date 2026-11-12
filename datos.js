@@ -57,18 +57,21 @@ window.CATALOGO = {
     { titulo: "Material", texto: "Cerámica en losa, encapsulada en resina." },
     { titulo: "Tiempo de entrega", texto: "Máximo 3 días para realizarla." },
     { titulo: "Anticipo", texto: "Se pide un anticipo de $150 para iniciar tu pedido." },
-    { titulo: "Entrega", texto: "Pasas a recogerla o te la enviamos a domicilio con costo extra." },
-    { titulo: "Instalación de placas", texto: "Con orificios para que la instales tú, o la instalamos nosotros: $150 con cemento blanco o $125 con taquetes y tornillos." }
+    { titulo: "Entrega", texto: "Si no requieres instalación, pasas a recogerla o te la enviamos a domicilio con costo extra." },
+    { titulo: "Instalación", texto: "Placas: con orificios para que la instales tú, o la instalamos a domicilio: $150 con cemento blanco o $125 con taquetes y tornillos. Lápidas: instalación solo en cementerios de Mérida. La instalación tiene un rango de cobertura: al mandar tu ubicación te confirmamos si aplica." }
   ],
 
   /* ---------- Tipos de producto ----------
      Cada tipo tiene:
        categorias: los botones de filtro
+       medidas:    (opcional) qué listas de precios se ofrecen en ese tipo
        campos:     las preguntas que salen abajo de cada modelo
                    obligatorio: true -> no deja enviar si está vacío
                    parrafo: true     -> caja de texto grande
                    opciones: [...]   -> el cliente elige una opción;
                                         "costo" se suma al total
+                   ayuda: "..."      -> texto de aviso debajo de la pregunta
+                   mostrarSi: [...]  -> solo aparece con ciertas respuestas
        modelos:    la lista de diseños
                    codigo    -> el número que ve el cliente
                    nombre    -> nombre corto del diseño
@@ -84,25 +87,31 @@ window.CATALOGO = {
       nombre: "Placas domiciliarias",
       singular: "placa",
       carpeta: "fotos/placas/",
-      categorias: ["Talavera", "Flores", "Girasoles", "Frases", "Abuelos", "Naturaleza", "Número grande", "Azulejo"],
+      categorias: ["Tipo talavera", "Flores", "Girasoles", "Frases", "Abuelos", "Naturaleza", "Número grande", "Azulejo"],
       campos: [
         { id: "apellido",  etiqueta: "Apellido o texto principal", ejemplo: "Familia Canul Canul", obligatorio: true },
         { id: "direccion", etiqueta: "Dirección que lleva la placa (calle, número, cruzamientos y colonia)", ejemplo: "C. 79B #573 x 98 y 100, Col. Sambulá" },
-        { id: "extra",     etiqueta: "Cambios extra al modelo", ejemplo: "cambiar las flores por girasoles, letras en azul…", parrafo: true },
-        { id: "instalacion", etiqueta: "Instalación", opciones: [
+        { id: "extra",     etiqueta: "¿Algún cambio al modelo? Descríbelo", ejemplo: "cambiar las flores por girasoles, letras en azul…", parrafo: true },
+        { id: "instalacion", etiqueta: "Instalación",
+          ayuda: "La instalación incluye el servicio a domicilio y tiene un rango de cobertura: al mandarnos tu ubicación te confirmamos si aplica.",
+          opciones: [
             { texto: "La instalo yo – con orificios para tornillos", costo: 0 },
             { texto: "La instalo yo – sin orificios (para pegarla con cemento)", costo: 0 },
-            { texto: "Que ustedes la instalen con cemento blanco", costo: 150 },
-            { texto: "Que ustedes la instalen con taquetes y tornillos", costo: 125 }
+            { texto: "Que ustedes la instalen con cemento blanco", costo: 150, confirmarZona: true },
+            { texto: "Que ustedes la instalen con taquetes y tornillos", costo: 125, confirmarZona: true }
         ] },
-        { id: "entrega", etiqueta: "Entrega", opciones: [
+        // "mostrarSi" hace que la pregunta solo salga con ciertas respuestas (0 = primera opción)
+        { id: "entrega", etiqueta: "Entrega", mostrarSi: [{ campo: "instalacion", en: [0, 1] }], opciones: [
             { texto: "Paso a recogerla", costo: 0 },
             { texto: "Envío a domicilio (costo extra según la zona)", costo: 0, cotizar: true }
         ] },
-        { id: "domicilio", etiqueta: "Dirección para envío o instalación (si aplica)", ejemplo: "calle, número, colonia y referencias", parrafo: true }
+        { id: "domicilio", etiqueta: "Dirección o ubicación para la instalación", ejemplo: "calle, número, colonia y referencias, o tu ubicación de Google Maps", parrafo: true, obligatorio: true,
+          mostrarSi: [{ campo: "instalacion", en: [2, 3] }] },
+        { id: "envio", etiqueta: "Dirección para el envío", ejemplo: "calle, número, colonia y referencias", parrafo: true, obligatorio: true,
+          mostrarSi: [{ campo: "entrega", en: [1] }] }
       ],
       modelos: [
-        { codigo: "001", nombre: "Talavera multicolor", categoria: "Talavera", forma: "ovalada", foto: "001.jpg" },
+        { codigo: "001", nombre: "Tipo talavera multicolor", categoria: "Tipo talavera", forma: "ovalada", foto: "001.jpg" },
         { codigo: "002", nombre: "Guirnalda de flores", categoria: "Flores", forma: "ovalada", foto: "002.jpg" },
         { codigo: "003", nombre: "Girasoles al pie", categoria: "Girasoles", forma: "ovalada", foto: "003.jpg" },
         { codigo: "004", nombre: "Girasoles y ranita", categoria: "Girasoles", forma: "ovalada", foto: "004.jpg" },
@@ -110,45 +119,45 @@ window.CATALOGO = {
         { codigo: "006", nombre: "Alcatraces", categoria: "Flores", forma: "ovalada", foto: "006.jpg" },
         { codigo: "007", nombre: "Corona de girasoles", categoria: "Girasoles", forma: "ovalada", foto: "007.jpg" },
         { codigo: "008", nombre: "Número grande floral", categoria: "Número grande", forma: "ovalada", foto: "008.jpg" },
-        { codigo: "009", nombre: "Talavera mosaico", categoria: "Talavera", forma: "ovalada", foto: "009.jpg" },
-        { codigo: "010", nombre: "Talavera Bienvenidos a nuestro hogar", categoria: "Talavera", forma: "ovalada", foto: "010.jpg" },
-        { codigo: "011", nombre: "Talavera con volutas", categoria: "Talavera", forma: "ovalada", foto: "011.jpg" },
-        { codigo: "012", nombre: "Talavera flores azules", categoria: "Talavera", forma: "ovalada", foto: "012.jpg" },
+        { codigo: "009", nombre: "Tipo talavera mosaico", categoria: "Tipo talavera", forma: "ovalada", foto: "009.jpg" },
+        { codigo: "010", nombre: "Tipo talavera Bienvenidos a nuestro hogar", categoria: "Tipo talavera", forma: "ovalada", foto: "010.jpg" },
+        { codigo: "011", nombre: "Tipo talavera con volutas", categoria: "Tipo talavera", forma: "ovalada", foto: "011.jpg" },
+        { codigo: "012", nombre: "Tipo talavera flores azules", categoria: "Tipo talavera", forma: "ovalada", foto: "012.jpg" },
         { codigo: "013", nombre: "Bienvenidos a nuestro dulce hogar", categoria: "Frases", forma: "ovalada", foto: "013.jpg" },
         { codigo: "014", nombre: "Canta el gallo pero manda la gallina", categoria: "Frases", forma: "ovalada", foto: "014.jpg" },
         { codigo: "015", nombre: "Mi casa es tu casa", categoria: "Frases", forma: "ovalada", foto: "015.jpg" },
         { codigo: "016", nombre: "Bienvenidos a la casa de los abuelos", categoria: "Abuelos", forma: "ovalada", foto: "016.jpg" },
         { codigo: "017", nombre: "Bienvenidos a su pobre casa", categoria: "Frases", forma: "ovalada", foto: "017.jpg" },
         { codigo: "018", nombre: "Corona de flores de colores", categoria: "Flores", forma: "ovalada", foto: "018.jpg" },
-        { codigo: "019", nombre: "Talavera azul clásica", categoria: "Talavera", forma: "ovalada", foto: "019.jpg" },
-        { codigo: "020", nombre: "Talavera azul con flores", categoria: "Talavera", forma: "ovalada", foto: "020.jpg" },
+        { codigo: "019", nombre: "Tipo talavera azul clásica", categoria: "Tipo talavera", forma: "ovalada", foto: "019.jpg" },
+        { codigo: "020", nombre: "Tipo talavera azul con flores", categoria: "Tipo talavera", forma: "ovalada", foto: "020.jpg" },
         { codigo: "021", nombre: "Bienvenidos a mi hogar", categoria: "Frases", forma: "ovalada", foto: "021.jpg" },
-        { codigo: "022", nombre: "Talavera azul marino", categoria: "Talavera", forma: "ovalada", foto: "022.jpg" },
+        { codigo: "022", nombre: "Tipo talavera azul marino", categoria: "Tipo talavera", forma: "ovalada", foto: "022.jpg" },
         { codigo: "023", nombre: "Casa de los abuelos con margaritas", categoria: "Abuelos", forma: "ovalada", foto: "023.jpg" },
         { codigo: "024", nombre: "Número grande con greca azul", categoria: "Número grande", forma: "ovalada", foto: "024.jpg" },
         { codigo: "025", nombre: "Café con flores azules", categoria: "Flores", forma: "ovalada", foto: "025.jpg" },
         { codigo: "026", nombre: "Girasoles y alcatraces", categoria: "Girasoles", forma: "ovalada", foto: "026.jpg" },
-        { codigo: "027", nombre: "Talavera negra con flores", categoria: "Talavera", forma: "ovalada", foto: "027.jpg" },
+        { codigo: "027", nombre: "Tipo talavera negra con flores", categoria: "Tipo talavera", forma: "ovalada", foto: "027.jpg" },
         { codigo: "028", nombre: "Margaritas con marco azul", categoria: "Flores", forma: "ovalada", foto: "028.jpg" },
         { codigo: "029", nombre: "Casa Colibrí", categoria: "Naturaleza", forma: "ovalada", foto: "029.jpg" },
         { codigo: "030", nombre: "Girasoles con marco dorado", categoria: "Girasoles", forma: "ovalada", foto: "030.jpg" },
         { codigo: "031", nombre: "Casa Playita", categoria: "Naturaleza", forma: "ovalada", foto: "031.jpg" },
         { codigo: "032", nombre: "Bienvenidos con margaritas", categoria: "Flores", forma: "ovalada", foto: "032.jpg" },
-        { codigo: "033", nombre: "Talavera con lunares", categoria: "Talavera", forma: "ovalada", foto: "033.jpg" },
+        { codigo: "033", nombre: "Tipo talavera con lunares", categoria: "Tipo talavera", forma: "ovalada", foto: "033.jpg" },
         { codigo: "034", nombre: "Casa Girasol", categoria: "Girasoles", forma: "ovalada", foto: "034.jpg" },
         { codigo: "035", nombre: "Guirnalda Bienvenidos", categoria: "Flores", forma: "ovalada", foto: "035.jpg" },
-        { codigo: "036", nombre: "Talavera y flores Bienvenidos", categoria: "Flores", forma: "ovalada", foto: "036.jpg" },
+        { codigo: "036", nombre: "Tipo talavera y flores Bienvenidos", categoria: "Flores", forma: "ovalada", foto: "036.jpg" },
         { codigo: "037", nombre: "Corona de flores rojas", categoria: "Flores", forma: "ovalada", foto: "037.jpg" },
         { codigo: "038", nombre: "Playa con caballitos de mar", categoria: "Naturaleza", forma: "ovalada", foto: "038.jpg" },
         { codigo: "039", nombre: "Marco azul con flores", categoria: "Flores", forma: "ovalada", foto: "039.jpg" },
         { codigo: "040", nombre: "Flores silvestres", categoria: "Flores", forma: "ovalada", foto: "040.jpg" },
-        { codigo: "041", nombre: "La casa de los abuelos talavera", categoria: "Abuelos", forma: "ovalada", foto: "041.jpg" },
-        { codigo: "042", nombre: "Casa Color Azul", categoria: "Talavera", forma: "ovalada", foto: "042.jpg" },
+        { codigo: "041", nombre: "La casa de los abuelos tipo talavera", categoria: "Abuelos", forma: "ovalada", foto: "041.jpg" },
+        { codigo: "042", nombre: "Casa Color Azul", categoria: "Tipo talavera", forma: "ovalada", foto: "042.jpg" },
         { codigo: "043", nombre: "Casa de los girasoles", categoria: "Girasoles", forma: "ovalada", foto: "043.jpg" },
         { codigo: "044", nombre: "Casa de los abuelos, hotel de los hijos", categoria: "Frases", forma: "ovalada", foto: "044.jpg" },
-        { codigo: "045", nombre: "Talavera azul con número", categoria: "Talavera", forma: "ovalada", foto: "045.jpg" },
-        { codigo: "046", nombre: "Talavera azul con flores de colores", categoria: "Talavera", forma: "ovalada", foto: "046.jpg" },
-        { codigo: "047", nombre: "Talavera azul con colibrí", categoria: "Talavera", forma: "ovalada", foto: "047.jpg" },
+        { codigo: "045", nombre: "Tipo talavera azul con número", categoria: "Tipo talavera", forma: "ovalada", foto: "045.jpg" },
+        { codigo: "046", nombre: "Tipo talavera azul con flores de colores", categoria: "Tipo talavera", forma: "ovalada", foto: "046.jpg" },
+        { codigo: "047", nombre: "Tipo talavera azul con colibrí", categoria: "Tipo talavera", forma: "ovalada", foto: "047.jpg" },
         { codigo: "048", nombre: "Regadera con girasoles", categoria: "Abuelos", forma: "ovalada", foto: "048.jpg" },
         { codigo: "049", nombre: "Colibrí y flores", categoria: "Naturaleza", forma: "ovalada", foto: "049.jpg" },
         { codigo: "050", nombre: "Casa de la playa con peces", categoria: "Naturaleza", forma: "ovalada", foto: "050.jpg" },
@@ -174,7 +183,6 @@ window.CATALOGO = {
         { codigo: "070", nombre: "Azulejo con trenzado", categoria: "Azulejo", forma: "rectangular", foto: "070.jpg" },
         { codigo: "071", nombre: "Azulejo azul cielo", categoria: "Azulejo", forma: "rectangular", foto: "071.jpg" },
         { codigo: "072", nombre: "Azulejo blanco y dorado", categoria: "Azulejo", forma: "rectangular", foto: "072.jpg" },
-        { codigo: "073", nombre: "Jardín cuadrado", categoria: "Flores", forma: "cuadrada", foto: "073.jpg" }
       ]
     },
 
@@ -183,17 +191,35 @@ window.CATALOGO = {
       singular: "lápida",
       carpeta: "fotos/lapidas/",
       categorias: ["Negro y dorado", "Mármol blanco", "Con foto", "Libro abierto", "Religiosas", "Dobles", "Colores", "Angelitos"],
+      // Las lápidas pueden pedirse en cualquiera de estas medidas
+      medidas: ["rectangular", "cuadrada"],
       campos: [
         { id: "nombre",        etiqueta: "Nombre completo", ejemplo: "José Antonio Herrera Ramírez", obligatorio: true },
         { id: "nacimiento",    etiqueta: "Fecha de nacimiento", ejemplo: "01/11/1985" },
         { id: "fallecimiento", etiqueta: "Fecha de fallecimiento", ejemplo: "02/07/2022" },
         { id: "frase",         etiqueta: "Frase o mensaje", ejemplo: "Siempre en nuestra mente y corazón", parrafo: true },
-        { id: "extra",         etiqueta: "Cambios extra al modelo", ejemplo: "agregar foto, cambiar la imagen religiosa…", parrafo: true },
-        { id: "entrega", etiqueta: "Entrega", opciones: [
+        { id: "foto", etiqueta: "¿Lleva foto?",
+          ayuda: "Si lleva foto, mándala por WhatsApp en el mismo chat después de enviar tu boceto.",
+          opciones: [
+            { texto: "Sin foto", costo: 0 },
+            { texto: "Sí, lleva foto (la mando por WhatsApp)", costo: 0, mensaje: "Les mando la foto por aquí." }
+        ] },
+        { id: "extra", etiqueta: "¿Requiere alguna modificación? Descríbela", ejemplo: "cambiar la imagen religiosa, agregar otro nombre…", parrafo: true },
+        { id: "instalacion", etiqueta: "Instalación",
+          ayuda: "Instalación únicamente en cementerios de Mérida. Al mandarnos la ubicación te confirmamos si aplica.",
+          opciones: [
+            { texto: "Sin instalación", costo: 0 },
+            { texto: "Que ustedes la instalen con cemento blanco", costo: 150, confirmarZona: true },
+            { texto: "Que ustedes la instalen con taquetes y tornillos", costo: 125, confirmarZona: true }
+        ] },
+        { id: "entrega", etiqueta: "Entrega", mostrarSi: [{ campo: "instalacion", en: [0] }], opciones: [
             { texto: "Paso a recogerla", costo: 0 },
             { texto: "Envío a domicilio (costo extra según la zona)", costo: 0, cotizar: true }
         ] },
-        { id: "domicilio", etiqueta: "Dirección para envío (si aplica)", ejemplo: "calle, número, colonia y referencias", parrafo: true }
+        { id: "cementerio", etiqueta: "Cementerio y ubicación de la tumba", ejemplo: "Cementerio General, sección, fila o referencias", parrafo: true, obligatorio: true,
+          mostrarSi: [{ campo: "instalacion", en: [1, 2] }] },
+        { id: "envio", etiqueta: "Dirección para el envío", ejemplo: "calle, número, colonia y referencias", parrafo: true, obligatorio: true,
+          mostrarSi: [{ campo: "entrega", en: [1] }] }
       ],
       modelos: [
         { codigo: "L01", nombre: "Negro con cruz dorada y rosas", categoria: "Negro y dorado", forma: "rectangular", foto: "L01.jpg" },
