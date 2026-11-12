@@ -256,9 +256,19 @@
   $('btn-imprimir').addEventListener('click', function () {
     if (!validarNota()) return;
     asegurarFolio();
-    $('ticket-imprimir').innerHTML = htmlTicket(nota);
-    var img = $('ticket-imprimir').querySelector('img');
-    var lanzar = function () { window.print(); mostrarEstado('Nota ' + nota.folio + ' guardada.'); };
+    var caja = $('ticket-imprimir');
+    caja.innerHTML = htmlTicket(nota);
+    var img = caja.querySelector('img');
+    var lanzar = function () {
+      // Mide el ticket para que la hoja tenga exactamente su largo
+      caja.style.cssText = 'display:block;position:absolute;left:-9999px;top:0';
+      var altoMM = Math.ceil(caja.querySelector('.ticket').getBoundingClientRect().height * 25.4 / 96) + 6;
+      caja.style.cssText = '';
+      var est = $('estilo-pagina') || document.head.appendChild(Object.assign(document.createElement('style'), { id: 'estilo-pagina' }));
+      est.textContent = '@media print { @page { size: ' + (ancho === '58' ? 58 : 80) + 'mm ' + altoMM + 'mm; margin: 0; } }';
+      window.print();
+      mostrarEstado('Nota ' + nota.folio + ' guardada.');
+    };
     if (img && !img.complete) { img.onload = img.onerror = lanzar; } else lanzar();
   });
 
