@@ -299,7 +299,7 @@ window.CATALOGO = {
         { codigo: "L40", nombre: "Libro doble con Sagrado Corazón", categoria: "Dobles", forma: "rectangular", foto: "L40.jpg" },
         { codigo: "L41", nombre: "Negro con cruz y paloma", categoria: "Negro y dorado", forma: "rectangular", foto: "L41.jpg" },
         { codigo: "L42", nombre: "Con foto y marco terracota", categoria: "Con foto", forma: "rectangular", foto: "L42.jpg" },
-        { codigo: "L43", nombre: "Madera con paleta de pintor", categoria: "Colores", forma: "rectangular", foto: "L43.jpg" },
+        { codigo: "L43", nombre: "Madera con paleta de colores", categoria: "Colores", forma: "rectangular", foto: "L43.jpg" },
         { codigo: "L44", nombre: "Mármol con cruz y paloma negra", categoria: "Mármol blanco", forma: "rectangular", foto: "L44.jpg" },
         { codigo: "L45", nombre: "Blanco con arabescos", categoria: "Mármol blanco", forma: "rectangular", foto: "L45.jpg" },
         { codigo: "L46", nombre: "Mármol gris En Memoria", categoria: "Mármol blanco", forma: "rectangular", foto: "L46.jpg" },
