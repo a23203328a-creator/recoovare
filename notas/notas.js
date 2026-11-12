@@ -229,6 +229,8 @@
       '<div><span>Anticipo</span><span>' + dinero(nota.anticipo) + '</span></div>' +
       '<div class="grande"><span>Resta</span><span>' + dinero(restaNota(nota)) + '</span></div>';
     $('ticket-vista').innerHTML = htmlTicket(nota);
+    var asesoraB = VENDEDORES.find(function (v) { return v.codigo === nota.vendedor; });
+    $('btn-compartir').textContent = asesoraB ? 'Mandar PDF a ' + asesoraB.nombre.split(' ')[0] + ' por WhatsApp' : 'Mandar PDF por WhatsApp';
     nota.comision = comisionNota(nota);
     var ci = $('comision-info'), vend = VENDEDORES.find(function (v) { return v.codigo === nota.vendedor; });
     ci.hidden = !vend;
@@ -373,7 +375,15 @@
     try { descargar(hacerPDF(nota).output('blob'), nombrePDF()); mostrarEstado('PDF de la nota ' + nota.folio + ' descargado.'); }
     catch (e) { mostrarEstado('No se pudo crear el PDF: ' + e.message, true); }
   });
+  function asesoraNota() { return VENDEDORES.find(function (v) { return v.codigo === nota.vendedor; }) || null; }
   function mensajeWA() {
+    var a = asesoraNota();
+    if (a) {
+      return 'Hola ' + a.nombre.split(' ')[0] + ', te mando la nota ' + nota.folio + ' de ' + (nota.cliente.nombre || 'tu cliente') + '. El anticipo ya está confirmado ✅\n\n' +
+        'Total: ' + dinero(totalNota(nota)) + '\nAnticipo: ' + dinero(nota.anticipo) + '\nResta: ' + dinero(restaNota(nota)) + '\n' +
+        (nota.entrega ? 'Entrega: ' + fechaLarga(nota.entrega) + '\n' : '') +
+        '\nPor favor reenvíale el PDF al cliente con el Mensaje 8 del manual.';
+    }
     return 'Hola' + (nota.cliente.nombre ? ' ' + nota.cliente.nombre : '') + ', te comparto tu nota de ' + (NEG.nombre || 'Recoovare') + '.\n\n' +
       'Folio: ' + nota.folio + '\n' +
       'Total: ' + dinero(totalNota(nota)) + '\n' +
@@ -396,9 +406,10 @@
       return;
     }
     descargar(blob, nombrePDF());
-    var tel = telWA(nota.cliente.tel);
+    var asesora = asesoraNota();
+    var tel = asesora ? String(asesora.whatsapp).replace(/\D/g, '') : telWA(nota.cliente.tel);
     window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(mensajeWA()), '_blank', 'noopener');
-    mostrarEstado('Se descargó el PDF. Adjúntalo en el chat de WhatsApp que se abrió' + (tel ? '' : ' (no pusiste teléfono: elige el contacto)') + '.');
+    mostrarEstado('Se descargó el PDF. Adjúntalo en el chat de WhatsApp que se abrió' + (asesora ? ' (' + asesora.nombre + ', para que se lo reenvíe al cliente)' : (tel ? '' : ' (no pusiste teléfono: elige el contacto)')) + '.');
   });
 
   /* ---------- nueva nota ---------- */
