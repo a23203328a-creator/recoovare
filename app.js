@@ -531,7 +531,7 @@
         'Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') +
         (D.negocio.anticipo ? '\nAnticipo para iniciar: ' + dinero(D.negocio.anticipo) : '') +
         (r.zona ? '\n\n¿Me confirman si mi ubicación está dentro de la zona de instalación?' : '') +
-        '\n\nLes mando mi diseño por aquí. Quedo en espera de la prueba para aprobarla antes de imprimir.';
+        '\n\nLes mando mi diseño por aquí. Quedo en espera de la prueba para aprobarla antes de que la pinten.';
       window.open(linkWA(mensaje), '_blank', 'noopener');
     });
     pintarTipo();
