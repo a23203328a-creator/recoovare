@@ -326,8 +326,6 @@ window.CATALOGO = {
         { codigo: "L53", nombre: "Negro con arabescos dorados", categoria: "Negro y dorado", forma: "rectangular", foto: "L53.jpg" },
         { codigo: "L54", nombre: "Negro con taza de café", categoria: "Negro y dorado", forma: "rectangular", foto: "L54.jpg" },
         { codigo: "L55", nombre: "Libro negro con versículo", categoria: "Negro y dorado", forma: "rectangular", foto: "L55.jpg" },
-        { codigo: "L56", nombre: "Blanco y dorado con Sagrado Corazón", categoria: "Religiosas", forma: "rectangular", foto: "L56.jpg" },
-        { codigo: "L57", nombre: "Negro doble con cruz y paloma", categoria: "Dobles", forma: "rectangular", foto: "L57.jpg" },
         { codigo: "L58", nombre: "Negro con foto y Virgen", categoria: "Con foto", forma: "rectangular", foto: "L58.jpg" },
         { codigo: "L59", nombre: "Negro con foto y rosa", categoria: "Con foto", forma: "rectangular", foto: "L59.jpg" },
         { codigo: "L60", nombre: "Mármol negro con cruz", categoria: "Negro y dorado", forma: "rectangular", foto: "L60.jpg" },
