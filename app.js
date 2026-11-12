@@ -324,6 +324,95 @@
     window.open(linkWA(mensaje), '_blank', 'noopener');
   });
 
+  /* ---------- cita para diseñar en persona ---------- */
+  (function citas() {
+    var C = D.cita;
+    var form = document.getElementById('form-cita');
+    if (!C || !form) { var sec = document.getElementById('cita'); if (sec) sec.hidden = true; return; }
+    var CLAVES = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+    var NOMBRES = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    var paso = Number(C.intervalo) || 60;
+    function rango(txt) {
+      if (!txt) return null;
+      var p = String(txt).replace(/\s/g, '').split('-');
+      if (p.length !== 2) return null;
+      function min(t) { var x = t.split(':'); return Number(x[0]) * 60 + Number(x[1] || 0); }
+      return [min(p[0]), min(p[1])];
+    }
+    function hora(m) {
+      var h = Math.floor(m / 60), mm = m % 60;
+      return (h % 12 || 12) + ':' + (mm < 10 ? '0' : '') + mm + (h < 12 ? ' a.m.' : ' p.m.');
+    }
+    // Días disponibles
+    var hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+    var ahora = new Date();
+    var dias = [];
+    for (var i = 0; i < (Number(C.diasAdelante) || 21); i++) {
+      var d = new Date(hoy); d.setDate(hoy.getDate() + i);
+      var r = rango(C.horario[CLAVES[d.getDay()]]);
+      if (!r) continue;
+      var slots = [];
+      for (var t = r[0]; t + paso <= r[1]; t += paso) slots.push(t);
+      if (i === 0) {
+        var limite = ahora.getHours() * 60 + ahora.getMinutes() + 60; // al menos 1 hora de anticipación
+        slots = slots.filter(function (s) { return s >= limite; });
+      }
+      if (!slots.length) continue;
+      var etiqueta = mayus(d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' }));
+      if (i === 0) etiqueta += ' (hoy)'; else if (i === 1) etiqueta += ' (mañana)';
+      dias.push({ etiqueta: etiqueta, slots: slots });
+    }
+    var selDia = document.getElementById('cita-dia');
+    var selHora = document.getElementById('cita-hora');
+    selDia.innerHTML = dias.map(function (x, i) { return '<option value="' + i + '">' + esc(x.etiqueta) + '</option>'; }).join('');
+    function pintarHoras() {
+      var x = dias[Number(selDia.value) || 0];
+      selHora.innerHTML = x ? x.slots.map(function (m) { return '<option>' + hora(m) + '</option>'; }).join('') : '';
+    }
+    selDia.addEventListener('change', pintarHoras);
+    pintarHoras();
+
+    // Horario y ubicación
+    var filas = [1, 2, 3, 4, 5, 6, 0].map(function (n) {
+      var r = rango(C.horario[CLAVES[n]]);
+      return '<tr><td>' + NOMBRES[n] + '</td><td>' + (r ? hora(r[0]) + ' – ' + hora(r[1]) : 'Cerrado') + '</td></tr>';
+    }).join('');
+    document.getElementById('horario').innerHTML = '<table><tbody>' + filas + '</tbody></table>';
+    var info = document.getElementById('ubicacion-info');
+    if (C.direccion) {
+      var q = encodeURIComponent(C.direccion);
+      var link = C.mapa || ('https://www.google.com/maps/search/?api=1&query=' + q);
+      info.innerHTML = '<p class="dir">' + esc(C.direccion) + '</p>' +
+        (C.referencias ? '<p class="muted">' + esc(C.referencias) + '</p>' : '') +
+        '<iframe title="Mapa de ubicación de ' + esc(D.negocio.nombre) + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=' + q + '&output=embed"></iframe>' +
+        '<a class="btn btn-primary btn-mapa" href="' + esc(link) + '" target="_blank" rel="noopener">Cómo llegar</a>';
+    } else {
+      info.innerHTML = '<p class="muted">Te compartimos la ubicación exacta por WhatsApp al confirmar tu cita. Estamos en ' + esc(D.negocio.ciudad) + '.</p>';
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var nombre = form.elements.nombre;
+      var caja = nombre.closest('.campo');
+      if (!nombre.value.trim()) {
+        caja.classList.add('con-error'); caja.querySelector('.msg-error').hidden = false; nombre.setAttribute('aria-invalid', 'true'); nombre.focus(); return;
+      }
+      caja.classList.remove('con-error'); caja.querySelector('.msg-error').hidden = true; nombre.removeAttribute('aria-invalid');
+      var que = form.querySelector('input[name="que"]:checked');
+      var d = dias[Number(selDia.value) || 0];
+      var lineas = [
+        '• Nombre: ' + nombre.value.trim(),
+        '• Quiero diseñar: ' + (que ? que.value : ''),
+        '• Día: ' + (d ? d.etiqueta.replace(/ \((hoy|mañana)\)$/, '') : ''),
+        '• Hora: ' + selHora.value
+      ];
+      if (form.elements.modelo.value.trim()) lineas.push('• Modelo que me gustó: ' + form.elements.modelo.value.trim());
+      if (form.elements.notas.value.trim()) lineas.push('• Comentarios: ' + form.elements.notas.value.trim());
+      var mensaje = 'Hola ' + D.negocio.nombre + ', quiero agendar una cita para diseñar en persona:\n\n' + lineas.join('\n') + '\n\n¿Tienen disponibilidad?';
+      window.open(linkWA(mensaje), '_blank', 'noopener');
+    });
+  })();
+
   /* ---------- inicio ---------- */
   // Un link que termina en #lapidas abre directo la pestaña de lápidas
   var h = location.hash.replace('#', '');

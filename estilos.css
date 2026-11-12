@@ -135,6 +135,24 @@ fieldset.opciones legend { font-size: 14px; font-weight: 700; color: var(--texto
 .campo .ayuda { margin: 4px 0 0; }
 .nota { font-size: 13px; color: var(--texto-suave); }
 
+/* ============ Cita ============ */
+#cita { background: var(--fondo); border-top: 0; }
+.cita-grid { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.cita-form { flex: 1 1 420px; min-width: 0; background: #fff; border: 1px solid var(--borde); border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.ubicacion { flex: 1 1 340px; min-width: 0; background: #fff; border: 1px solid var(--borde); border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.ubicacion h3 { font-size: 20px; font-weight: 800; }
+.ubicacion iframe { width: 100%; height: 260px; border: 0; border-radius: 12px; display: block; }
+.ubicacion .dir { font-size: 16px; font-weight: 700; color: var(--texto); }
+.horario { font-size: 15px; color: var(--texto-suave); }
+.horario table { width: 100%; border-collapse: collapse; }
+.horario td { padding: 6px 0; border-top: 1px solid var(--borde); }
+.horario td:last-child { text-align: right; font-weight: 700; color: var(--texto); }
+.fila-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+select { font: inherit; font-size: 16px; padding: 12px 14px; min-height: 48px; border: 1.5px solid var(--borde-fuerte); border-radius: 12px; background: #fff; color: var(--texto); width: 100%; }
+select:focus { border-color: var(--cafe); outline: none; box-shadow: 0 0 0 3px rgba(74,38,24,.15); }
+.btn-mapa { align-self: flex-start; }
+@media (max-width: 480px) { .fila-2 { grid-template-columns: 1fr; } }
+
 /* ============ Precios e info ============ */
 .precios { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
 .tabla-precio { background: var(--fondo); border-radius: 18px; padding: 24px; }

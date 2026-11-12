@@ -52,6 +52,29 @@ window.CATALOGO = {
     ]
   },
 
+  /* ---------- Citas para diseñar en persona ----------
+     horario: escribe "9:00-18:00" en los días que atiendes y deja "" los que no.
+     intervalo: cada cuántos minutos se puede agendar.
+     diasAdelante: cuántos días hacia adelante se pueden elegir.
+     direccion y mapa: tu dirección y el link de Google Maps.
+     Si "direccion" está vacía, no se muestra el mapa. */
+  cita: {
+    horario: {
+      lunes: "9:00-18:00",
+      martes: "9:00-18:00",
+      miercoles: "9:00-18:00",
+      jueves: "9:00-18:00",
+      viernes: "9:00-18:00",
+      sabado: "9:00-14:00",
+      domingo: ""
+    },
+    intervalo: 60,
+    diasAdelante: 21,
+    direccion: "",
+    referencias: "",
+    mapa: ""
+  },
+
   /* ---------- Sección "Lo que debes saber" ---------- */
   info: [
     { titulo: "Material", texto: "Cerámica en losa, encapsulada en resina." },
