@@ -20,20 +20,22 @@
   }
   function dinero(n) { return '$' + Number(n).toLocaleString('es-MX'); }
   function sinAcentos(t) { return String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
-  /* Asesor de ventas: recoovare.pages.dev/?v=codigo (se recuerda 30 días; ?v=recoovare lo quita) */
+  /* Asesor de ventas: recoovare.pages.dev/?v=codigo (se recuerda para siempre; ?v=recoovare lo quita) */
   var VENDEDOR = (function () {
     var lista = D.vendedores || [], K = 'recoovare_vendedor', cod = null;
     var q = new URLSearchParams(location.search).get('v');
     try {
+      // El cliente queda para siempre con la PRIMERA asesora cuyo link abrió.
+      // ?v=recoovare borra la asesora guardada en ese celular.
+      var s = JSON.parse(localStorage.getItem(K) || 'null');
+      var guardada = s && lista.some(function (x) { return x.codigo === s.c; }) ? s.c : null;
       if (q !== null) {
         q = q.trim().toLowerCase();
         var v = lista.find(function (x) { return x.codigo === q; });
-        if (v) { cod = v.codigo; localStorage.setItem(K, JSON.stringify({ c: cod, t: Date.now() })); }
-        else localStorage.removeItem(K);
-      } else {
-        var s = JSON.parse(localStorage.getItem(K) || 'null');
-        if (s && Date.now() - s.t < 30 * 864e5) cod = s.c;
+        if (!v) { localStorage.removeItem(K); guardada = null; }
+        else if (!guardada) { guardada = v.codigo; localStorage.setItem(K, JSON.stringify({ c: guardada, t: Date.now() })); }
       }
+      cod = guardada;
     } catch (e) {}
     return lista.find(function (x) { return x.codigo === cod; }) || null;
   })();
