@@ -1,0 +1,167 @@
+/* ============ Colores y tipografía de la marca ============ */
+:root {
+  --cafe: #4A2618;
+  --cafe-oscuro: #2E160C;
+  --texto: #3B2A22;
+  --texto-suave: #5E4E45;
+  --salvia: #5A6762;
+  --salvia-oscuro: #3F4A46;
+  --fondo: #FAF7F2;
+  --fondo-foto: #F4EFE9;
+  --borde: #E8E0D8;
+  --borde-fuerte: #D9CFC6;
+  --verde-wa: #157A40;
+  --verde-wa-oscuro: #0F5E31;
+  --etiqueta: #F3E3C3;
+  --etiqueta-texto: #6A3E12;
+  --error: #B42318;
+  --titulos: 'Comfortaa', system-ui, sans-serif;
+  --cuerpo: 'Nunito', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body { margin: 0; font-family: var(--cuerpo); color: var(--texto); background: var(--fondo); line-height: 1.5; }
+img { max-width: 100%; display: block; }
+a { color: var(--cafe); }
+a:hover { color: var(--cafe-oscuro); }
+h1, h2, h3 { margin: 0; color: var(--cafe); }
+h2 { font-family: var(--titulos); font-size: clamp(26px, 4vw, 32px); }
+p { margin: 0; }
+.muted { color: var(--texto-suave); font-size: 16px; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: 20px; padding-right: 20px; }
+.stack { display: flex; flex-direction: column; gap: 24px; padding-top: 56px; padding-bottom: 56px; }
+.band { background: #fff; border-top: 1px solid var(--borde); border-bottom: 1px solid var(--borde); }
+:focus-visible { outline: 3px solid #1D4ED8; outline-offset: 2px; }
+
+/* ============ Botones ============ */
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 26px; border-radius: 999px; font-weight: 800; font-size: 16px; text-decoration: none; }
+.btn-primary { background: var(--cafe); color: #fff; }
+.btn-primary:hover { background: var(--cafe-oscuro); color: #fff; }
+.btn-outline { background: #fff; color: var(--cafe); border: 1.5px solid var(--cafe); }
+.btn-light { background: #fff; color: var(--salvia-oscuro); }
+
+/* ============ Encabezado ============ */
+.topbar { background: #fff; border-bottom: 1px solid var(--borde); position: sticky; top: 0; z-index: 10; }
+.topbar-in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding-top: 10px; padding-bottom: 10px; }
+.logo img { height: 40px; width: auto; }
+.nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-left: auto; }
+.nav a { padding: 10px 12px; font-weight: 700; font-size: 15px; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+.btn-wa-sm { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; font-size: 15px;  background: var(--verde-wa); color: #fff; border-radius: 999px; padding: 10px 18px; gap: 8px; font-weight: 800; margin-left: 4px; }
+.btn-wa-sm:hover { background: var(--verde-wa-oscuro); color: #fff; }
+
+/* ============ Portada ============ */
+.hero { display: flex; flex-wrap: wrap; align-items: center; gap: 48px; padding-top: 64px; padding-bottom: 56px; }
+.hero-text { flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.kicker { font-size: 14px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--salvia); }
+.hero h1 { font-family: var(--titulos); font-weight: 700; font-size: clamp(34px, 6vw, 52px); line-height: 1.1; }
+.lead { font-size: 19px; color: var(--texto-suave); max-width: 520px; }
+.hero-btns { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-facts { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 15px; font-weight: 700; color: var(--salvia); }
+.hero-collage { flex: 1 1 380px; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.hero-collage > div { background: #fff; border-radius: 18px; padding: 14px; box-shadow: 0 1px 2px rgba(74,38,24,.08); }
+.hero-collage .down { margin-top: 36px; }
+
+/* ============ Cómo pedir ============ */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.step { background: var(--fondo); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+.step h3 { font-size: 20px; }
+.step p { color: var(--texto-suave); }
+.num { width: 44px; height: 44px; border-radius: 999px; background: var(--cafe); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--titulos); font-weight: 700; font-size: 20px; }
+
+/* ============ Modelos ============ */
+.tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 6px; background: #EFE8E1; border-radius: 16px; max-width: 520px; }
+.tabs button { font: inherit; font-size: 16px; font-weight: 700; min-height: 52px; border-radius: 12px; border: 0; background: transparent; color: var(--texto-suave); cursor: pointer; }
+.tabs button[aria-pressed="true"] { background: #fff; color: var(--cafe); font-weight: 800; box-shadow: 0 1px 3px rgba(74,38,24,.15); }
+.modelos-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.modelos-head > div:first-child { display: flex; flex-direction: column; gap: 6px; }
+.buscar { display: flex; flex-direction: column; gap: 6px; flex: 0 1 320px; min-width: 220px; }
+.buscar label { font-size: 14px; font-weight: 700; color: var(--salvia); }
+input, textarea { font: inherit; font-size: 16px; padding: 12px 14px; border: 1.5px solid var(--borde-fuerte); border-radius: 12px; background: #fff; color: var(--texto); width: 100%; }
+input { min-height: 48px; }
+textarea { min-height: 84px; resize: vertical; }
+input:focus, textarea:focus { border-color: var(--cafe); outline: none; box-shadow: 0 0 0 3px rgba(74,38,24,.15); }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chips button { font: inherit; font-size: 15px; font-weight: 700; padding: 10px 18px; min-height: 44px; border-radius: 999px; border: 1.5px solid var(--borde-fuerte); background: #fff; color: var(--cafe); cursor: pointer; }
+.chips button[aria-pressed="true"] { background: var(--cafe); border-color: var(--cafe); color: #fff; font-weight: 800; }
+.vacio { padding: 32px; background: #fff; border-radius: 16px; text-align: center; font-size: 17px; color: var(--texto-suave); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 24px; align-items: start; }
+
+/* ============ Tarjeta de modelo ============ */
+.card { background: #fff; border: 1px solid var(--borde); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; }
+.card-img { background: var(--fondo-foto); padding: 18px; aspect-ratio: 3 / 2; display: flex; align-items: center; justify-content: center; }
+.card-img img { width: 100%; height: 100%; object-fit: contain; }
+.card-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 14px; font-weight: 700; color: var(--salvia); }
+.code { background: var(--cafe); color: #fff; font-weight: 800; padding: 4px 12px; border-radius: 999px; }
+.tag-nuevo { background: #DCEBFA; color: #123E6B; font-weight: 800; padding: 3px 10px; border-radius: 999px; font-size: 13px; }
+.card h3 { font-size: 20px; font-weight: 800; color: var(--texto); }
+.label-sm { font-size: 13px; font-weight: 700; color: var(--salvia); }
+.sizes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.sizes button { font: inherit; font-size: 14px; font-weight: 700; min-height: 44px; padding: 0 4px; border-radius: 10px; border: 1.5px solid var(--borde-fuerte); background: #fff; color: var(--cafe); cursor: pointer; }
+.sizes button[aria-pressed="true"] { background: var(--cafe); border-color: var(--cafe); color: #fff; font-weight: 800; }
+.price-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.price { font-size: 28px; font-weight: 800; color: var(--cafe); }
+.price .mxn { font-size: 14px; font-weight: 700; color: var(--salvia); }
+.tag-rec { background: var(--etiqueta); color: var(--etiqueta-texto); font-size: 13px; font-weight: 800; padding: 5px 10px; border-radius: 8px; }
+.btn-pedir { font: inherit; font-size: 16px; font-weight: 800; min-height: 48px; border-radius: 12px; border: 1.5px solid var(--cafe); background: #fff; color: var(--cafe); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-pedir[aria-expanded="true"] { background: var(--fondo); }
+.btn-pedir svg { transition: transform .2s; }
+.btn-pedir[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+/* ============ Formulario del pedido ============ */
+.pedido { display: flex; flex-direction: column; gap: 14px; padding-top: 16px; border-top: 1px dashed var(--borde-fuerte); }
+.campo { display: flex; flex-direction: column; gap: 6px; }
+.campo label { font-size: 14px; font-weight: 700; color: var(--texto); }
+.campo .req { color: var(--error); }
+.campo.con-error input, .campo.con-error textarea { border-color: var(--error); }
+.msg-error { color: var(--error); font-size: 14px; font-weight: 700; }
+.resumen { background: var(--fondo); border-radius: 12px; padding: 12px 14px; font-size: 15px; color: var(--texto-suave); display: flex; flex-direction: column; gap: 6px; }
+.resumen strong { color: var(--texto); }
+.resumen .total { font-size: 19px; font-weight: 800; color: var(--cafe); }
+fieldset.opciones { border: 0; padding: 0; margin: 0; gap: 8px; }
+fieldset.opciones legend { font-size: 14px; font-weight: 700; color: var(--texto); padding: 0; margin-bottom: 8px; }
+.opcion { display: flex; align-items: flex-start; gap: 10px; padding: 11px 12px; min-height: 44px; border: 1.5px solid var(--borde-fuerte); border-radius: 12px; background: #fff; cursor: pointer; font-size: 15px; line-height: 1.35; }
+.opcion + .opcion { margin-top: 8px; }
+.opcion input { width: 20px; height: 20px; min-height: 0; margin: 0; flex: none; accent-color: var(--cafe); padding: 0; }
+.opcion:has(input:checked) { border-color: var(--cafe); background: var(--fondo); }
+.opcion .costo { font-weight: 800; color: var(--cafe); white-space: nowrap; }
+.btn-wa { font: inherit; font-size: 16px; font-weight: 800; min-height: 52px; border-radius: 12px; border: 0; background: var(--verde-wa); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; }
+.btn-wa:hover { background: var(--verde-wa-oscuro); }
+.nota { font-size: 13px; color: var(--texto-suave); }
+
+/* ============ Precios e info ============ */
+.precios { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.tabla-precio { background: var(--fondo); border-radius: 18px; padding: 24px; }
+.tabla-precio h3 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+.fila { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--borde); font-size: 17px; font-weight: 700; }
+.fila .p { font-size: 18px; font-weight: 800; color: var(--cafe); }
+.fila .tag-rec { font-size: 12px; padding: 3px 8px; margin-left: 8px; }
+.info { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.info-item { background: #fff; border: 1px solid var(--borde); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 8px; }
+.info-item h3 { font-size: 18px; font-weight: 800; }
+.info-item p { font-size: 15px; color: var(--texto-suave); }
+
+/* ============ Lápidas y pie ============ */
+.lapidas-cta { padding-bottom: 56px; }
+.cta-box { background: var(--salvia-oscuro); color: #fff; border-radius: 20px; padding: 36px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; }
+.cta-box > div { flex: 1 1 380px; display: flex; flex-direction: column; gap: 8px; }
+.cta-box h2 { color: #fff; font-size: 26px; }
+.cta-box p { color: #E6EBE8; }
+.footer { background: var(--cafe); color: #E9DFD6; }
+.footer-in { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; padding-top: 40px; padding-bottom: 40px; }
+.footer-brand { font-family: var(--titulos); font-weight: 700; font-size: 24px; color: #fff; margin-bottom: 6px; }
+.footer-links { display: flex; flex-direction: column; gap: 8px; }
+.footer a { color: #fff; font-weight: 700; }
+
+@media (max-width: 640px) {
+  .topbar { position: static; }
+  .logo { order: 1; }
+  .btn-wa-sm { order: 2; margin-left: auto; padding: 8px 14px !important; }
+  .nav { order: 3; width: 100%; margin-left: 0; justify-content: space-between; }
+  .nav a { padding: 6px 4px; font-size: 14px; min-height: 40px; }
+  .hero { padding-top: 36px; gap: 32px; }
+  .hero-collage .down { margin-top: 20px; }
+  .cta-box { padding: 26px; }
+}

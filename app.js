@@ -1,0 +1,271 @@
+/* =====================================================================
+   Lógica del catálogo. No necesitas editar este archivo:
+   todo lo que cambia (precios, modelos, preguntas) está en datos.js
+   ===================================================================== */
+(function () {
+  var D = window.CATALOGO;
+  if (!D) { document.body.insertAdjacentHTML('afterbegin', '<p style="padding:20px;background:#fee;color:#900">Error: no se pudo leer datos.js. Revisa que no falte una coma o una comilla.</p>'); return; }
+
+  var NOMBRES_FORMA = { ovalada: 'Ovalada', rectangular: 'Rectangular', cuadrada: 'Cuadrada' };
+  var ICONO_WA = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.5A8.4 8.4 0 1 1 21 11.5z"/></svg>';
+  var ICONO_FLECHA = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+
+  var estado = { tipo: 'placas', categoria: 'todos', busqueda: '', medida: {} };
+
+  /* ---------- utilidades ---------- */
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function dinero(n) { return '$' + Number(n).toLocaleString('es-MX'); }
+  function sinAcentos(t) { return String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function numeroWA() { return String(D.negocio.whatsapp || '').replace(/\D/g, ''); }
+  function linkWA(texto) { return 'https://wa.me/' + numeroWA() + '?text=' + encodeURIComponent(texto); }
+  function visibles(tipo) { return D.tipos[tipo].modelos.filter(function (m) { return !m.oculto; }); }
+  function preciosDe(m) { return D.precios[m.forma] || []; }
+  function medidaInicial(m) {
+    var i = preciosDe(m).findIndex(function (p) { return p.recomendada; });
+    return i >= 0 ? i : 0;
+  }
+  function claveModelo(tipo, m) { return tipo + ':' + m.codigo; }
+  function ej(t) { t = t || ''; return (!t || /^ej\./i.test(t)) ? t : 'Ej. ' + t; }
+  function mayus(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+
+  /* ---------- datos del negocio en la página ---------- */
+  document.querySelectorAll('.js-ciudad').forEach(function (el) { el.textContent = D.negocio.ciudad; });
+  document.querySelectorAll('.js-anticipo').forEach(function (el) { el.textContent = dinero(D.negocio.anticipo || 0); });
+  document.querySelectorAll('.js-wa-general').forEach(function (a) {
+    a.href = linkWA('Hola ' + D.negocio.nombre + ', quiero información sobre sus placas y lápidas.');
+  });
+  (function piePagina() {
+    var visible = D.negocio.whatsappVisible || numeroWA();
+    var html = '<a href="' + esc(linkWA('Hola ' + D.negocio.nombre + ', quiero información.')) + '" target="_blank" rel="noopener">WhatsApp' + (visible ? ': ' + esc(visible) : '') + '</a>';
+    if (D.negocio.instagram) html += '<a href="https://instagram.com/' + esc(D.negocio.instagram) + '" target="_blank" rel="noopener">Instagram: @' + esc(D.negocio.instagram) + '</a>';
+    if (D.negocio.facebook) html += '<a href="' + esc(D.negocio.facebook) + '" target="_blank" rel="noopener">Facebook</a>';
+    document.getElementById('footer-links').innerHTML = html;
+  })();
+
+  /* ---------- precios e info ---------- */
+  document.getElementById('tablas-precios').innerHTML = Object.keys(D.precios).map(function (forma) {
+    return '<div class="tabla-precio"><h3>' + esc(NOMBRES_FORMA[forma] || forma) + '</h3>' +
+      D.precios[forma].map(function (p) {
+        return '<div class="fila"><span>' + esc(p.medida) + ' cm' + (p.recomendada ? '<span class="tag-rec">Recomendada</span>' : '') + '</span><span class="p">' + dinero(p.precio) + '</span></div>';
+      }).join('') + '</div>';
+  }).join('');
+  document.getElementById('info').innerHTML = (D.info || []).map(function (i) {
+    return '<div class="info-item"><h3>' + esc(i.titulo) + '</h3><p>' + esc(i.texto) + '</p></div>';
+  }).join('');
+
+  /* ---------- pestañas y categorías ---------- */
+  function pintarPestanas() {
+    document.getElementById('tabs').innerHTML = Object.keys(D.tipos).map(function (k) {
+      return '<button type="button" data-tipo="' + k + '" aria-pressed="' + (estado.tipo === k) + '">' + esc(D.tipos[k].nombre) + ' (' + visibles(k).length + ')</button>';
+    }).join('');
+  }
+  function pintarCategorias() {
+    var t = D.tipos[estado.tipo];
+    var mods = visibles(estado.tipo);
+    var cats = [{ k: 'todos', n: 'Todos', c: mods.length }].concat(t.categorias.map(function (c) {
+      return { k: c, n: c, c: mods.filter(function (m) { return m.categoria === c; }).length };
+    })).filter(function (c) { return c.c > 0; });
+    document.getElementById('categorias').innerHTML = cats.map(function (c) {
+      return '<button type="button" data-cat="' + esc(c.k) + '" aria-pressed="' + (estado.categoria === c.k) + '">' + esc(c.n) + ' (' + c.c + ')</button>';
+    }).join('');
+  }
+
+  /* ---------- tarjetas ---------- */
+  function htmlCampos(tipo, m) {
+    var id = claveModelo(tipo, m).replace(/[^a-zA-Z0-9]/g, '-');
+    return D.tipos[tipo].campos.map(function (c) {
+      var fid = id + '-' + c.id;
+      if (c.opciones) {
+        return '<fieldset class="campo opciones"><legend>' + esc(c.etiqueta) + '</legend>' +
+          c.opciones.map(function (o, i) {
+            var extra = o.costo ? ' <span class="costo">+' + dinero(o.costo) + '</span>' : '';
+            return '<label class="opcion"><input type="radio" name="' + esc(c.id) + '" value="' + i + '"' + (i === 0 ? ' checked' : '') + '><span>' + esc(o.texto) + extra + '</span></label>';
+          }).join('') + '</fieldset>';
+      }
+      var control = c.parrafo
+        ? '<textarea id="' + fid + '" name="' + esc(c.id) + '" placeholder="' + esc(ej(c.ejemplo)) + '"></textarea>'
+        : '<input id="' + fid + '" name="' + esc(c.id) + '" type="text" placeholder="' + esc(ej(c.ejemplo)) + '">';
+      return '<div class="campo"><label for="' + fid + '">' + esc(c.etiqueta) + (c.obligatorio ? ' <span class="req" aria-hidden="true">*</span>' : '') + '</label>' + control +
+        (c.obligatorio ? '<p class="msg-error" hidden>Este dato es necesario.</p>' : '') + '</div>';
+    }).join('');
+  }
+  function htmlTarjeta(tipo, m) {
+    var t = D.tipos[tipo];
+    var clave = claveModelo(tipo, m);
+    var lista = preciosDe(m);
+    var idx = estado.medida[clave] != null ? estado.medida[clave] : medidaInicial(m);
+    var p = lista[idx] || { medida: '', precio: 0 };
+    return '<article class="card" data-clave="' + esc(clave) + '">' +
+      '<div class="card-img"><img loading="lazy" src="' + esc(t.carpeta + m.foto) + '" alt="' + esc(mayus(t.singular) + ' modelo ' + m.codigo + ', ' + m.nombre) + '"></div>' +
+      '<div class="card-body">' +
+        '<div class="card-meta"><span class="code">#' + esc(m.codigo) + '</span><span>' + esc(m.categoria) + ' · ' + esc(NOMBRES_FORMA[m.forma] || m.forma) + '</span>' + (m.nuevo ? '<span class="tag-nuevo">Nuevo</span>' : '') + '</div>' +
+        '<h3>' + esc(m.nombre) + '</h3>' +
+        '<div><span class="label-sm">Tamaño (cm)</span><div class="sizes" role="group" aria-label="Tamaño">' +
+          lista.map(function (s, i) { return '<button type="button" data-medida="' + i + '" aria-pressed="' + (i === idx) + '">' + esc(s.medida) + '</button>'; }).join('') +
+        '</div></div>' +
+        '<div class="price-row"><p class="price"><span class="js-precio">' + dinero(p.precio) + '</span> <span class="mxn">MXN</span></p><span class="tag-rec js-rec"' + (p.recomendada ? '' : ' hidden') + '>Medida recomendada</span></div>' +
+        '<button type="button" class="btn-pedir" aria-expanded="false">Personalizar y pedir ' + ICONO_FLECHA + '</button>' +
+        '<form class="pedido" hidden novalidate>' +
+          htmlCampos(tipo, m) +
+          '<div class="resumen js-resumen"></div>' +
+          '<button type="submit" class="btn-wa">' + ICONO_WA + ' Enviar pedido por WhatsApp</button>' +
+          '<p class="nota">Si quieres agregar una foto o un logo, mándalo en el mismo chat de WhatsApp.</p>' +
+        '</form>' +
+      '</div></article>';
+  }
+  function filtrados() {
+    var q = sinAcentos(estado.busqueda.trim().replace('#', ''));
+    return visibles(estado.tipo).filter(function (m) {
+      if (estado.categoria !== 'todos' && m.categoria !== estado.categoria) return false;
+      if (!q) return true;
+      return sinAcentos(m.codigo).indexOf(q) >= 0 || sinAcentos(m.nombre).indexOf(q) >= 0 || sinAcentos(m.categoria).indexOf(q) >= 0;
+    });
+  }
+  function pintarModelos() {
+    var t = D.tipos[estado.tipo];
+    var lista = filtrados();
+    document.getElementById('titulo-modelos').textContent = 'Elige tu ' + t.singular;
+    document.getElementById('conteo').textContent = 'Mostrando ' + lista.length + ' de ' + visibles(estado.tipo).length + ' ' + t.nombre.toLowerCase();
+    document.getElementById('vacio').hidden = lista.length > 0;
+    document.getElementById('grid').innerHTML = lista.map(function (m) { return htmlTarjeta(estado.tipo, m); }).join('');
+    document.querySelectorAll('#grid .card').forEach(actualizarResumen);
+  }
+  function pintarTodo() { pintarPestanas(); pintarCategorias(); pintarModelos(); }
+
+  function buscarModelo(clave) {
+    var partes = clave.split(':');
+    var m = D.tipos[partes[0]].modelos.find(function (x) { return x.codigo === partes[1]; });
+    return { tipo: partes[0], m: m };
+  }
+
+  /* ---------- cálculo del pedido ---------- */
+  function calcular(card) {
+    var clave = card.getAttribute('data-clave');
+    var info = buscarModelo(clave);
+    var t = D.tipos[info.tipo];
+    var idx = estado.medida[clave];
+    if (idx == null) idx = medidaInicial(info.m);
+    var p = preciosDe(info.m)[idx];
+    var form = card.querySelector('.pedido');
+    var extras = [];
+    var cotizar = false;
+    t.campos.forEach(function (c) {
+      if (!c.opciones) return;
+      var marcado = form.querySelector('input[name="' + c.id + '"]:checked');
+      var o = c.opciones[marcado ? Number(marcado.value) : 0];
+      if (o.costo) extras.push({ nombre: c.etiqueta, costo: o.costo });
+      if (o.cotizar) cotizar = true;
+    });
+    var total = p.precio + extras.reduce(function (s, e) { return s + e.costo; }, 0);
+    return { tipo: info.tipo, t: t, m: info.m, p: p, extras: extras, total: total, cotizar: cotizar };
+  }
+  function actualizarResumen(card) {
+    var r = calcular(card);
+    var detalle = mayus(r.t.singular) + ' #' + r.m.codigo + ' en ' + r.p.medida + ' cm: ' + dinero(r.p.precio);
+    r.extras.forEach(function (e) { detalle += '<br>' + esc(e.nombre) + ': ' + dinero(e.costo); });
+    card.querySelector('.js-resumen').innerHTML =
+      '<p>' + detalle + '</p>' +
+      '<p class="total">Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') + '</p>' +
+      (D.negocio.anticipo ? '<p>Anticipo para iniciar: <strong>' + dinero(D.negocio.anticipo) + '</strong></p>' : '');
+  }
+
+  /* ---------- eventos ---------- */
+  function irA(tipo) {
+    if (!D.tipos[tipo]) return;
+    estado.tipo = tipo; estado.categoria = 'todos'; estado.busqueda = '';
+    document.getElementById('buscar').value = '';
+    pintarTodo();
+  }
+  document.querySelectorAll('[data-ir]').forEach(function (a) {
+    a.addEventListener('click', function () { irA(a.getAttribute('data-ir')); });
+  });
+  document.getElementById('tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-tipo]'); if (b) irA(b.getAttribute('data-tipo'));
+  });
+  document.getElementById('categorias').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-cat]'); if (!b) return;
+    estado.categoria = b.getAttribute('data-cat'); pintarCategorias(); pintarModelos();
+  });
+  document.getElementById('buscar').addEventListener('input', function (e) {
+    estado.busqueda = e.target.value; pintarModelos();
+  });
+
+  var grid = document.getElementById('grid');
+  grid.addEventListener('click', function (e) {
+    var card = e.target.closest('.card'); if (!card) return;
+    var clave = card.getAttribute('data-clave');
+
+    var bm = e.target.closest('button[data-medida]');
+    if (bm) {
+      var i = Number(bm.getAttribute('data-medida'));
+      estado.medida[clave] = i;
+      var p = preciosDe(buscarModelo(clave).m)[i];
+      card.querySelectorAll('button[data-medida]').forEach(function (b) { b.setAttribute('aria-pressed', String(b === bm)); });
+      card.querySelector('.js-precio').textContent = dinero(p.precio);
+      card.querySelector('.js-rec').hidden = !p.recomendada;
+      actualizarResumen(card);
+      return;
+    }
+    var bp = e.target.closest('.btn-pedir');
+    if (bp) {
+      var abierto = bp.getAttribute('aria-expanded') === 'true';
+      bp.setAttribute('aria-expanded', String(!abierto));
+      var form = card.querySelector('.pedido');
+      form.hidden = abierto;
+      if (!abierto) { var primero = form.querySelector('input[type="text"], textarea'); if (primero) primero.focus(); }
+    }
+  });
+  grid.addEventListener('change', function (e) {
+    if (e.target.type === 'radio') actualizarResumen(e.target.closest('.card'));
+  });
+
+  grid.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form = e.target;
+    var card = form.closest('.card');
+    var r = calcular(card);
+
+    var faltan = null;
+    var lineas = [];
+    r.t.campos.forEach(function (c) {
+      if (c.opciones) {
+        var marcado = form.querySelector('input[name="' + c.id + '"]:checked');
+        var o = c.opciones[marcado ? Number(marcado.value) : 0];
+        lineas.push('• ' + c.etiqueta + ': ' + o.texto + (o.costo ? ' (+' + dinero(o.costo) + ')' : ''));
+        return;
+      }
+      var el = form.elements[c.id];
+      var valor = (el.value || '').trim();
+      var caja = el.closest('.campo');
+      var err = caja.querySelector('.msg-error');
+      if (c.obligatorio && !valor) {
+        caja.classList.add('con-error'); if (err) err.hidden = false; el.setAttribute('aria-invalid', 'true');
+        if (!faltan) faltan = el;
+      } else {
+        caja.classList.remove('con-error'); if (err) err.hidden = true; el.removeAttribute('aria-invalid');
+      }
+      if (valor) lineas.push('• ' + c.etiqueta.replace(/\s*\(.*\)/, '') + ': ' + valor);
+    });
+    if (faltan) { faltan.focus(); return; }
+
+    var mensaje =
+      'Hola ' + D.negocio.nombre + ', quiero hacer un pedido:\n\n' +
+      '• Producto: ' + mayus(r.t.singular) + ' #' + r.m.codigo + ' – ' + r.m.nombre + '\n' +
+      '• Tamaño: ' + r.p.medida + ' cm – ' + dinero(r.p.precio) + '\n' +
+      lineas.join('\n') + '\n\n' +
+      'Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') +
+      (D.negocio.anticipo ? '\nAnticipo para iniciar: ' + dinero(D.negocio.anticipo) : '');
+    window.open(linkWA(mensaje), '_blank', 'noopener');
+  });
+
+  /* ---------- inicio ---------- */
+  // Un link que termina en #lapidas abre directo la pestaña de lápidas
+  var h = location.hash.replace('#', '');
+  if (D.tipos[h]) { estado.tipo = h; }
+  pintarTodo();
+  if (D.tipos[h]) { document.getElementById('modelos').scrollIntoView(); }
+})();

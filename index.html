@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recoovare – Placas domiciliarias y lápidas en Mérida</title>
+<meta name="description" content="Placas domiciliarias y lápidas personalizadas en Mérida, Yucatán. Más de 100 diseños 100% editables. Pide por WhatsApp.">
+<link rel="icon" href="fotos/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a href="#inicio" class="logo"><img src="fotos/logo.png" alt="Recoovare"></a>
+    <nav aria-label="Secciones" class="nav">
+      <a href="#modelos" data-ir="placas">Placas</a>
+      <a href="#modelos" data-ir="lapidas">Lápidas</a>
+      <a href="#precios">Precios</a>
+      <a href="#como-pedir">Cómo pedir</a>
+    </nav>
+    <a class="btn-wa-sm js-wa-general" href="#" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.5A8.4 8.4 0 1 1 21 11.5z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+</header>
+
+<main>
+<section id="inicio" class="wrap hero">
+  <div class="hero-text">
+    <p class="kicker">Placas domiciliarias y lápidas · <span class="js-ciudad">Mérida, Yucatán</span></p>
+    <h1>Placas y lápidas hechas a tu medida.</h1>
+    <p class="lead">Cerámica encapsulada en resina, con más de 130 diseños personalizables. Elige tu modelo, escoge el tamaño, llena tus datos y te llega el pedido completo por WhatsApp.</p>
+    <div class="hero-btns">
+      <a href="#modelos" class="btn btn-primary" data-ir="placas">Ver placas</a>
+      <a href="#modelos" class="btn btn-outline" data-ir="lapidas">Ver lápidas</a>
+    </div>
+    <p class="hero-facts"><span>Listas en máximo 3 días</span><span aria-hidden="true">·</span><span>Más de 130 diseños</span><span aria-hidden="true">·</span><span>100% editables</span></p>
+  </div>
+  <div class="hero-collage" aria-hidden="true">
+    <div><img src="fotos/placas/047.jpg" alt=""></div>
+    <div class="down"><img src="fotos/placas/034.jpg" alt=""></div>
+    <div><img src="fotos/placas/001.jpg" alt=""></div>
+    <div class="down"><img src="fotos/placas/029.jpg" alt=""></div>
+  </div>
+</section>
+
+<section id="como-pedir" class="band">
+  <div class="wrap stack">
+    <h2>Pedir es así de fácil</h2>
+    <div class="steps">
+      <div class="step"><span class="num">1</span><h3>Elige tu modelo</h3><p>Cada diseño tiene su número, por ejemplo #007 o #L03.</p></div>
+      <div class="step"><span class="num">2</span><h3>Escoge el tamaño</h3><p>El precio solo cambia por la medida. Recomendamos 35×25 cm.</p></div>
+      <div class="step"><span class="num">3</span><h3>Llena tus datos</h3><p>Pica "Personalizar y pedir", escribe tus textos, elige instalación y entrega, y envíalo por WhatsApp. Se pide un anticipo de <span class="js-anticipo">$150</span>.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="modelos" class="wrap stack modelos">
+  <div class="tabs" role="group" aria-label="Tipo de producto" id="tabs"></div>
+  <div class="modelos-head">
+    <div>
+      <h2 id="titulo-modelos">Elige tu placa</h2>
+      <p class="muted" id="conteo"></p>
+    </div>
+    <div class="buscar">
+      <label for="buscar">Buscar por número o nombre</label>
+      <input id="buscar" type="search" placeholder="Ej. 007, L03 o girasoles" autocomplete="off">
+    </div>
+  </div>
+  <div class="chips" role="group" aria-label="Categorías" id="categorias"></div>
+  <p class="vacio" id="vacio" hidden>No encontramos ese modelo. Prueba con otro número o categoría.</p>
+  <div class="grid" id="grid"></div>
+</section>
+
+<section id="precios" class="band">
+  <div class="wrap stack">
+    <div>
+      <h2>Precios por tamaño</h2>
+      <p class="muted">Mismos precios para placas y lápidas. El precio depende solo del tamaño; personalizar textos, colores o fotos no cuesta más.</p>
+    </div>
+    <div class="precios" id="tablas-precios"></div>
+  </div>
+</section>
+
+<section class="wrap stack" id="info-sec">
+  <h2>Lo que debes saber</h2>
+  <div class="info" id="info"></div>
+</section>
+
+<section class="wrap lapidas-cta">
+  <div class="cta-box">
+    <div>
+      <h2>Lápidas personalizadas</h2>
+      <p>Diseños con foto, mensaje y fechas para honrar a quien amas. Mismos tamaños y precios que las placas.</p>
+    </div>
+    <a href="#modelos" class="btn btn-light" data-ir="lapidas">Ver lápidas</a>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-in">
+    <div>
+      <p class="footer-brand">Recoovare</p>
+      <p>Placas domiciliarias y lápidas · <span class="js-ciudad">Mérida, Yucatán</span></p>
+    </div>
+    <div class="footer-links" id="footer-links"></div>
+  </div>
+</footer>
+
+<script src="datos.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
