@@ -52,6 +52,23 @@ window.CATALOGO = {
     ]
   },
 
+  /* ---------- Asesores de ventas ----------
+     Cada asesor tiene su propio link: recoovare.pages.dev/?v=CODIGO
+     Los pedidos y citas de ese link llegan al WhatsApp del asesor.
+     codigo: corto, sin espacios ni acentos. whatsapp: 52 + 10 dígitos. */
+  vendedores: [
+    { codigo: "soemy",   nombre: "Soemy Quiñones",  titulo: "Asesora de ventas", whatsapp: "529999105127" },
+    { codigo: "maryfer", nombre: "Maryfer Balam",   titulo: "Asesora de ventas", whatsapp: "529994113097" },
+    { codigo: "ileana",  nombre: "Ileana Quiñones", titulo: "Asesora de ventas", whatsapp: "529993259242" }
+  ],
+
+  /* Comisión del asesor por medida (solo sobre el producto; no incluye instalación ni envío).
+     Una medida que no esté aquí ("otra medida") se captura a mano en Pedidos. */
+  comisiones: {
+    "30×20": 125, "35×25": 150, "45×32": 180, "55×40": 280,
+    "30×30": 150, "35×35": 175, "45×45": 200, "55×55": 300
+  },
+
   /* ---------- Placa 3D de la portada ----------
      Diseños que van girando en la portada. "foto" debe estar en fotos/portada/.
      Las placas ovaladas se ven mejor con fondo transparente (.webp o .png). */

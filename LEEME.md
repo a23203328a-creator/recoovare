@@ -162,3 +162,13 @@ Entra a **https://recoovare.pages.dev/pedidos/** (privado, no aparece en el men�
 - Cada nota que guardas en Notas de venta crea su pedido (RC-xxxx) automáticamente y guarda el folio R de la nota.
 - "Respaldo y Excel": descarga un .csv para Excel y un respaldo completo (pedidos + notas) para pasarlo a otra computadora.
 - Los datos se guardan en ese navegador y dispositivo.
+
+---
+
+## Asesores de ventas
+
+- Cada asesor tiene su link: `recoovare.pages.dev/?v=CODIGO` (ej. `?v=soemy`). Ahí los pedidos, "¿Ya tienes tu diseño?" y las citas llegan a SU WhatsApp, con su nombre al final del mensaje. Arriba sale "Te atiende …".
+- El link se recuerda 30 días en el celular del cliente. Para volver a tu número en tu propio celular abre `recoovare.pages.dev/?v=recoovare`.
+- Alta de asesores y tabla de comisiones: en `datos.js` (secciones `vendedores` y `comisiones`).
+- En Notas eliges el asesor y la comisión se calcula sola por medida (no sale en el ticket). En Pedidos aparece como intermediario; si la cambias a mano, se respeta.
+- En Pedidos → "Asesores de ventas": links para copiar, ventas, comisión, pagada y por pagar.

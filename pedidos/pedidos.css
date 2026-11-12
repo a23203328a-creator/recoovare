@@ -116,3 +116,15 @@ input:focus, select:focus, textarea:focus { border-color: var(--cafe); outline: 
   .kpi strong { font-size: 20px; }
   .kpi small { font-size: 12px; }
 }
+
+.asesores summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; cursor: pointer; list-style: none; min-height: 32px; }
+.asesores summary::-webkit-details-marker { display: none; }
+.asesores summary h2 { font-size: 18px; font-weight: 800; }
+.asesores summary h2::before { content: "▸ "; }
+.asesores[open] summary h2::before { content: "▾ "; }
+.asesores[open] { gap: 12px; }
+.tabla-chica { min-width: 760px; }
+.tabla-chica tbody tr { cursor: default; }
+.link-asesor { display: flex; align-items: center; gap: 8px; }
+.link-asesor code { font-size: 13px; background: var(--fondo); padding: 4px 8px; border-radius: 6px; }
+.btn-copiar { font: inherit; font-size: 13px; font-weight: 800; min-height: 34px; padding: 4px 10px; border-radius: 8px; border: 1.5px solid var(--cafe); background: #fff; color: var(--cafe); cursor: pointer; }

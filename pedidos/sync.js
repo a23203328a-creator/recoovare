@@ -72,6 +72,13 @@
     p.extrasDetalle = extras.map(function (i) { return i.desc; }).join(', ');
     p.entrega = nota.entrega || p.entrega;
     p.notaId = nota.id; p.notaFolio = nota.folio;
+    // Asesor de ventas -> intermediario (salvo que lo hayas cambiado a mano en Pedidos)
+    var vend = ((window.CATALOGO && window.CATALOGO.vendedores) || []).find(function (v) { return v.codigo === nota.vendedor; });
+    var inter = p.intermediario || {};
+    if (!inter.manual) {
+      if (vend) p.intermediario = { nombre: vend.nombre, codigo: vend.codigo, monto: num(nota.comision), pagado: !!inter.pagado, fecha: inter.fecha || '' };
+      else if (inter.codigo) p.intermediario = { nombre: '', monto: 0 };
+    }
     // Pagos que vienen de la nota (se recalculan cada vez)
     var manuales = (p.pagos || []).filter(function (x) { return x.origen !== 'nota'; });
     var deNota = [];

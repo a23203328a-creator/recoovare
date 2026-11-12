@@ -28,6 +28,15 @@
 <main class="contenedor">
   <section class="kpis" id="kpis" aria-label="Resumen"></section>
 
+  <details class="panel asesores" id="asesores">
+    <summary><h2>Asesores de ventas</h2><span class="sub" id="asesores-sub"></span></summary>
+    <div class="tabla-caja"><table class="tabla tabla-chica">
+      <thead><tr><th scope="col">Asesor</th><th scope="col">Su link</th><th scope="col" class="num">Pedidos</th><th scope="col" class="num">Ventas (producto)</th><th scope="col" class="num">Comisión</th><th scope="col" class="num">Pagada</th><th scope="col" class="num">Por pagar</th></tr></thead>
+      <tbody id="asesores-tbody"></tbody>
+    </table></div>
+    <p class="ayuda">Comparte a cada asesor su link. Los pedidos y citas de ese link le llegan a su WhatsApp. Para cambiar asesores o comisiones edita datos.js.</p>
+  </details>
+
   <section class="panel">
     <div class="filtros">
       <div class="campo buscar"><label for="buscar">Buscar</label><input id="buscar" type="search" placeholder="Folio, cliente, producto o teléfono" autocomplete="off"></div>
@@ -110,11 +119,14 @@
     </fieldset>
 
     <fieldset class="seccion">
-      <legend>Intermediario (si hubo)</legend>
+      <legend>Intermediario / asesor de ventas (si hubo)</legend>
       <div class="fila-2">
-        <div class="campo"><label for="m-int-nombre">Nombre</label><input id="m-int-nombre" type="text" autocomplete="off"></div>
-        <div class="campo"><label for="m-int-monto">Pago al intermediario ($)</label><input id="m-int-monto" type="number" min="0" step="1" inputmode="decimal"></div>
+        <div class="campo"><label for="m-int-nombre">Nombre</label><input id="m-int-nombre" type="text" list="lista-asesores" autocomplete="off"></div>
+        <div class="campo"><label for="m-int-monto">Pago al intermediario / comisión ($)</label><input id="m-int-monto" type="number" min="0" step="1" inputmode="decimal"></div>
       </div>
+      <label class="check"><input type="checkbox" id="m-int-pagado"> <span>Ya le pagué su comisión</span></label>
+      <p class="ayuda" id="m-int-ayuda"></p>
+      <datalist id="lista-asesores"></datalist>
     </fieldset>
 
     <fieldset class="seccion">
@@ -168,6 +180,7 @@
   </div>
 </div>
 
+<script src="../datos.js"></script>
 <script src="sync.js"></script>
 <script src="pedidos.js"></script>
 </body>

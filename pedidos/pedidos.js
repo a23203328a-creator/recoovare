@@ -135,7 +135,33 @@
       ? 'Mi parte = ' + dinero(cfg.fijo) + ' por pedido (o la que ajustes en cada pedido).'
       : 'Mi parte = ' + cfg.pct + '% × (precio del producto − pago al intermediario). La instalación y el envío no se reparten.';
   }
-  function pintar() { pintarKPIs(); pintarChips(); pintarTabla(); pintarRegla(); }
+  var ASESORES = (window.CATALOGO && window.CATALOGO.vendedores) || [];
+  var COMIS = (window.CATALOGO && window.CATALOGO.comisiones) || {};
+  $('lista-asesores').innerHTML = ASESORES.map(function (v) { return '<option value="' + esc(v.nombre) + '">'; }).join('');
+  function deAsesor(p, v) { var i = p.intermediario || {}; return i.codigo === v.codigo || (i.nombre || '').trim().toLowerCase() === v.nombre.toLowerCase(); }
+  function pintarAsesores() {
+    var base = location.origin + location.pathname.replace(/pedidos\/?(index\.html)?$/, '');
+    var porPagarTotal = 0;
+    $('asesores-tbody').innerHTML = ASESORES.map(function (v) {
+      var ps = pedidos.filter(function (p) { return p.estado !== 'Cancelado' && enPeriodo(p) && deAsesor(p, v); });
+      var ventas = ps.reduce(function (s, p) { return s + num(p.precioProducto); }, 0);
+      var com = ps.reduce(function (s, p) { return s + num(p.intermediario.monto); }, 0);
+      var pag = ps.reduce(function (s, p) { return s + (p.intermediario.pagado ? num(p.intermediario.monto) : 0); }, 0);
+      porPagarTotal += com - pag;
+      var link = base + '?v=' + v.codigo;
+      return '<tr><td><b>' + esc(v.nombre) + '</b></td><td><span class="link-asesor"><code>' + esc(link.replace(/^https?:\/\//, '')) + '</code><button type="button" class="btn-copiar" data-copiar="' + esc(link) + '">Copiar</button></span></td>' +
+        '<td class="num">' + ps.length + '</td><td class="num">' + dinero(ventas) + '</td><td class="num">' + dinero(com) + '</td><td class="num">' + dinero(pag) + '</td><td class="num' + (com - pag > 0 ? ' debe' : '') + '">' + dinero(com - pag) + '</td></tr>';
+    }).join('');
+    $('asesores-sub').textContent = ASESORES.length + ' asesores · Comisiones por pagar: ' + dinero(porPagarTotal);
+  }
+  $('asesores').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-copiar]'); if (!b) return;
+    var t = b.getAttribute('data-copiar');
+    var ok = function () { b.textContent = '¡Copiado!'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () { prompt('Copia el link:', t); });
+    else prompt('Copia el link:', t);
+  });
+  function pintar() { pintarKPIs(); pintarChips(); pintarTabla(); pintarRegla(); pintarAsesores(); }
   function guardarTodo() { if (!guardar(S.K, pedidos)) alert('No se pudo guardar en este navegador.'); }
 
   /* ---------- eventos de la lista ---------- */
@@ -182,6 +208,8 @@
     $('m-extras-det').value = actual.extrasDetalle || '';
     $('m-int-nombre').value = (actual.intermediario && actual.intermediario.nombre) || '';
     $('m-int-monto').value = (actual.intermediario && actual.intermediario.monto) || '';
+    $('m-int-pagado').checked = !!(actual.intermediario && actual.intermediario.pagado);
+    actual._intAntes = JSON.stringify([$('m-int-nombre').value, $('m-int-monto').value]);
     $('m-ajuste').value = actual.ajuste === null || actual.ajuste === undefined ? '' : actual.ajuste;
     $('m-mama-pagado').checked = !!(actual.mama && actual.mama.pagado);
     $('m-mama-fecha').value = (actual.mama && actual.mama.fecha) || '';
@@ -198,7 +226,12 @@
     actual.fecha = $('m-fecha').value; actual.estado = $('m-estado').value; actual.entrega = $('m-entrega').value;
     actual.cliente = $('m-cliente').value.trim(); actual.tel = $('m-tel').value.trim(); actual.producto = $('m-producto').value.trim();
     actual.precioProducto = num($('m-precio').value); actual.extras = num($('m-extras').value); actual.extrasDetalle = $('m-extras-det').value.trim();
-    actual.intermediario = { nombre: $('m-int-nombre').value.trim(), monto: num($('m-int-monto').value) };
+    var prevI = actual.intermediario || {};
+    var nombreI = $('m-int-nombre').value.trim();
+    var asesorI = ASESORES.find(function (v) { return v.nombre.toLowerCase() === nombreI.toLowerCase(); });
+    var cambio = JSON.stringify([$('m-int-nombre').value, $('m-int-monto').value]) !== actual._intAntes;
+    actual.intermediario = { nombre: nombreI, codigo: asesorI ? asesorI.codigo : '', monto: num($('m-int-monto').value), pagado: $('m-int-pagado').checked, fecha: prevI.fecha || '', manual: !!(prevI.manual || cambio) };
+    if (actual.intermediario.pagado && !actual.intermediario.fecha) actual.intermediario.fecha = hoy();
     actual.ajuste = $('m-ajuste').value === '' ? null : num($('m-ajuste').value);
     actual.mama = { pagado: $('m-mama-pagado').checked, fecha: $('m-mama-fecha').value, monto: $('m-mama-monto').value === '' ? null : num($('m-mama-monto').value) };
     actual.notas = $('m-notas').value.trim();
@@ -212,6 +245,9 @@
     $('m-costos').innerHTML = (actual.costos || []).length ? actual.costos.map(function (x, i) {
       return '<li><span>' + esc(x.concepto) + '</span><span><b>' + dinero(x.monto) + '</b> <button type="button" class="quitar" data-quitar-costo="' + i + '">Quitar</button></span></li>';
     }).join('') : '<li class="vacia">Sin costos registrados.</li>';
+    var ia = actual.intermediario || {};
+    $('m-int-ayuda').textContent = ia.codigo && !ia.manual && actual.notaFolio ? 'Comisión calculada desde la nota ' + actual.notaFolio + ' según la medida.' :
+      ia.nombre ? 'Tabla de comisiones: ' + Object.keys(COMIS).map(function (k) { return k + ' $' + COMIS[k]; }).join(' · ') : '';
     $('m-parte-calc').textContent = dinero(c.parteCalc) + (cfg.modo === 'fijo' ? ' (monto fijo)' : ' (' + cfg.pct + '% de ' + dinero(c.base) + ')');
     $('m-parte').textContent = dinero(c.parte);
     $('m-resumen').innerHTML =
@@ -258,7 +294,7 @@
   });
   $('form').addEventListener('submit', function (e) {
     e.preventDefault(); leerEditor();
-    var nuevo = actual._nuevo; delete actual._nuevo;
+    var nuevo = actual._nuevo; delete actual._nuevo; delete actual._intAntes;
     var i = pedidos.findIndex(function (x) { return x.id === actual.id; });
     if (i >= 0) pedidos[i] = actual; else pedidos.unshift(actual);
     guardarTodo(); cerrar(); pintar();

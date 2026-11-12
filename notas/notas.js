@@ -53,10 +53,17 @@
 
   /* ---------- estado de la nota ---------- */
   function notaVacia() {
-    return { id: 'n' + Date.now(), folio: null, fecha: null, cliente: { nombre: '', tel: '' }, items: [], anticipo: NEG.anticipo || 0, metodo: 'Efectivo', entrega: hoyISO(3), notas: '', pagado: false };
+    return { id: 'n' + Date.now(), folio: null, fecha: null, vendedor: '', cliente: { nombre: '', tel: '' }, items: [], anticipo: NEG.anticipo || 0, metodo: 'Efectivo', entrega: hoyISO(3), notas: '', pagado: false };
   }
   var nota = leer(CLAVE_BORRADOR, null) || notaVacia();
 
+  var VENDEDORES = D.vendedores || [], COMISIONES = D.comisiones || {};
+  function comisionNota(n) {
+    if (!n.vendedor) return 0;
+    return n.items.reduce(function (s, it) { return s + (it.clase === 'producto' && it.medida && COMISIONES[it.medida] ? COMISIONES[it.medida] * num(it.cant) : 0); }, 0);
+  }
+  function sinComision(n) { return n.vendedor && n.items.some(function (it) { return it.clase === 'producto' && !(it.medida && COMISIONES[it.medida]); }); }
+  $('c-vendedor').innerHTML = '<option value="">Ninguno (venta directa)</option>' + VENDEDORES.map(function (v) { return '<option value="' + esc(v.codigo) + '">' + esc(v.nombre) + '</option>'; }).join('');
   function totalNota(n) { return n.items.reduce(function (s, it) { return s + num(it.cant) * num(it.precio); }, 0); }
   function restaNota(n) { return n.pagado ? 0 : Math.max(0, totalNota(n) - num(n.anticipo)); }
 
@@ -110,7 +117,9 @@
     var err = $('p-error');
     if (!desc) { err.textContent = 'Escribe la descripción del producto.'; err.hidden = false; $('p-desc').focus(); return; }
     if ($('p-precio').value === '') { err.textContent = 'Escribe el precio.'; err.hidden = false; $('p-precio').focus(); return; }
-    nota.items.push({ desc: desc, detalle: $('p-detalle').value.trim(), cant: cant, precio: precio, clase: $('p-tipo').value === 'otro' ? 'extra' : 'producto' });
+    var selM = $('p-tipo').value === 'otro' ? null : ($('p-medida')._lista || [])[Number($('p-medida').value)];
+    var medidaIt = selM ? selM.medida : '';
+    nota.items.push({ desc: desc, detalle: $('p-detalle').value.trim(), cant: cant, precio: precio, clase: $('p-tipo').value === 'otro' ? 'extra' : 'producto', medida: medidaIt });
     limpiarProducto(); cambio();
   });
   document.querySelector('.rapidos').addEventListener('click', function (e) {
@@ -132,6 +141,8 @@
   function leerFormulario() {
     nota.cliente.nombre = $('c-nombre').value.trim();
     nota.cliente.tel = $('c-tel').value.trim();
+    nota.vendedor = $('c-vendedor').value;
+    nota.comision = comisionNota(nota);
     nota.anticipo = num($('pg-anticipo').value);
     nota.metodo = $('pg-metodo').value;
     nota.entrega = $('pg-entrega').value;
@@ -140,12 +151,13 @@
   function escribirFormulario() {
     $('c-nombre').value = nota.cliente.nombre || '';
     $('c-tel').value = nota.cliente.tel || '';
+    $('c-vendedor').value = nota.vendedor || '';
     $('pg-anticipo').value = nota.anticipo;
     $('pg-metodo').value = nota.metodo || 'Efectivo';
     $('pg-entrega').value = nota.entrega || '';
     $('pg-notas').value = nota.notas || '';
   }
-  ['c-nombre', 'c-tel', 'pg-anticipo', 'pg-metodo', 'pg-entrega', 'pg-notas'].forEach(function (id) {
+  ['c-nombre', 'c-tel', 'c-vendedor', 'pg-anticipo', 'pg-metodo', 'pg-entrega', 'pg-notas'].forEach(function (id) {
     $(id).addEventListener('input', function () { leerFormulario(); cambio(true); });
     $(id).addEventListener('change', function () { leerFormulario(); cambio(true); });
   });
@@ -217,6 +229,10 @@
       '<div><span>Anticipo</span><span>' + dinero(nota.anticipo) + '</span></div>' +
       '<div class="grande"><span>Resta</span><span>' + dinero(restaNota(nota)) + '</span></div>';
     $('ticket-vista').innerHTML = htmlTicket(nota);
+    nota.comision = comisionNota(nota);
+    var ci = $('comision-info'), vend = VENDEDORES.find(function (v) { return v.codigo === nota.vendedor; });
+    ci.hidden = !vend;
+    if (vend) ci.textContent = 'Comisión de ' + vend.nombre + ': ' + dinero(nota.comision) + (sinComision(nota) ? ' (hay una medida especial: pon su comisión a mano en Pedidos)' : '') + '. No aparece en el ticket.';
     var av = $('aviso-editando');
     if (nota.folio) { av.hidden = false; av.textContent = 'Editando la nota ' + nota.folio + (nota.pagado ? ' (pagada)' : '') + '. Los cambios se guardan al imprimir o mandar el PDF.'; }
     else av.hidden = true;

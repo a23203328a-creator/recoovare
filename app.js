@@ -20,8 +20,37 @@
   }
   function dinero(n) { return '$' + Number(n).toLocaleString('es-MX'); }
   function sinAcentos(t) { return String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
-  function numeroWA() { return String(D.negocio.whatsapp || '').replace(/\D/g, ''); }
-  function linkWA(texto) { return 'https://wa.me/' + numeroWA() + '?text=' + encodeURIComponent(texto); }
+  /* Asesor de ventas: recoovare.pages.dev/?v=codigo (se recuerda 30 días; ?v=recoovare lo quita) */
+  var VENDEDOR = (function () {
+    var lista = D.vendedores || [], K = 'recoovare_vendedor', cod = null;
+    var q = new URLSearchParams(location.search).get('v');
+    try {
+      if (q !== null) {
+        q = q.trim().toLowerCase();
+        var v = lista.find(function (x) { return x.codigo === q; });
+        if (v) { cod = v.codigo; localStorage.setItem(K, JSON.stringify({ c: cod, t: Date.now() })); }
+        else localStorage.removeItem(K);
+      } else {
+        var s = JSON.parse(localStorage.getItem(K) || 'null');
+        if (s && Date.now() - s.t < 30 * 864e5) cod = s.c;
+      }
+    } catch (e) {}
+    return lista.find(function (x) { return x.codigo === cod; }) || null;
+  })();
+  function numeroWA() { return String((VENDEDOR ? VENDEDOR.whatsapp : D.negocio.whatsapp) || '').replace(/\D/g, ''); }
+  function linkWA(texto) {
+    if (VENDEDOR) texto += '\n\n' + (VENDEDOR.titulo || 'Asesor de ventas') + ': ' + VENDEDOR.nombre;
+    return 'https://wa.me/' + numeroWA() + '?text=' + encodeURIComponent(texto);
+  }
+  function telVisible(n) { n = String(n || '').replace(/\D/g, '').slice(-10); return n.length === 10 ? n.slice(0, 3) + ' ' + n.slice(3, 6) + ' ' + n.slice(6) : n; }
+  if (VENDEDOR) {
+    var banda = document.getElementById('asesor');
+    if (banda) {
+      banda.innerHTML = '<div class="wrap asesor-in"><span>Te atiende <strong>' + esc(VENDEDOR.nombre) + '</strong> · ' + esc(VENDEDOR.titulo || 'Asesor de ventas') + ' de ' + esc(D.negocio.nombre) + '</span>' +
+        '<a href="' + esc(linkWA('Hola ' + VENDEDOR.nombre + ', quiero información sobre las placas y lápidas de ' + D.negocio.nombre + '.')) + '" target="_blank" rel="noopener">WhatsApp ' + esc(telVisible(VENDEDOR.whatsapp)) + '</a></div>';
+      banda.hidden = false;
+    }
+  }
   function visibles(tipo) { return D.tipos[tipo].modelos.filter(function (m) { return !m.oculto; }); }
   // Lista de medidas de un modelo: las de su forma, o todas las que el tipo indique en "medidas"
   function preciosDe(m, tipo) {
@@ -93,7 +122,7 @@
     a.href = linkWA('Hola ' + D.negocio.nombre + ', quiero información sobre sus placas y lápidas.');
   });
   (function piePagina() {
-    var visible = D.negocio.whatsappVisible || numeroWA();
+    var visible = VENDEDOR ? telVisible(VENDEDOR.whatsapp) : (D.negocio.whatsappVisible || numeroWA());
     var html = '<a href="' + esc(linkWA('Hola ' + D.negocio.nombre + ', quiero información.')) + '" target="_blank" rel="noopener">WhatsApp' + (visible ? ': ' + esc(visible) : '') + '</a>';
     if (D.negocio.instagram) html += '<a href="https://instagram.com/' + esc(D.negocio.instagram) + '" target="_blank" rel="noopener">Instagram: @' + esc(D.negocio.instagram) + '</a>';
     if (D.negocio.facebook) html += '<a href="' + esc(D.negocio.facebook) + '" target="_blank" rel="noopener">Facebook</a>';

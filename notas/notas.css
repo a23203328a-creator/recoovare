@@ -112,3 +112,5 @@ input:focus, select:focus, textarea:focus { border-color: var(--cafe); outline: 
   .solo-imprimir { display: block; }
   .ticket { box-shadow: none; margin: 0 0 0 var(--margen-ticket, 0mm); padding: 2mm 0; }
 }
+
+.comision { margin: 0; font-size: 14px; font-weight: 700; color: var(--salvia); background: var(--fondo); border-radius: 10px; padding: 8px 12px; }
