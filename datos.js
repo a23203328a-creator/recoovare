@@ -352,7 +352,7 @@ window.CATALOGO = {
         { codigo: "L75", nombre: "Mármol blanco y dorado con Sagrado Corazón", categoria: "Religiosas", forma: "rectangular", foto: "L75.jpg" },
         { codigo: "L76", nombre: "Mármol negro con cruz y paloma", categoria: "Negro y dorado", forma: "rectangular", foto: "L76.jpg" },
         { codigo: "L77", nombre: "Libro beige con foto y cruz", categoria: "Libro abierto", forma: "rectangular", foto: "L77.jpg" },
-        { codigo: "L78", nombre: "Libro negro y dorado con cruz", categoria: "Negro y dorado", forma: "rectangular", foto: "L78.jpg" },
+        { codigo: "L78", nombre: "Libro negro y dorado con cruz", categoria: "Libro abierto", forma: "rectangular", foto: "L78.jpg" },
         { codigo: "L79", nombre: "Osito en columpio", categoria: "Angelitos", forma: "rectangular", foto: "L79.jpg" },
         { codigo: "L80", nombre: "Mármol con Cristo crucificado y paloma", categoria: "Mármol blanco", forma: "rectangular", foto: "L80.jpg" },
         { codigo: "L81", nombre: "Con foto, rosario y manos orando", categoria: "Con foto", forma: "rectangular", foto: "L81.jpg" },
