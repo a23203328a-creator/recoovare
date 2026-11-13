@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="estilos.css?v=202611120937">
+<link rel="stylesheet" href="estilos.css?v=202611131515">
 </head>
 <body>
 
@@ -224,7 +224,27 @@
   </div>
 </footer>
 
-<script src="datos.js?v=202611120937"></script>
-<script src="app.js?v=202611120937"></script>
+<div class="bienvenida" id="bienvenida" hidden role="dialog" aria-modal="true" aria-labelledby="bv-titulo">
+  <div class="bv-caja">
+    <button type="button" class="bv-cerrar" id="bv-cerrar" aria-label="Cerrar">×</button>
+    <h2 id="bv-titulo">¡Bienvenido a Recoovare!</h2>
+    <p>¿Qué estás buscando?</p>
+    <div class="bv-opciones">
+      <button type="button" class="bv-op" data-bv="placas">
+        <img src="fotos/placas/034.jpg" alt="" loading="lazy">
+        <strong>Placas domiciliarias</strong>
+        <span>Con tu apellido o dirección para tu casa</span>
+      </button>
+      <button type="button" class="bv-op" data-bv="lapidas">
+        <img src="fotos/lapidas/L75.jpg" alt="" loading="lazy">
+        <strong>Lápidas</strong>
+        <span>Para recordar a un ser querido</span>
+      </button>
+    </div>
+    <button type="button" class="bv-todo" id="bv-todo">Solo quiero ver todo</button>
+  </div>
+</div>
+<script src="datos.js?v=202611131515"></script>
+<script src="app.js?v=202611131515"></script>
 </body>
 </html>

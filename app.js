@@ -683,4 +683,27 @@
   if (D.tipos[h]) { estado.tipo = h; }
   pintarTodo();
   if (D.tipos[h]) { document.getElementById('modelos').scrollIntoView(); }
+
+  /* ---------- aviso de bienvenida: ¿placas o lápidas? ---------- */
+  (function () {
+    var bv = document.getElementById('bienvenida'); if (!bv) return;
+    var visto = false;
+    try { visto = sessionStorage.getItem('recoovare_bienvenida') === '1'; } catch (e) {}
+    if (D.tipos[h] || visto) return; // si el link ya dice qué ver, o ya lo vio en esta visita, no se muestra
+    function cerrar() {
+      bv.hidden = true; document.body.style.overflow = '';
+      try { sessionStorage.setItem('recoovare_bienvenida', '1'); } catch (e) {}
+    }
+    bv.hidden = false; document.body.style.overflow = 'hidden';
+    bv.querySelectorAll('[data-bv]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        cerrar(); irA(b.getAttribute('data-bv'));
+        document.getElementById('modelos').scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+    document.getElementById('bv-cerrar').addEventListener('click', cerrar);
+    document.getElementById('bv-todo').addEventListener('click', cerrar);
+    bv.addEventListener('click', function (e) { if (e.target === bv) cerrar(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !bv.hidden) cerrar(); });
+  })();
 })();
