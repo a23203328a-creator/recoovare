@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="estilos.css?v=202611131519">
+<link rel="stylesheet" href="estilos.css?v=20261113152208">
 </head>
 <body>
 
@@ -56,13 +56,43 @@
   </div>
 </section>
 
-<section id="como-pedir" class="band">
+<section id="como-pedir" class="band pedir">
   <div class="wrap stack">
-    <h2>Pedir es así de fácil</h2>
-    <div class="steps">
-      <div class="step"><span class="num">1</span><h3>Elige tu modelo</h3><p>Cada diseño tiene su número, por ejemplo #007 o #L03.</p></div>
-      <div class="step"><span class="num">2</span><h3>Escoge el tamaño</h3><p>El precio solo cambia por la medida. Recomendamos 35×25 cm.</p></div>
-      <div class="step"><span class="num">3</span><h3>Pide tu boceto</h3><p>Pica "Mandar a hacer mi boceto", escribe tus textos y elige instalación o entrega. Te llega todo por WhatsApp. Se pide un anticipo de <span class="js-anticipo">$150</span>.</p></div>
+    <div class="pedir-head">
+      <span class="eyebrow">Cómo pedir</span>
+      <h2>Pedir es así de fácil</h2>
+      <p class="muted">Tres pasos y te llega todo por WhatsApp.</p>
+    </div>
+    <ol class="steps">
+      <li class="step">
+        <div class="step-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><path d="M14.5 17.2l2 2 4-4.2"/></svg>
+          <span class="num">1</span>
+        </div>
+        <h3>Elige tu modelo</h3>
+        <p>Cada diseño tiene su número, por ejemplo <span class="chip">#007</span> o <span class="chip">#L03</span>.</p>
+      </li>
+      <li class="step">
+        <div class="step-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="2.5" y="7.5" width="19" height="9" rx="1.8" transform="rotate(-12 12 12)"/><path d="M7 9.6l.6 2.6M10.4 8.9l.4 1.8M13.8 8.1l.6 2.6M17.2 7.4l.4 1.8" transform="rotate(-12 12 12) translate(0 0)"/></svg>
+          <span class="num">2</span>
+        </div>
+        <h3>Escoge el tamaño</h3>
+        <p>El precio solo cambia por la medida. Recomendamos <strong>35×25 cm</strong>.</p>
+      </li>
+      <li class="step">
+        <div class="step-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 18.5l1.2-3.6A8 8 0 1 1 8.6 18.2z"/><path d="M9 11.5h6M9 8.5h4"/></svg>
+          <span class="num">3</span>
+        </div>
+        <h3>Pide tu boceto</h3>
+        <p>Pica <strong>"Mandar a hacer mi boceto"</strong>, escribe tus textos y elige instalación o entrega. Te llega todo por WhatsApp.</p>
+        <p class="step-nota">Anticipo de <strong class="js-anticipo">$150</strong> para empezar</p>
+      </li>
+    </ol>
+    <div class="pedir-cta">
+      <a href="#modelos" class="btn btn-primary">Ver modelos</a>
+      <a href="#cita" class="pedir-link">¿Prefieres diseñarla en persona? Agenda una cita →</a>
     </div>
   </div>
 </section>
@@ -244,7 +274,7 @@
     <button type="button" class="bv-todo" id="bv-todo">Solo quiero ver todo</button>
   </div>
 </div>
-<script src="datos.js?v=202611131519"></script>
-<script src="app.js?v=202611131519"></script>
+<script src="datos.js?v=20261113152208"></script>
+<script src="app.js?v=20261113152208"></script>
 </body>
 </html>

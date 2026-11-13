@@ -100,11 +100,37 @@ p { margin: 0; }
 .otra-medida[aria-pressed="true"] { border-style: solid; border-color: var(--cafe); background: var(--cafe); color: #fff; font-weight: 800; }
 
 /* ============ Cómo pedir ============ */
-.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-.step { background: var(--fondo); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 10px; }
-.step h3 { font-size: 20px; }
-.step p { color: var(--texto-suave); }
-.num { width: 44px; height: 44px; border-radius: 999px; background: var(--cafe); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--titulos); font-weight: 700; font-size: 20px; }
+.pedir-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.pedir-head .muted { margin: 0; }
+.eyebrow { font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--salvia); }
+.steps { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; counter-reset: paso; }
+.step { position: relative; background: var(--fondo); border: 1px solid var(--borde); border-radius: 20px; padding: 28px 24px 24px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; transition: transform .2s, box-shadow .2s; }
+.step:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(74,38,24,.10); }
+.step:not(:last-child)::after { content: ""; position: absolute; top: 58px; right: -26px; width: 24px; height: 24px; background: no-repeat center/18px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235A6762' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E"); z-index: 1; }
+.step-ico { position: relative; width: 76px; height: 76px; border-radius: 50%; background: #fff; border: 2px solid var(--etiqueta); display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+.step-ico svg { width: 36px; height: 36px; fill: none; stroke: var(--cafe); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.step-ico .num { position: absolute; top: -4px; right: -6px; }
+.step h3 { font-size: 20px; margin: 0; }
+.step p { color: var(--texto-suave); margin: 0; }
+.step p strong { color: var(--texto); }
+.chip { display: inline-block; background: var(--etiqueta); color: var(--etiqueta-texto); font-weight: 800; font-size: 14px; padding: 1px 9px; border-radius: 999px; }
+.step-nota { margin-top: auto !important; padding-top: 8px; background: var(--etiqueta); color: var(--etiqueta-texto) !important; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 700; }
+.step-nota strong { color: var(--etiqueta-texto) !important; }
+.num { width: 30px; height: 30px; border-radius: 999px; background: var(--cafe); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--titulos); font-weight: 700; font-size: 15px; box-shadow: 0 0 0 3px #fff; }
+.pedir-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px 22px; margin-top: 6px; }
+.pedir-link { font-weight: 700; color: var(--salvia-oscuro); text-decoration: none; }
+.pedir-link:hover { text-decoration: underline; }
+@media (max-width: 760px) {
+  .steps { grid-template-columns: 1fr; gap: 26px; }
+  .step { flex-direction: row; flex-wrap: wrap; text-align: left; align-items: center; column-gap: 16px; padding: 20px; }
+  .step-ico { width: 60px; height: 60px; margin: 0; flex: none; }
+  .step-ico svg { width: 28px; height: 28px; }
+  .step h3 { flex: 1; }
+  .step p { flex-basis: 100%; }
+  .step-nota { flex-basis: auto !important; }
+  .step:not(:last-child)::after { top: auto; bottom: -25px; right: auto; left: 50%; transform: translateX(-50%) rotate(90deg); }
+  .pedir-cta { flex-direction: column; text-align: center; }
+}
 
 /* ============ Modelos ============ */
 .tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 6px; background: #EFE8E1; border-radius: 16px; max-width: 520px; }
