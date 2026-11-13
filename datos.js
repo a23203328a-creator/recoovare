@@ -235,6 +235,12 @@ window.CATALOGO = {
         { codigo: "070", nombre: "Azulejo con trenzado", categoria: "Azulejo", forma: "rectangular", foto: "070.jpg" },
         { codigo: "071", nombre: "Azulejo azul cielo", categoria: "Azulejo", forma: "rectangular", foto: "071.jpg" },
         { codigo: "072", nombre: "Azulejo blanco y dorado", categoria: "Azulejo", forma: "rectangular", foto: "072.jpg" },
+        { codigo: "073", nombre: "Margaritas amarillas", categoria: "Flores", forma: "ovalada", foto: "073.jpg" },
+        { codigo: "074", nombre: "Fondo marino", categoria: "Naturaleza", forma: "ovalada", foto: "074.jpg" },
+        { codigo: "075", nombre: "Casa de los abuelos con girasoles", categoria: "Abuelos", forma: "ovalada", foto: "075.jpg" },
+        { codigo: "076", nombre: "Casa de los abuelitos, hotel y guardería", categoria: "Abuelos", forma: "ovalada", foto: "076.jpg" },
+        { codigo: "077", nombre: "Tipo talavera rosa y azul", categoria: "Tipo talavera", forma: "ovalada", foto: "077.jpg" },
+        { codigo: "078", nombre: "Bienvenidos con girasoles", categoria: "Frases", forma: "ovalada", foto: "078.jpg" },
       ]
     },
 
