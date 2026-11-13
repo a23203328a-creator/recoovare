@@ -8,6 +8,9 @@
 
   var NOMBRES_FORMA = { ovalada: 'Ovalada', rectangular: 'Rectangular', cuadrada: 'Cuadrada' };
   var ICONO_WA = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.5A8.4 8.4 0 1 1 21 11.5z"/></svg>';
+  var ICONO_INFO = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg>';
+  var ICONO_SIG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  var ICONO_ATRAS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
   var ICONO_FLECHA = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 
   var estado = { tipo: 'placas', categoria: 'todos', busqueda: '', medida: {} };
@@ -99,17 +102,6 @@
       return cond.en.indexOf(v) >= 0;
     });
   }
-  function actualizarVisibles(card) {
-    var r = buscarModelo(card.getAttribute('data-clave'));
-    var form = card.querySelector('.pedido');
-    // dos pasadas por si un campo depende de otro que también es condicional
-    for (var k = 0; k < 2; k++) {
-      D.tipos[r.tipo].campos.forEach(function (c) {
-        var caja = form.querySelector('[data-campo="' + c.id + '"]');
-        if (caja) caja.hidden = !campoVisible(c, form);
-      });
-    }
-  }
   function claveModelo(tipo, m) { return tipo + ':' + m.codigo; }
   function ej(t) { t = t || ''; return (!t || /^ej\./i.test(t)) ? t : 'Ej. ' + t; }
   function mayus(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
@@ -160,17 +152,33 @@
   }
 
   /* ---------- tarjetas ---------- */
+  function htmlOpcion(c, o, i) {
+    return '<label class="op-card"><input type="radio" name="' + esc(c.id) + '" value="' + i + '"' + (i === 0 ? ' checked' : '') + '>' +
+      '<span class="op-marca" aria-hidden="true"></span>' +
+      '<span class="op-txt"><strong>' + esc(o.texto) + '</strong>' + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + '</span>' +
+      (o.costo ? '<span class="op-precio">+' + dinero(o.costo) + '</span>' : '') + '</label>';
+  }
+  function textoMsg(o) { return o.mensajeTexto || o.texto; }
   function htmlCampos(tipo, m, solo) {
     var id = claveModelo(tipo, m).replace(/[^a-zA-Z0-9]/g, '-');
     return D.tipos[tipo].campos.filter(function (c) { return !solo || solo.indexOf(c.id) >= 0; }).map(function (c) {
       var fid = id + '-' + c.id;
       if (c.opciones) {
+        var cuerpo;
+        if (c.grupos) {
+          var orden = [];
+          c.opciones.forEach(function (o) { if (orden.indexOf(o.grupo) < 0) orden.push(o.grupo); });
+          cuerpo = orden.map(function (g) {
+            var gi = c.grupos[g] || {};
+            return '<div class="op-grupo"><p class="op-grupo-tit">' + esc(gi.titulo || '') + '</p>' +
+              (gi.aviso ? '<p class="aviso">' + ICONO_INFO + '<span>' + esc(gi.aviso) + '</span></p>' : '') +
+              '<div class="op-lista">' + c.opciones.map(function (o, i) { return o.grupo === g ? htmlOpcion(c, o, i) : ''; }).join('') + '</div></div>';
+          }).join('');
+        } else {
+          cuerpo = '<div class="op-lista">' + c.opciones.map(function (o, i) { return htmlOpcion(c, o, i); }).join('') + '</div>';
+        }
         return '<fieldset class="campo opciones" data-campo="' + esc(c.id) + '"><legend>' + esc(c.etiqueta) + '</legend>' +
-          (c.ayuda ? '<p class="ayuda">' + esc(c.ayuda) + '</p>' : '') +
-          c.opciones.map(function (o, i) {
-            var extra = o.costo ? ' <span class="costo">+' + dinero(o.costo) + '</span>' : '';
-            return '<label class="opcion"><input type="radio" name="' + esc(c.id) + '" value="' + i + '"' + (i === 0 ? ' checked' : '') + '><span>' + esc(o.texto) + extra + '</span></label>';
-          }).join('') + '</fieldset>';
+          (c.ayuda ? '<p class="aviso">' + ICONO_INFO + '<span>' + esc(c.ayuda) + '</span></p>' : '') + cuerpo + '</fieldset>';
       }
       var control = c.parrafo
         ? '<textarea id="' + fid + '" name="' + esc(c.id) + '" placeholder="' + esc(ej(c.ejemplo)) + '"></textarea>'
@@ -194,15 +202,7 @@
         '<div><span class="label-sm">Tamaño (cm)</span>' + htmlMedidas(lista, idx) +
           '<button type="button" class="otra-medida" data-medida="-1" aria-pressed="' + (idx === -1) + '">Otra medida (cotizar)</button></div>' +
         '<div class="price-row"><p class="price"><span class="js-precio">' + (p.otra ? 'A cotizar' : dinero(p.precio)) + '</span> <span class="mxn"' + (p.otra ? ' hidden' : '') + '>MXN</span></p><span class="tag-rec js-rec"' + (p.recomendada ? '' : ' hidden') + '>Medida recomendada</span></div>' +
-        '<button type="button" class="btn-pedir" aria-expanded="false">Mandar a hacer mi boceto ' + ICONO_FLECHA + '</button>' +
-        '<form class="pedido" hidden novalidate>' +
-          '<div class="campo js-otra"' + (p.otra ? '' : ' hidden') + '><label for="otra-' + esc(clave.replace(/[^a-zA-Z0-9]/g, '-')) + '">Medida que necesitas <span class="req" aria-hidden="true">*</span></label>' +
-            '<input id="otra-' + esc(clave.replace(/[^a-zA-Z0-9]/g, '-')) + '" name="medidaOtra" type="text" placeholder="Ej. 60 × 40 cm"><p class="msg-error" hidden>Escribe la medida que necesitas.</p></div>' +
-          htmlCampos(tipo, m) +
-          '<div class="resumen js-resumen"></div>' +
-          '<button type="submit" class="btn-wa">' + ICONO_WA + ' Enviar mi boceto por WhatsApp</button>' +
-          '<p class="nota">Si quieres agregar una foto o un logo, mándalo en el mismo chat de WhatsApp.</p>' +
-        '</form>' +
+        '<button type="button" class="btn-pedir">Mandar a hacer mi boceto ' + ICONO_SIG + '</button>' +
       '</div></article>';
   }
   function filtrados() {
@@ -220,7 +220,6 @@
     document.getElementById('conteo').textContent = 'Mostrando ' + lista.length + ' de ' + visibles(estado.tipo).length + ' ' + t.nombre.toLowerCase();
     document.getElementById('vacio').hidden = lista.length > 0;
     document.getElementById('grid').innerHTML = lista.map(function (m) { return htmlTarjeta(estado.tipo, m); }).join('');
-    document.querySelectorAll('#grid .card').forEach(function (c) { actualizarVisibles(c); actualizarResumen(c); });
   }
   function pintarTodo() { pintarPestanas(); pintarCategorias(); pintarModelos(); }
 
@@ -228,42 +227,6 @@
     var partes = clave.split(':');
     var m = D.tipos[partes[0]].modelos.find(function (x) { return x.codigo === partes[1]; });
     return { tipo: partes[0], m: m };
-  }
-
-  /* ---------- cálculo del pedido ---------- */
-  function calcular(card) {
-    var clave = card.getAttribute('data-clave');
-    var info = buscarModelo(clave);
-    var t = D.tipos[info.tipo];
-    var idx = estado.medida[clave];
-    if (idx == null) idx = medidaInicial(info.m, info.tipo);
-    var p = idx === -1 ? { medida: 'Otra medida', precio: 0, otra: true } : preciosDe(info.m, info.tipo)[idx];
-    var form = card.querySelector('.pedido');
-    var extras = [];
-    var cotizar = false, confirmarZona = false;
-    t.campos.forEach(function (c) {
-      if (!c.opciones) return;
-      var caja = form.querySelector('[data-campo="' + c.id + '"]');
-      if (caja && caja.hidden) return;
-      var marcado = form.querySelector('input[name="' + c.id + '"]:checked');
-      var o = c.opciones[marcado ? Number(marcado.value) : 0];
-      if (o.costo) extras.push({ nombre: c.etiqueta, costo: o.costo });
-      if (o.cotizar) cotizar = true;
-      if (o.confirmarZona) confirmarZona = true;
-    });
-    var total = p.precio + extras.reduce(function (s, e) { return s + e.costo; }, 0);
-    return { tipo: info.tipo, t: t, m: info.m, p: p, extras: extras, total: total, cotizar: cotizar, confirmarZona: confirmarZona };
-  }
-  function actualizarResumen(card) {
-    var r = calcular(card);
-    var detalle = mayus(r.t.singular) + ' #' + r.m.codigo + (r.p.otra ? ' en otra medida: a cotizar' : ' en ' + r.p.medida + ' cm: ' + dinero(r.p.precio));
-    r.extras.forEach(function (e) { detalle += '<br>' + esc(e.nombre) + ': ' + dinero(e.costo); });
-    card.querySelector('.js-resumen').innerHTML =
-      '<p>' + detalle + '</p>' +
-      (r.p.otra ? '<p class="total">Total: a cotizar' + (r.extras.length ? ' (más ' + dinero(r.total) + ' de extras)' : '') + '</p>'
-                : '<p class="total">Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') + '</p>') +
-      (r.confirmarZona ? '<p>La instalación se confirma al revisar tu ubicación.</p>' : '') +
-      (D.negocio.anticipo ? '<p>Anticipo para iniciar: <strong>' + dinero(D.negocio.anticipo) + '</strong></p>' : '');
   }
 
   /* ---------- eventos ---------- */
@@ -302,74 +265,205 @@
       card.querySelector('.js-precio').textContent = p.otra ? 'A cotizar' : dinero(p.precio);
       card.querySelector('.mxn').hidden = !!p.otra;
       card.querySelector('.js-rec').hidden = !p.recomendada;
-      card.querySelector('.js-otra').hidden = !p.otra;
-      if (p.otra) {
-        var bp2 = card.querySelector('.btn-pedir');
-        if (bp2.getAttribute('aria-expanded') !== 'true') bp2.click();
-        card.querySelector('input[name="medidaOtra"]').focus();
-      }
-      actualizarResumen(card);
       return;
     }
-    var bp = e.target.closest('.btn-pedir');
-    if (bp) {
-      var abierto = bp.getAttribute('aria-expanded') === 'true';
-      bp.setAttribute('aria-expanded', String(!abierto));
-      var form = card.querySelector('.pedido');
-      form.hidden = abierto;
-      if (!abierto) { var primero = form.querySelector('input[type="text"], textarea'); if (primero) primero.focus(); }
+    if (e.target.closest('.btn-pedir')) {
+      var info = buscarModelo(clave);
+      var ix = estado.medida[clave] != null ? estado.medida[clave] : medidaInicial(info.m, info.tipo);
+      abrirPedido(info.tipo, info.m.codigo, ix, true);
     }
   });
-  grid.addEventListener('change', function (e) {
-    if (e.target.type === 'radio') { var cd = e.target.closest('.card'); actualizarVisibles(cd); actualizarResumen(cd); }
-  });
 
-  grid.addEventListener('submit', function (e) {
+  /* ==========================================================
+     PÁGINA DEL PEDIDO ("Mandar a hacer mi boceto")
+     ========================================================== */
+  var BLOQUE = { instalacion: 'instalacion', domicilio: 'instalacion', cementerio: 'instalacion', entrega: 'entrega', envio: 'entrega' };
+  var ICONOS_PD = {
+    diseno: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+    instalacion: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.6 2.6l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.4 2.4-2.4-.6-.6-2.4z"/>',
+    entrega: '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/>',
+    resumen: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'
+  };
+  function cabeza(b, titulo, sub) {
+    return '<div class="pd-cab"><span class="pd-ico" aria-hidden="true"><svg viewBox="0 0 24 24">' + ICONOS_PD[b] + '</svg></span><div><h2>' + esc(titulo) + '</h2>' + (sub ? '<p>' + esc(sub) + '</p>' : '') + '</div></div>';
+  }
+  var pd = null; // { tipo, m, idx, vuelta }
+  var vista = document.getElementById('pedido-vista');
+
+  function precioPd() {
+    return pd.idx === -1 ? { medida: 'Otra medida', precio: 0, otra: true } : (preciosDe(pd.m, pd.tipo)[pd.idx] || { medida: '', precio: 0 });
+  }
+  function abrirPedido(tipo, codigo, idx, empujar) {
+    var t = D.tipos[tipo]; if (!t) return false;
+    var m = t.modelos.find(function (x) { return x.codigo === codigo; }); if (!m) return false;
+    var lista = preciosDe(m, tipo);
+    if (!(idx === -1 || (idx >= 0 && idx < lista.length))) idx = medidaInicial(m, tipo);
+    pd = { tipo: tipo, m: m, idx: idx, vuelta: window.scrollY };
+    estado.medida[claveModelo(tipo, m)] = idx;
+    var ids = function (b) { return t.campos.filter(function (c) { return (BLOQUE[c.id] || 'diseno') === b; }).map(function (c) { return c.id; }); };
+    var hayEntrega = ids('entrega').length > 0;
+    vista.innerHTML =
+      '<div class="wrap pd-wrap">' +
+        '<button type="button" class="pd-volver js-volver">' + ICONO_ATRAS + ' Volver al catálogo</button>' +
+        '<div class="pd-head"><span class="eyebrow">Tu pedido</span><h1>Mandar a hacer mi boceto</h1>' +
+          '<p>Llena tus datos y te mandamos el boceto por WhatsApp para que lo revises antes de hacerla.</p></div>' +
+        '<div class="pd-grid">' +
+          '<aside class="pd-modelo">' +
+            '<div class="pd-foto"><img src="' + esc(t.carpeta + m.foto) + '" alt="' + esc(mayus(t.singular) + ' modelo ' + m.codigo + ', ' + m.nombre) + '"></div>' +
+            '<div class="pd-modelo-info">' +
+              '<div class="card-meta"><span class="code">#' + esc(m.codigo) + '</span><span>' + esc(m.categoria) + '</span></div>' +
+              '<h3>' + esc(m.nombre) + '</h3>' +
+              '<div class="pd-precio-fila"><span class="pd-medida js-pd-medida"></span><span class="pd-precio js-pd-precio"></span></div>' +
+            '</div>' +
+            '<details class="pd-cambiar"><summary>Cambiar medida</summary><div class="js-pd-medidas"></div></details>' +
+          '</aside>' +
+          '<form class="pd-form" novalidate>' +
+            '<section class="pd-bloque" data-b="diseno">' + cabeza('diseno', 'Datos del diseño', 'Lo que llevará tu ' + t.singular + '.') +
+              '<div class="campo js-otra" hidden><label for="pd-otra">Medida que necesitas <span class="req" aria-hidden="true">*</span></label>' +
+                '<input id="pd-otra" name="medidaOtra" type="text" placeholder="Ej. 60 × 40 cm"><p class="msg-error" hidden>Escribe la medida que necesitas.</p></div>' +
+              htmlCampos(tipo, m, ids('diseno')) +
+            '</section>' +
+            '<section class="pd-bloque" data-b="instalacion">' + cabeza('instalacion', 'Instalación', 'Elige solo una opción.') +
+              htmlCampos(tipo, m, ids('instalacion')) +
+            '</section>' +
+            (hayEntrega ? '<section class="pd-bloque" data-b="entrega">' + cabeza('entrega', 'Entrega', '¿Cómo te la hacemos llegar?') +
+              '<p class="pd-incluida js-incluida" hidden>' + ICONO_INFO + '<span>La instalación incluye el servicio a domicilio; no necesitas elegir entrega.</span></p>' +
+              htmlCampos(tipo, m, ids('entrega')) +
+            '</section>' : '') +
+            '<section class="pd-bloque pd-final" data-b="resumen">' + cabeza('resumen', 'Resumen del pedido') +
+              '<div class="js-pd-resumen"></div>' +
+              '<button type="submit" class="btn-wa">' + ICONO_WA + ' Enviar mi boceto por WhatsApp</button>' +
+              '<p class="nota">Si quieres agregar una foto o un logo, mándalo en el mismo chat de WhatsApp.</p>' +
+            '</section>' +
+          '</form>' +
+        '</div>' +
+      '</div>';
+    vista.hidden = false;
+    document.body.classList.add('modo-pedido');
+    pintarMedidaPd();
+    actualizarPd();
+    window.scrollTo(0, 0);
+    var ruta = '#pedido/' + tipo + '/' + codigo + '/' + idx;
+    if (empujar) history.pushState({ pedido: true }, '', ruta);
+    document.title = 'Pedido #' + m.codigo + ' – ' + D.negocio.nombre;
+    return true;
+  }
+  var TITULO = document.title;
+  function cerrarPedido() {
+    if (!pd) return;
+    var clave = claveModelo(pd.tipo, pd.m), vuelta = pd.vuelta, tipo = pd.tipo;
+    pd = null;
+    vista.hidden = true; vista.innerHTML = '';
+    document.body.classList.remove('modo-pedido');
+    document.title = TITULO;
+    if (estado.tipo !== tipo) irA(tipo); else pintarModelos();
+    var card = document.querySelector('.card[data-clave="' + clave.replace(/"/g, '') + '"]');
+    if (vuelta > 0 && card) window.scrollTo(0, vuelta);
+    else if (card) card.scrollIntoView({ block: 'center' });
+    else document.getElementById('modelos').scrollIntoView();
+  }
+  function volverCatalogo() {
+    if (history.state && history.state.pedido) history.back();
+    else { history.replaceState(null, '', location.pathname + location.search + '#modelos'); cerrarPedido(); }
+  }
+  window.addEventListener('popstate', function () {
+    var r = rutaPedido();
+    if (r) abrirPedido(r.tipo, r.codigo, r.idx, false);
+    else cerrarPedido();
+  });
+  function rutaPedido() {
+    var mt = /^#pedido\/([a-z]+)\/([^\/]+)\/(-?\d+)/.exec(location.hash);
+    return mt ? { tipo: mt[1], codigo: decodeURIComponent(mt[2]), idx: Number(mt[3]) } : null;
+  }
+  function pintarMedidaPd() {
+    var p = precioPd();
+    vista.querySelector('.js-pd-medida').textContent = p.otra ? 'Otra medida' : p.medida + ' cm';
+    vista.querySelector('.js-pd-precio').textContent = p.otra ? 'A cotizar' : dinero(p.precio);
+    vista.querySelector('.js-pd-medidas').innerHTML = htmlMedidas(preciosDe(pd.m, pd.tipo), pd.idx) +
+      '<button type="button" class="otra-medida" data-medida="-1" aria-pressed="' + (pd.idx === -1) + '">Otra medida (cotizar)</button>';
+    vista.querySelector('.js-otra').hidden = !p.otra;
+  }
+  function actualizarPd() {
+    var form = vista.querySelector('.pd-form');
+    var campos = D.tipos[pd.tipo].campos;
+    for (var k = 0; k < 2; k++) campos.forEach(function (c) {
+      var caja = form.querySelector('[data-campo="' + c.id + '"]'); if (caja) caja.hidden = !campoVisible(c, form);
+    });
+    var ent = form.querySelector('[data-campo="entrega"]'), inc = form.querySelector('.js-incluida');
+    if (ent && inc) inc.hidden = !ent.hidden;
+    var r = calcularPd();
+    var filas = '<div class="pd-fila"><span>' + esc(mayus(r.t.singular) + ' #' + r.m.codigo + ' · ' + (r.p.otra ? 'otra medida' : r.p.medida + ' cm')) + '</span><span>' + (r.p.otra ? 'A cotizar' : dinero(r.p.precio)) + '</span></div>';
+    r.extras.forEach(function (e) { filas += '<div class="pd-fila"><span>' + esc(e.nombre) + '</span><span>+' + dinero(e.costo) + '</span></div>'; });
+    if (r.cotizar) filas += '<div class="pd-fila"><span>Envío a domicilio</span><span>Según la zona</span></div>';
+    var total = r.p.otra ? 'A cotizar' + (r.extras.length ? ' <small>+ ' + dinero(r.total) + ' de extras</small>' : '') : dinero(r.total) + ' <small>MXN' + (r.cotizar ? ' + envío' : '') + '</small>';
+    vista.querySelector('.js-pd-resumen').innerHTML =
+      '<div class="pd-lineas">' + filas + '</div>' +
+      '<div class="pd-total"><span>Total</span><strong>' + total + '</strong></div>' +
+      (D.negocio.anticipo ? '<div class="pd-anticipo"><div><span>Anticipo para iniciar</span><strong>' + dinero(D.negocio.anticipo) + '</strong></div>' +
+        '<p>El anticipo se realiza una vez aprobado el boceto.</p></div>' : '') +
+      (r.confirmarZona ? '<p class="aviso">' + ICONO_INFO + '<span>La instalación se confirma al revisar tu ubicación.</span></p>' : '');
+  }
+  function calcularPd() {
+    var t = D.tipos[pd.tipo], form = vista.querySelector('.pd-form');
+    var p = precioPd(), extras = [], cotizar = false, confirmarZona = false;
+    t.campos.forEach(function (c) {
+      if (!c.opciones) return;
+      var caja = form.querySelector('[data-campo="' + c.id + '"]');
+      if (!caja || caja.hidden) return;
+      var marcado = form.querySelector('input[name="' + c.id + '"]:checked');
+      var o = c.opciones[marcado ? Number(marcado.value) : 0];
+      if (o.costo) extras.push({ nombre: o.resumen || (c.etiqueta + ' · ' + o.texto), costo: o.costo });
+      if (o.cotizar) cotizar = true;
+      if (o.confirmarZona) confirmarZona = true;
+    });
+    var total = p.precio + extras.reduce(function (s, e) { return s + e.costo; }, 0);
+    return { tipo: pd.tipo, t: t, m: pd.m, p: p, extras: extras, total: total, cotizar: cotizar, confirmarZona: confirmarZona };
+  }
+  vista.addEventListener('click', function (e) {
+    if (e.target.closest('.js-volver')) { volverCatalogo(); return; }
+    var bm = e.target.closest('button[data-medida]');
+    if (bm && pd) {
+      pd.idx = Number(bm.getAttribute('data-medida'));
+      estado.medida[claveModelo(pd.tipo, pd.m)] = pd.idx;
+      history.replaceState(history.state, '', '#pedido/' + pd.tipo + '/' + pd.m.codigo + '/' + pd.idx);
+      pintarMedidaPd(); actualizarPd();
+      if (pd.idx === -1) vista.querySelector('#pd-otra').focus();
+    }
+  });
+  vista.addEventListener('change', function (e) { if (e.target.type === 'radio' && pd) actualizarPd(); });
+  vista.addEventListener('submit', function (e) {
     e.preventDefault();
-    var form = e.target;
-    var card = form.closest('.card');
-    var r = calcular(card);
-
-    var faltan = null;
-    var lineas = [];
-    var notas = [];
+    var form = e.target, r = calcularPd();
+    var faltan = null, lineas = [], notas = [];
     var otraIn = form.elements.medidaOtra;
-    if (r.p.otra) {
-      var cajaO = otraIn.closest('.campo'), vO = otraIn.value.trim();
-      cajaO.classList.toggle('con-error', !vO); cajaO.querySelector('.msg-error').hidden = !!vO;
-      if (!vO) { otraIn.setAttribute('aria-invalid', 'true'); faltan = otraIn; } else otraIn.removeAttribute('aria-invalid');
+    function marcar(el, mal) {
+      var caja = el.closest('.campo'), err = caja && caja.querySelector('.msg-error');
+      if (caja) caja.classList.toggle('con-error', mal); if (err) err.hidden = !mal;
+      if (mal) { el.setAttribute('aria-invalid', 'true'); if (!faltan) faltan = el; } else el.removeAttribute('aria-invalid');
     }
+    if (r.p.otra) marcar(otraIn, !otraIn.value.trim());
     r.t.campos.forEach(function (c) {
       var cajaC = form.querySelector('[data-campo="' + c.id + '"]');
-      if (cajaC && cajaC.hidden) return;
+      if (!cajaC || cajaC.hidden) return;
       if (c.opciones) {
         var marcado = form.querySelector('input[name="' + c.id + '"]:checked');
         var o = c.opciones[marcado ? Number(marcado.value) : 0];
-        lineas.push('• ' + c.etiqueta.replace(/^¿|\?$/g, '') + ': ' + o.texto + (o.costo ? ' (+' + dinero(o.costo) + ')' : ''));
+        lineas.push('• ' + c.etiqueta.replace(/^¿|\?$/g, '') + ': ' + textoMsg(o) + (o.costo ? ' (+' + dinero(o.costo) + ')' : ''));
         if (o.mensaje) notas.push(o.mensaje);
         return;
       }
-      var el = form.elements[c.id];
-      var valor = (el.value || '').trim();
-      var caja = el.closest('.campo');
-      var err = caja.querySelector('.msg-error');
-      if (c.obligatorio && !valor) {
-        caja.classList.add('con-error'); if (err) err.hidden = false; el.setAttribute('aria-invalid', 'true');
-        if (!faltan) faltan = el;
-      } else {
-        caja.classList.remove('con-error'); if (err) err.hidden = true; el.removeAttribute('aria-invalid');
-      }
+      var el = form.elements[c.id], valor = (el.value || '').trim();
+      marcar(el, !!c.obligatorio && !valor);
       if (valor) lineas.push('• ' + c.etiqueta.replace(/\s*\(.*\)/, '').replace(/^¿(.*)\?.*$/, '$1') + ': ' + valor);
     });
-    if (faltan) { faltan.focus(); return; }
-
+    if (faltan) { faltan.focus(); faltan.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     var mensaje =
       'Hola ' + D.negocio.nombre + ', quiero mandar a hacer mi boceto:\n\n' +
       '• Producto: ' + mayus(r.t.singular) + ' #' + r.m.codigo + ' – ' + r.m.nombre + '\n' +
       (r.p.otra ? '• Tamaño: otra medida – ' + otraIn.value.trim() + ' (por cotizar)\n' : '• Tamaño: ' + r.p.medida + ' cm – ' + dinero(r.p.precio) + '\n') +
       lineas.join('\n') + '\n\n' +
       (r.p.otra ? 'Total: por cotizar' + (r.extras.length ? ' (+' + dinero(r.total) + ' de extras)' : '') : 'Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '')) +
-      (D.negocio.anticipo ? '\nAnticipo para iniciar: ' + dinero(D.negocio.anticipo) : '') +
+      (D.negocio.anticipo ? '\nAnticipo para iniciar: ' + dinero(D.negocio.anticipo) + ' (una vez aprobado el boceto)' : '') +
       (r.confirmarZona ? '\n\n¿Me confirman si mi ubicación está dentro de la zona de instalación?' : '') +
       (notas.length ? '\n\n' + notas.join('\n') : '');
     window.open(linkWA(mensaje), '_blank', 'noopener');
@@ -512,7 +606,7 @@
           var o = c.opciones[mk ? Number(mk.value) : 0];
           if (o.costo) extras.push({ n: c.etiqueta, c: o.costo });
           if (o.cotizar) cotizar = true; if (o.confirmarZona) zona = true;
-          lineas.push('• ' + c.etiqueta + ': ' + o.texto + (o.costo ? ' (+' + dinero(o.costo) + ')' : ''));
+          lineas.push('• ' + c.etiqueta + ': ' + textoMsg(o) + (o.costo ? ' (+' + dinero(o.costo) + ')' : ''));
         }
       });
       var total = p.precio + extras.reduce(function (s, e) { return s + e.c; }, 0);
@@ -525,7 +619,7 @@
       r.extras.forEach(function (e) { det += '<br>' + esc(e.n) + ': ' + dinero(e.c); });
       document.getElementById('md-resumen').innerHTML = '<p>' + det + '</p><p class="total">Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') + '</p>' +
         (r.zona ? '<p>La instalación se confirma al revisar tu ubicación.</p>' : '') +
-        (D.negocio.anticipo ? '<p>Anticipo para iniciar: <strong>' + dinero(D.negocio.anticipo) + '</strong></p>' : '');
+        (D.negocio.anticipo ? '<p>Anticipo para iniciar: <strong>' + dinero(D.negocio.anticipo) + '</strong><br><small>El anticipo se realiza una vez aprobado el boceto.</small></p>' : '');
     }
     function pintarMedidas() {
       document.getElementById('md-medidas').innerHTML = FORMAS[est.tipo].map(function (f) {
@@ -683,13 +777,18 @@
   if (D.tipos[h]) { estado.tipo = h; }
   pintarTodo();
   if (D.tipos[h]) { document.getElementById('modelos').scrollIntoView(); }
+  var rutaIni = rutaPedido();
+  if (rutaIni && D.tipos[rutaIni.tipo]) {
+    estado.tipo = rutaIni.tipo; pintarTodo();
+    if (!abrirPedido(rutaIni.tipo, rutaIni.codigo, rutaIni.idx, false)) history.replaceState(null, '', location.pathname + location.search);
+  }
 
   /* ---------- aviso de bienvenida: ¿placas o lápidas? ---------- */
   (function () {
     var bv = document.getElementById('bienvenida'); if (!bv) return;
     var visto = false;
     try { visto = sessionStorage.getItem('recoovare_bienvenida') === '1'; } catch (e) {}
-    if (D.tipos[h] || visto) return; // si el link ya dice qué ver, o ya lo vio en esta visita, no se muestra
+    if (D.tipos[h] || rutaIni || visto) return; // si el link ya dice qué ver, o ya lo vio en esta visita, no se muestra
     function cerrar() {
       bv.hidden = true; document.body.style.overflow = '';
       try { sessionStorage.setItem('recoovare_bienvenida', '1'); } catch (e) {}

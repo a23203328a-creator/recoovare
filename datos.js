@@ -145,12 +145,20 @@ window.CATALOGO = {
         { id: "direccion", etiqueta: "Dirección que lleva la placa (calle, número, cruzamientos y colonia)", ejemplo: "C. 79B #573 x 98 y 100, Col. Sambulá" },
         { id: "extra",     etiqueta: "¿Algún cambio al modelo? Descríbelo", ejemplo: "cambiar las flores por girasoles, letras en azul…", parrafo: true },
         { id: "instalacion", etiqueta: "Instalación",
-          ayuda: "La instalación incluye el servicio a domicilio y tiene un rango de cobertura: al mandarnos tu ubicación te confirmamos si aplica.",
+          // Las opciones se muestran en dos apartados ("grupo"), pero el cliente elige solo una.
+          grupos: {
+            yo:       { titulo: "Me gustaría instalarla yo" },
+            nosotros: { titulo: "Requiero instalación", aviso: "Precios aplicables en Mérida y zonas cercanas. Comparte tu ubicación para confirmar cobertura y posibles cargos adicionales." }
+          },
           opciones: [
-            { texto: "La instalo yo – con orificios para tornillos", costo: 0 },
-            { texto: "La instalo yo – sin orificios (para pegarla con cemento)", costo: 0 },
-            { texto: "Que ustedes la instalen con cemento blanco", costo: 150, confirmarZona: true },
-            { texto: "Que ustedes la instalen con taquetes y tornillos", costo: 125, confirmarZona: true }
+            { texto: "Por mi cuenta · Con orificios", sub: "Para instalar con taquetes y tornillos.", grupo: "yo", costo: 0,
+              mensajeTexto: "La instalo yo, con orificios (taquetes y tornillos)" },
+            { texto: "Por mi cuenta · Sin orificios", sub: "Para instalar con cemento blanco.", grupo: "yo", costo: 0,
+              mensajeTexto: "La instalo yo, sin orificios (cemento blanco)" },
+            { texto: "Con taquetes y tornillos", sub: "Tiempo aproximado: 10–20 minutos.", grupo: "nosotros", costo: 125, confirmarZona: true,
+              mensajeTexto: "Que ustedes la instalen con taquetes y tornillos", resumen: "Instalación con taquetes y tornillos" },
+            { texto: "Con cemento blanco", sub: "Tiempo aproximado: 30–40 minutos.", grupo: "nosotros", costo: 150, confirmarZona: true,
+              mensajeTexto: "Que ustedes la instalen con cemento blanco", resumen: "Instalación con cemento blanco" }
         ] },
         // "mostrarSi" hace que la pregunta solo salga con ciertas respuestas (0 = primera opción)
         { id: "entrega", etiqueta: "Entrega", mostrarSi: [{ campo: "instalacion", en: [0, 1] }], opciones: [
@@ -264,18 +272,27 @@ window.CATALOGO = {
         ] },
         { id: "extra", etiqueta: "¿Requiere alguna modificación? Descríbela", ejemplo: "cambiar la imagen religiosa, agregar otro nombre…", parrafo: true },
         { id: "instalacion", etiqueta: "Instalación",
-          ayuda: "Instalación únicamente en cementerios de Mérida. Al mandarnos la ubicación te confirmamos si aplica.",
+          // Las opciones se muestran en dos apartados ("grupo"), pero el cliente elige solo una.
+          grupos: {
+            yo:       { titulo: "Me gustaría instalarla yo" },
+            nosotros: { titulo: "Requiero instalación", aviso: "Servicio disponible únicamente en cementerios de Mérida y alrededores." }
+          },
           opciones: [
-            { texto: "Sin instalación", costo: 0 },
-            { texto: "Que ustedes la instalen con cemento blanco", costo: 150, confirmarZona: true },
-            { texto: "Que ustedes la instalen con taquetes y tornillos", costo: 125, confirmarZona: true }
+            { texto: "Por mi cuenta · Con orificios", sub: "Para instalar con taquetes y tornillos.", grupo: "yo", costo: 0,
+              mensajeTexto: "La instalo yo, con orificios (taquetes y tornillos)" },
+            { texto: "Por mi cuenta · Sin orificios", sub: "Para instalar con cemento blanco.", grupo: "yo", costo: 0,
+              mensajeTexto: "La instalo yo, sin orificios (cemento blanco)" },
+            { texto: "Con taquetes y tornillos", sub: "Tiempo aproximado: 10–20 minutos.", grupo: "nosotros", costo: 125, confirmarZona: true,
+              mensajeTexto: "Que ustedes la instalen con taquetes y tornillos", resumen: "Instalación con taquetes y tornillos" },
+            { texto: "Con cemento blanco", sub: "Tiempo aproximado: 30–40 minutos.", grupo: "nosotros", costo: 150, confirmarZona: true,
+              mensajeTexto: "Que ustedes la instalen con cemento blanco", resumen: "Instalación con cemento blanco" }
         ] },
-        { id: "entrega", etiqueta: "Entrega", mostrarSi: [{ campo: "instalacion", en: [0] }], opciones: [
+        { id: "entrega", etiqueta: "Entrega", mostrarSi: [{ campo: "instalacion", en: [0, 1] }], opciones: [
             { texto: "Paso a recogerla", costo: 0 },
             { texto: "Envío a domicilio (costo extra según la zona)", costo: 0, cotizar: true }
         ] },
         { id: "cementerio", etiqueta: "Cementerio y ubicación de la tumba", ejemplo: "Cementerio General, sección, fila o referencias", parrafo: true, obligatorio: true,
-          mostrarSi: [{ campo: "instalacion", en: [1, 2] }] },
+          mostrarSi: [{ campo: "instalacion", en: [2, 3] }] },
         { id: "envio", etiqueta: "Dirección para el envío", ejemplo: "calle, número, colonia y referencias", parrafo: true, obligatorio: true,
           mostrarSi: [{ campo: "entrega", en: [1] }] }
       ],
