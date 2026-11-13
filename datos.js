@@ -122,6 +122,7 @@ window.CATALOGO = {
                    parrafo: true     -> caja de texto grande
                    opciones: [...]   -> el cliente elige una opción;
                                         "costo" se suma al total
+                   msj: "..."        -> nombre corto en el mensaje de WhatsApp
                    ayuda: "..."      -> texto de aviso debajo de la pregunta
                    mostrarSi: [...]  -> solo aparece con ciertas respuestas
        modelos:    la lista de diseños
@@ -141,9 +142,9 @@ window.CATALOGO = {
       carpeta: "fotos/placas/",
       categorias: ["Tipo talavera", "Flores", "Girasoles", "Frases", "Abuelos", "Naturaleza", "Número grande", "Azulejo"],
       campos: [
-        { id: "apellido",  etiqueta: "Apellido o texto principal", ejemplo: "Familia Canul Canul", obligatorio: true },
-        { id: "direccion", etiqueta: "Dirección que lleva la placa (calle, número, cruzamientos y colonia)", ejemplo: "C. 79B #573 x 98 y 100, Col. Sambulá" },
-        { id: "extra",     etiqueta: "¿Algún cambio al modelo? Descríbelo", ejemplo: "cambiar las flores por girasoles, letras en azul…", parrafo: true },
+        { id: "apellido",  msj: "Texto principal", etiqueta: "Apellido o texto principal", ejemplo: "Familia Canul Canul", obligatorio: true },
+        { id: "direccion", msj: "Dirección que llevará la placa", etiqueta: "Dirección que lleva la placa (calle, número, cruzamientos y colonia)", ejemplo: "C. 79B #573 x 98 y 100, Col. Sambulá" },
+        { id: "extra",     msj: "Cambios al diseño", vacio: "Sin cambios.", etiqueta: "¿Algún cambio al modelo? Descríbelo", ejemplo: "cambiar las flores por girasoles, letras en azul…", parrafo: true },
         { id: "instalacion", etiqueta: "Instalación",
           // Las opciones se muestran en dos apartados ("grupo"), pero el cliente elige solo una.
           grupos: {
@@ -163,11 +164,11 @@ window.CATALOGO = {
         // "mostrarSi" hace que la pregunta solo salga con ciertas respuestas (0 = primera opción)
         { id: "entrega", etiqueta: "Entrega", mostrarSi: [{ campo: "instalacion", en: [0, 1] }], opciones: [
             { texto: "Paso a recogerla", costo: 0 },
-            { texto: "Envío a domicilio (costo extra según la zona)", costo: 0, cotizar: true }
+            { texto: "Envío a domicilio (costo extra según la zona)", mensajeTexto: "Envío a domicilio (costo según la zona)", costo: 0, cotizar: true }
         ] },
-        { id: "domicilio", etiqueta: "Dirección o ubicación para la instalación", ejemplo: "calle, número, colonia y referencias, o tu ubicación de Google Maps", parrafo: true, obligatorio: true,
+        { id: "domicilio", msj: "Ubicación para instalar", etiqueta: "Dirección o ubicación para la instalación", ejemplo: "calle, número, colonia y referencias, o tu ubicación de Google Maps", parrafo: true, obligatorio: true,
           mostrarSi: [{ campo: "instalacion", en: [2, 3] }] },
-        { id: "envio", etiqueta: "Dirección para el envío", ejemplo: "calle, número, colonia y referencias", parrafo: true, obligatorio: true,
+        { id: "envio", msj: "Dirección de envío", etiqueta: "Dirección para el envío", ejemplo: "calle, número, colonia y referencias", parrafo: true, obligatorio: true,
           mostrarSi: [{ campo: "entrega", en: [1] }] }
       ],
       modelos: [
@@ -260,17 +261,17 @@ window.CATALOGO = {
       // Las lápidas pueden pedirse en cualquiera de estas medidas
       medidas: ["rectangular", "cuadrada"],
       campos: [
-        { id: "nombre",        etiqueta: "Nombre completo", ejemplo: "José Antonio Herrera Ramírez", obligatorio: true },
-        { id: "nacimiento",    etiqueta: "Fecha de nacimiento", ejemplo: "01/11/1985" },
-        { id: "fallecimiento", etiqueta: "Fecha de fallecimiento", ejemplo: "02/07/2022" },
-        { id: "frase",         etiqueta: "Frase o mensaje", ejemplo: "Siempre en nuestra mente y corazón", parrafo: true },
-        { id: "foto", etiqueta: "¿Lleva foto?",
+        { id: "nombre",        msj: "Nombre completo", etiqueta: "Nombre completo", ejemplo: "José Antonio Herrera Ramírez", obligatorio: true },
+        { id: "nacimiento",    msj: "Nacimiento", corto: true, etiqueta: "Fecha de nacimiento", ejemplo: "01/11/1985" },
+        { id: "fallecimiento", msj: "Fallecimiento", corto: true, etiqueta: "Fecha de fallecimiento", ejemplo: "02/07/2022" },
+        { id: "frase",         msj: "Frase o mensaje", etiqueta: "Frase o mensaje", ejemplo: "Siempre en nuestra mente y corazón", parrafo: true },
+        { id: "foto", msj: "Foto", corto: true, etiqueta: "¿Lleva foto?",
           ayuda: "Si lleva foto, mándala por WhatsApp en el mismo chat después de enviar tu boceto.",
           opciones: [
             { texto: "Sin foto", costo: 0 },
-            { texto: "Sí, lleva foto (la mando por WhatsApp)", costo: 0, mensaje: "Les mando la foto por aquí." }
+            { texto: "Sí, lleva foto (la mando por WhatsApp)", mensajeTexto: "Sí, la mando por WhatsApp", costo: 0, mensaje: "Les mando la foto por aquí." }
         ] },
-        { id: "extra", etiqueta: "¿Requiere alguna modificación? Descríbela", ejemplo: "cambiar la imagen religiosa, agregar otro nombre…", parrafo: true },
+        { id: "extra", msj: "Cambios al diseño", vacio: "Sin cambios.", etiqueta: "¿Requiere alguna modificación? Descríbela", ejemplo: "cambiar la imagen religiosa, agregar otro nombre…", parrafo: true },
         { id: "instalacion", etiqueta: "Instalación",
           // Las opciones se muestran en dos apartados ("grupo"), pero el cliente elige solo una.
           grupos: {
@@ -289,11 +290,11 @@ window.CATALOGO = {
         ] },
         { id: "entrega", etiqueta: "Entrega", mostrarSi: [{ campo: "instalacion", en: [0, 1] }], opciones: [
             { texto: "Paso a recogerla", costo: 0 },
-            { texto: "Envío a domicilio (costo extra según la zona)", costo: 0, cotizar: true }
+            { texto: "Envío a domicilio (costo extra según la zona)", mensajeTexto: "Envío a domicilio (costo según la zona)", costo: 0, cotizar: true }
         ] },
-        { id: "cementerio", etiqueta: "Cementerio y ubicación de la tumba", ejemplo: "Cementerio General, sección, fila o referencias", parrafo: true, obligatorio: true,
+        { id: "cementerio", msj: "Cementerio y ubicación de la tumba", etiqueta: "Cementerio y ubicación de la tumba", ejemplo: "Cementerio General, sección, fila o referencias", parrafo: true, obligatorio: true,
           mostrarSi: [{ campo: "instalacion", en: [2, 3] }] },
-        { id: "envio", etiqueta: "Dirección para el envío", ejemplo: "calle, número, colonia y referencias", parrafo: true, obligatorio: true,
+        { id: "envio", msj: "Dirección de envío", etiqueta: "Dirección para el envío", ejemplo: "calle, número, colonia y referencias", parrafo: true, obligatorio: true,
           mostrarSi: [{ campo: "entrega", en: [1] }] }
       ],
       modelos: [

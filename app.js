@@ -431,10 +431,15 @@
     }
   });
   vista.addEventListener('change', function (e) { if (e.target.type === 'radio' && pd) actualizarPd(); });
+  // Link al modelo con su foto (la página /m/... muestra vista previa en WhatsApp)
+  function linkModelo(tipo, m) { return location.origin + '/m/' + tipo + '/' + encodeURIComponent(m.codigo); }
+  function medidaBonita(md) { return String(md).replace(/\s*[×x]\s*/g, ' × ') + ' cm'; }
+  function sinPunto(t) { return String(t).replace(/\.\s*$/, ''); }
+
   vista.addEventListener('submit', function (e) {
     e.preventDefault();
     var form = e.target, r = calcularPd();
-    var faltan = null, lineas = [], notas = [];
+    var faltan = null;
     var otraIn = form.elements.medidaOtra;
     function marcar(el, mal) {
       var caja = el.closest('.campo'), err = caja && caja.querySelector('.msg-error');
@@ -442,30 +447,79 @@
       if (mal) { el.setAttribute('aria-invalid', 'true'); if (!faltan) faltan = el; } else el.removeAttribute('aria-invalid');
     }
     if (r.p.otra) marcar(otraIn, !otraIn.value.trim());
+
+    // Recolecta lo que sí aplica (los campos ocultos no cuentan)
+    var dato = {}, opcion = {}, notas = [];
     r.t.campos.forEach(function (c) {
-      var cajaC = form.querySelector('[data-campo="' + c.id + '"]');
-      if (!cajaC || cajaC.hidden) return;
+      var caja = form.querySelector('[data-campo="' + c.id + '"]');
+      if (!caja || caja.hidden) return;
       if (c.opciones) {
-        var marcado = form.querySelector('input[name="' + c.id + '"]:checked');
-        var o = c.opciones[marcado ? Number(marcado.value) : 0];
-        lineas.push('• ' + c.etiqueta.replace(/^¿|\?$/g, '') + ': ' + textoMsg(o) + (o.costo ? ' (+' + dinero(o.costo) + ')' : ''));
+        var mk = form.querySelector('input[name="' + c.id + '"]:checked');
+        var o = c.opciones[mk ? Number(mk.value) : 0];
+        opcion[c.id] = o;
         if (o.mensaje) notas.push(o.mensaje);
         return;
       }
-      var el = form.elements[c.id], valor = (el.value || '').trim();
-      marcar(el, !!c.obligatorio && !valor);
-      if (valor) lineas.push('• ' + c.etiqueta.replace(/\s*\(.*\)/, '').replace(/^¿(.*)\?.*$/, '$1') + ': ' + valor);
+      var el = form.elements[c.id], v = (el.value || '').trim();
+      marcar(el, !!c.obligatorio && !v);
+      dato[c.id] = v;
     });
     if (faltan) { faltan.focus(); faltan.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
-    var mensaje =
-      'Hola ' + D.negocio.nombre + ', quiero mandar a hacer mi boceto:\n\n' +
-      '• Producto: ' + mayus(r.t.singular) + ' #' + r.m.codigo + ' – ' + r.m.nombre + '\n' +
-      (r.p.otra ? '• Tamaño: otra medida – ' + otraIn.value.trim() + ' (por cotizar)\n' : '• Tamaño: ' + r.p.medida + ' cm – ' + dinero(r.p.precio) + '\n') +
-      lineas.join('\n') + '\n\n' +
-      (r.p.otra ? 'Total: por cotizar' + (r.extras.length ? ' (+' + dinero(r.total) + ' de extras)' : '') : 'Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '')) +
-      (D.negocio.anticipo ? '\nAnticipo para iniciar: ' + dinero(D.negocio.anticipo) + ' (una vez aprobado el boceto)' : '') +
-      (r.confirmarZona ? '\n\n¿Me confirman si mi ubicación está dentro de la zona de instalación?' : '') +
-      (notas.length ? '\n\n' + notas.join('\n') : '');
+
+    function bloqueCampos(ids) {
+      var out = [];
+      r.t.campos.forEach(function (c) {
+        if (ids.indexOf(c.id) < 0) return;
+        var nombre = c.msj || c.etiqueta.replace(/\s*\(.*\)/, '').replace(/^¿|\?$/g, '');
+        var v;
+        if (c.opciones) { if (!opcion[c.id]) return; v = textoMsg(opcion[c.id]); }
+        else { if (!(c.id in dato)) return; v = dato[c.id] || c.vacio; if (!v) return; }
+        out.push({ corto: !!c.corto, t: c.corto ? '*' + nombre + ':* ' + v : '*' + nombre + ':*\n' + v });
+      });
+      // los datos cortos seguidos (fechas, foto) van en renglones juntos
+      return out.map(function (x, i) { return (i === 0 ? '' : (x.corto && out[i - 1].corto ? '\n' : '\n\n')) + x.t; }).join('');
+    }
+    var ids = function (b) { return r.t.campos.filter(function (c) { return (BLOQUE[c.id] || 'diseno') === b; }).map(function (c) { return c.id; }); };
+    var prod = mayus(r.t.singular);
+    var sec = [];
+
+    // MODELO
+    sec.push('📋 *MODELO*\n' + prod + ' #' + r.m.codigo + ' · ' + r.m.nombre + '\n' +
+      (r.p.otra ? 'Medida: ' + otraIn.value.trim() + ' (otra medida)\nPrecio: por cotizar' : 'Medida: ' + medidaBonita(r.p.medida) + '\nPrecio: ' + dinero(r.p.precio) + ' MXN') +
+      '\nVer modelo: ' + linkModelo(r.tipo, r.m));
+
+    // PERSONALIZACIÓN
+    var pers = bloqueCampos(ids('diseno'));
+    if (pers) sec.push('✏️ *PERSONALIZACIÓN*\n' + pers);
+
+    // INSTALACIÓN / ENTREGA
+    var inst = opcion.instalacion, pideInst = !!(inst && inst.confirmarZona), envio = !!(opcion.entrega && opcion.entrega.cotizar);
+    if (inst) {
+      var txtInst = inst.grupo === 'yo'
+        ? 'La instalo yo · ' + inst.texto.replace(/^Por mi cuenta\s*·\s*/, '') + (inst.sub ? ' (' + sinPunto(inst.sub).replace(/^Para instalar con\s*/i, 'para ') + ')' : '')
+        : inst.texto + (inst.costo ? ' · +' + dinero(inst.costo) : '');
+      var ubic = bloqueCampos(ids('instalacion').filter(function (id) { return id !== 'instalacion'; }));
+      sec.push('🔧 *INSTALACIÓN*\n' + txtInst + (ubic ? '\n\n' + ubic : ''));
+    }
+    if (opcion.entrega) {
+      var dirEnvio = bloqueCampos(ids('entrega').filter(function (id) { return id !== 'entrega'; }));
+      sec.push('🚚 *ENTREGA*\n' + textoMsg(opcion.entrega) + (dirEnvio ? '\n\n' + dirEnvio : ''));
+    }
+
+    // RESUMEN
+    var res = [prod + ': ' + (r.p.otra ? 'por cotizar' : dinero(r.p.precio))];
+    r.extras.forEach(function (x) { res.push((x.nombre.indexOf('Instalación') === 0 ? 'Instalación' : x.nombre) + ': ' + dinero(x.costo)); });
+    if (envio) res.push('Envío: según la zona');
+    res.push(r.p.otra
+      ? '*Total: por cotizar*' + (r.extras.length ? ' (+' + dinero(r.total) + ' de extras)' : '')
+      : '*Total: ' + dinero(r.total) + ' MXN' + (envio ? ' + envío' : '') + '*');
+    if (D.negocio.anticipo) res.push('*Anticipo: ' + dinero(D.negocio.anticipo) + ' MXN*');
+    sec.push('💰 *RESUMEN*\n' + res.join('\n') + (D.negocio.anticipo ? '\n\nEl anticipo se realiza una vez aprobado el boceto.' : ''));
+
+    if (pideInst || envio) sec.push('¿Me confirman la cobertura y si hay algún cargo adicional por mi ubicación?');
+    if (notas.length) sec.push(notas.join('\n'));
+
+    var mensaje = 'Hola ' + D.negocio.nombre + ', me gustaría solicitar mi boceto:\n\n' + sec.join('\n\n');
     window.open(linkWA(mensaje), '_blank', 'noopener');
   });
 
