@@ -709,28 +709,50 @@
         if (mal) { el.setAttribute('aria-invalid', 'true'); if (!faltan) faltan = el; } else el.removeAttribute('aria-invalid');
       }
       marcar(nombre, !nombre.value.trim());
-      var extrasTexto = [];
+      // Junta lo que aplica (los campos ocultos no cuentan)
+      var dato = {}, opcion = {};
       camposDe().forEach(function (c) {
-        if (c.opciones) return;
         var cj = caja.querySelector('[data-campo="' + c.id + '"]'); if (!cj || cj.hidden) return;
+        if (c.opciones) {
+          var mk = caja.querySelector('input[name="' + c.id + '"]:checked');
+          opcion[c.id] = c.opciones[mk ? Number(mk.value) : 0];
+          return;
+        }
         var el = cj.querySelector('input, textarea'); var v = (el.value || '').trim();
         marcar(el, !!c.obligatorio && !v);
-        if (v) extrasTexto.push('• ' + c.etiqueta.replace(/\s*\(.*\)/, '') + ': ' + v);
+        dato[c.id] = { c: c, v: v };
       });
       if (faltan) { faltan.focus(); return; }
       var r = calcular();
-      var t = D.tipos[est.tipo];
+      var t = D.tipos[est.tipo], prod = mayus(t.singular);
       var notas = form.elements.notas.value.trim();
-      var mensaje = 'Hola ' + D.negocio.nombre + ', ya tengo mi diseño y quiero mandarlo a hacer:\n\n' +
-        '• Nombre: ' + nombre.value.trim() + '\n' +
-        '• Producto: ' + mayus(t.singular) + ' con diseño propio\n' +
-        '• Forma y tamaño: ' + NOMBRES_FORMA[est.forma] + ' ' + r.p.medida + ' cm – ' + dinero(r.p.precio) + '\n' +
-        r.lineas.concat(extrasTexto).join('\n') +
-        (notas ? '\n• Comentarios: ' + notas : '') + '\n\n' +
-        'Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') +
-        (D.negocio.anticipo ? '\nAnticipo para iniciar: ' + dinero(D.negocio.anticipo) : '') +
-        (r.zona ? '\n\n¿Me confirman si mi ubicación está dentro de la zona de instalación?' : '') +
-        '\n\nLes mando mi diseño por aquí. Quedo en espera de la prueba para aprobarla.';
+      function dir(id) {
+        var d = dato[id]; if (!d || !d.v) return '';
+        return '\n\n*' + (d.c.msj || d.c.etiqueta.replace(/\s*\(.*\)/, '')) + ':*\n' + d.v;
+      }
+      var sec = [];
+      sec.push('📋 *MI DISEÑO*\n' + prod + ' con diseño propio\n' +
+        'Medida: ' + NOMBRES_FORMA[est.forma] + ' · ' + medidaBonita(r.p.medida) + '\n' +
+        'Precio: ' + dinero(r.p.precio) + ' MXN\n' +
+        '*A nombre de:* ' + nombre.value.trim());
+      var inst = opcion.instalacion, pideInst = !!(inst && inst.confirmarZona), envio = !!(opcion.entrega && opcion.entrega.cotizar);
+      if (inst) {
+        var txtInst = inst.grupo === 'yo'
+          ? 'La instalo yo · ' + inst.texto.replace(/^Por mi cuenta\s*·\s*/, '') + (inst.sub ? ' (' + sinPunto(inst.sub).replace(/^Para instalar con\s*/i, 'para ') + ')' : '')
+          : inst.texto + (inst.costo ? ' · +' + dinero(inst.costo) : '');
+        sec.push('🔧 *INSTALACIÓN*\n' + txtInst + dir('domicilio') + dir('cementerio'));
+      }
+      if (opcion.entrega) sec.push('🚚 *ENTREGA*\n' + textoMsg(opcion.entrega) + dir('envio'));
+      if (notas) sec.push('💬 *COMENTARIOS*\n' + notas);
+      var res = [prod + ': ' + dinero(r.p.precio)];
+      if (inst && inst.costo) res.push('Instalación: ' + dinero(inst.costo));
+      if (envio) res.push('Envío: según la zona');
+      res.push('*Total: ' + dinero(r.total) + ' MXN' + (envio ? ' + envío' : '') + '*');
+      if (D.negocio.anticipo) res.push('*Anticipo: ' + dinero(D.negocio.anticipo) + ' MXN*');
+      sec.push('💰 *RESUMEN*\n' + res.join('\n') + (D.negocio.anticipo ? '\n\nEl anticipo se realiza una vez aprobado el boceto.' : ''));
+      if (pideInst || envio) sec.push('¿Me confirman la cobertura y si hay algún cargo adicional por mi ubicación?');
+      sec.push('Les mando mi diseño por aquí. Quedo en espera de la prueba para aprobarla.');
+      var mensaje = 'Hola ' + D.negocio.nombre + ', ya tengo mi diseño y me gustaría mandarlo a hacer:\n\n' + sec.join('\n\n');
       window.open(linkWA(mensaje), '_blank', 'noopener');
     });
     pintarTipo();
