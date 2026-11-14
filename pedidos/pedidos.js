@@ -215,7 +215,8 @@
     $('m-mama-fecha').value = (actual.mama && actual.mama.fecha) || '';
     $('m-mama-monto').value = actual.mama && actual.mama.monto !== null && actual.mama.monto !== undefined ? actual.mama.monto : '';
     $('m-notas').value = actual.notas || '';
-    $('m-nota').innerHTML = actual.notaFolio ? 'Viene de la nota <a href="../notas/?abrir=' + encodeURIComponent(actual.notaId) + '">' + esc(actual.notaFolio) + '</a>. Si cambias la nota, el cliente, producto, precios y anticipo se actualizan aquí.' : '';
+    $('m-nota').innerHTML = actual.notaFolio ? 'Viene de la nota <a href="../notas/?abrir=' + encodeURIComponent(actual.notaId) + '">' + esc(actual.notaFolio) + '</a>. Si cambias la nota, el cliente, producto, precios y pagos se actualizan aquí.' :
+      (p ? 'Este pedido no tiene nota de venta. <a href="../notas/?pedido=' + encodeURIComponent(actual.id) + '">Crear nota con estos datos</a> (cliente, producto, extras y pagos).' : '');
     $('pg-fecha').value = hoy(); $('pg-monto').value = '';
     $('m-borrar').hidden = !p;
     pintarEditor();
@@ -337,10 +338,14 @@
   });
   var CLAVES = ['recoovare_pedidos', 'recoovare_folio_pedidos', 'recoovare_pedidos_ignorados', 'recoovare_config_pedidos', 'recoovare_pedidos_init', 'recoovare_notas', 'recoovare_folio', 'recoovare_ajuste_ticket', 'recoovare_ancho'];
   $('d-respaldo').addEventListener('click', function () {
-    var datos = { app: 'recoovare', fecha: new Date().toISOString(), datos: {} };
+    var datos = { app: 'recoovare', fecha: new Date().toISOString(), datos: {}, imagenes: {} };
     CLAVES.forEach(function (k) { var v = localStorage.getItem(k); if (v !== null) datos.datos[k] = v; });
-    descargar(JSON.stringify(datos, null, 1), 'RECOOVARE-respaldo-' + hoy() + '.json', 'application/json');
-    $('d-estado').textContent = 'Respaldo descargado. Guárdalo en un lugar seguro.';
+    var listo = function () {
+      descargar(JSON.stringify(datos), 'RECOOVARE-respaldo-' + hoy() + '.json', 'application/json');
+      var n = Object.keys(datos.imagenes).length;
+      $('d-estado').textContent = 'Respaldo descargado' + (n ? ' (incluye ' + n + ' imagen' + (n === 1 ? '' : 'es') + ' de bocetos)' : '') + '. Guárdalo en un lugar seguro.';
+    };
+    if (window.RecoovareImg) window.RecoovareImg.todas().then(function (t) { datos.imagenes = t || {}; listo(); }).catch(listo); else listo();
   });
   $('d-restaurar').addEventListener('change', function () {
     var f = this.files && this.files[0]; if (!f) return;
@@ -351,7 +356,9 @@
         if (!j || j.app !== 'recoovare' || !j.datos) throw new Error('No es un respaldo de Recoovare');
         if (!confirm('Esto reemplaza los pedidos y notas de este navegador con los del respaldo del ' + new Date(j.fecha).toLocaleDateString('es-MX') + '. ¿Continuar?')) return;
         Object.keys(j.datos).forEach(function (k) { if (CLAVES.indexOf(k) >= 0) localStorage.setItem(k, j.datos[k]); });
-        location.reload();
+        var imgs = j.imagenes || {}, ids = Object.keys(imgs);
+        if (!ids.length || !window.RecoovareImg) { location.reload(); return; }
+        Promise.all(ids.map(function (id) { return window.RecoovareImg.poner(id, imgs[id]); })).then(function () { location.reload(); }, function () { location.reload(); });
       } catch (e) { $('d-estado').textContent = 'No se pudo restaurar: ' + e.message; $('d-estado').style.color = 'var(--rojo)'; }
     };
     r.readAsText(f);

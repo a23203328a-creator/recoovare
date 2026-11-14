@@ -9,112 +9,162 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="notas.css">
+<link rel="stylesheet" href="notas.css?v=2">
 </head>
 <body class="ancho-80">
 
 <header class="barra no-imprimir">
   <div class="barra-in">
     <a href="../" class="logo"><img src="../fotos/logo.png" alt="Recoovare"></a>
-    <h1>Notas de venta</h1>
+    <div class="barra-nota">
+      <span class="barra-sub">Notas de venta</span>
+      <div class="barra-folio"><strong id="h-folio">Nota nueva</strong><span class="pill" id="h-modo">Nueva</span></div>
+    </div>
+    <span class="guardado" id="h-guardado" role="status"></span>
     <div class="barra-acciones">
+      <button type="button" class="btn btn-cafe" id="btn-guardar">Guardar cambios</button>
       <a class="btn btn-claro" href="../pedidos/">Pedidos</a>
       <button type="button" class="btn btn-claro" id="btn-historial">Historial</button>
-      <button type="button" class="btn btn-cafe" id="btn-nueva">Nueva nota</button>
+      <button type="button" class="btn btn-claro" id="btn-nueva">+ Nueva nota</button>
     </div>
   </div>
 </header>
 
 <main class="contenedor no-imprimir">
   <section class="editor">
-    <p class="aviso" id="aviso-editando" hidden></p>
+    <p class="aviso" id="aviso" hidden></p>
 
+    <!-- 1. Cliente -->
     <div class="panel">
-      <h2>Cliente</h2>
-      <div class="fila-2">
+      <div class="panel-cab"><span class="paso">1</span><h2>Cliente</h2></div>
+      <div class="fila-3">
         <div class="campo"><label for="c-nombre">Nombre</label><input id="c-nombre" type="text" placeholder="Ej. María López" autocomplete="off"></div>
         <div class="campo"><label for="c-tel">WhatsApp (10 dígitos)</label><input id="c-tel" type="tel" inputmode="numeric" placeholder="Ej. 999 123 4567" autocomplete="off"></div>
+        <div class="campo"><label for="c-vendedor">Asesor de ventas</label><select id="c-vendedor"></select></div>
       </div>
-      <div class="campo"><label for="c-vendedor">Asesor de ventas</label><select id="c-vendedor"></select></div>
       <p class="comision" id="comision-info" hidden></p>
     </div>
 
+    <!-- 2. Productos -->
     <div class="panel">
-      <h2>Productos</h2>
-      <div class="agregar">
-        <div class="fila-3">
-          <div class="campo"><label for="p-tipo">Tipo</label>
-            <select id="p-tipo">
-              <option value="placas">Placa domiciliaria</option>
-              <option value="lapidas">Lápida</option>
-              <option value="propio">Diseño propio del cliente</option>
-              <option value="otro">Otro concepto</option>
-            </select>
-          </div>
-          <div class="campo" id="caja-codigo"><label for="p-codigo">Código del modelo</label><input id="p-codigo" type="text" list="lista-modelos" placeholder="Ej. 047 o L03" autocomplete="off"></div>
-          <div class="campo" id="caja-medida"><label for="p-medida">Medida</label><select id="p-medida"></select></div>
+      <div class="panel-cab"><span class="paso">2</span><h2>Productos</h2></div>
+
+      <div class="captura" id="captura">
+        <div class="captura-cab">
+          <strong id="cap-titulo">Agregar producto</strong>
+          <span class="captura-nota">Todavía no está en la nota: no cuenta en el total hasta que pulses “Agregar a la nota”.</span>
         </div>
-        <p class="modelo-encontrado" id="p-encontrado"></p>
-        <div class="campo"><label for="p-desc">Descripción</label><input id="p-desc" type="text" placeholder="Se llena sola con el modelo; puedes cambiarla"></div>
-        <div class="campo"><label for="p-detalle">Texto / detalles (opcional)</label><textarea id="p-detalle" placeholder="Ej. Familia Canul Canul, C. 79B #573 x 98 y 100, letras en azul"></textarea></div>
-        <div class="fila-3">
+        <div class="campo">
+          <span class="label">Tipo de producto</span>
+          <div class="seg" id="cap-tipo" role="group" aria-label="Tipo de producto">
+            <button type="button" data-tipo="placas" aria-pressed="true">Placa domiciliaria</button>
+            <button type="button" data-tipo="lapidas" aria-pressed="false">Lápida</button>
+            <button type="button" data-tipo="propio" aria-pressed="false">Diseño propio</button>
+            <button type="button" data-tipo="otro" aria-pressed="false">Otro concepto</button>
+          </div>
+        </div>
+        <div class="cap-modelo" id="caja-codigo">
+          <div class="campo"><label for="p-codigo">Modelo (número)</label><input id="p-codigo" type="text" list="lista-modelos" placeholder="Ej. 047 o L03" autocomplete="off"></div>
+          <div class="modelo-vista" id="p-modelo"></div>
+        </div>
+        <div class="campo" id="caja-forma"><span class="label">Forma</span><div class="seg" id="p-formas" role="group" aria-label="Forma"></div></div>
+        <div class="campo" id="caja-medida"><span class="label">Medida</span><div class="medidas" id="p-medidas" role="group" aria-label="Medida"></div></div>
+        <div class="campo"><label for="p-desc">Descripción (sale en el ticket)</label><input id="p-desc" type="text" placeholder="Se llena sola con el modelo; puedes cambiarla"></div>
+        <div class="campo"><label for="p-detalle">Texto / detalles (opcional, sale en el ticket)</label><textarea id="p-detalle" placeholder="Ej. Familia Canul Canul, C. 79B #573 x 98 y 100, letras en azul"></textarea></div>
+        <div class="fila-cap">
           <div class="campo"><label for="p-cant">Cantidad</label><input id="p-cant" type="number" min="1" step="1" value="1" inputmode="numeric"></div>
           <div class="campo"><label for="p-precio">Precio unitario ($)</label><input id="p-precio" type="number" min="0" step="1" inputmode="decimal"></div>
-          <div class="campo campo-boton"><button type="button" class="btn btn-cafe" id="btn-agregar">Agregar a la nota</button></div>
+          <div class="cap-botones">
+            <button type="button" class="btn btn-claro" id="btn-cancelar-edicion" hidden>Cancelar</button>
+            <button type="button" class="btn btn-cafe" id="btn-agregar">Agregar a la nota ↓</button>
+          </div>
         </div>
         <p class="msg-error" id="p-error" hidden></p>
       </div>
 
-      <div class="rapidos">
-        <span>Agregar rápido:</span>
-        <button type="button" class="chip" data-rapido="cemento">Instalación con cemento blanco $150</button>
-        <button type="button" class="chip" data-rapido="taquetes">Instalación con taquetes y tornillos $125</button>
-        <button type="button" class="chip" data-rapido="envio">Envío a domicilio</button>
-      </div>
-
+      <div class="lista-cab"><h3>Productos de esta nota</h3><span id="lista-total"></span></div>
       <ul class="lista-items" id="lista-items"></ul>
       <p class="vacio" id="items-vacio">Todavía no hay productos en la nota.</p>
     </div>
 
+    <!-- 3. Instalación y entrega -->
     <div class="panel">
-      <h2>Pago y entrega</h2>
-      <div class="fila-3">
-        <div class="campo"><label for="pg-anticipo">Anticipo ($)</label><input id="pg-anticipo" type="number" min="0" step="1" inputmode="decimal"></div>
-        <div class="campo"><label for="pg-metodo">Forma de pago</label>
-          <select id="pg-metodo"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select>
-        </div>
-        <div class="campo"><label for="pg-entrega">Fecha de entrega</label><input id="pg-entrega" type="date"></div>
+      <div class="panel-cab"><span class="paso">3</span><h2>Instalación y entrega</h2></div>
+      <div class="seg seg-3" id="e-metodo" role="group" aria-label="Método de entrega">
+        <button type="button" data-metodo="recoge" aria-pressed="true">Recoge en el local</button>
+        <button type="button" data-metodo="envio" aria-pressed="false">Envío a domicilio</button>
+        <button type="button" data-metodo="instalacion" aria-pressed="false">Instalación</button>
       </div>
-      <div class="campo"><label for="pg-notas">Notas (opcional)</label><textarea id="pg-notas" placeholder="Ej. Pasa a recogerla después de las 4 p.m."></textarea></div>
-      <div class="totales" id="totales"></div>
+      <div class="fila-2" id="e-envio" hidden>
+        <div class="campo"><label for="e-costo">Costo del envío ($)</label><input id="e-costo" type="number" min="0" step="1" inputmode="decimal" placeholder="Ej. 80"></div>
+        <div class="campo"><label for="e-direccion">Dirección de envío</label><input id="e-direccion" type="text" placeholder="Calle, número, colonia"></div>
+      </div>
+      <div id="e-inst" hidden>
+        <div class="seg" id="e-insttipo" role="group" aria-label="Tipo de instalación">
+          <button type="button" data-inst="taquetes" aria-pressed="true">Con taquetes y tornillos · $125</button>
+          <button type="button" data-inst="cemento" aria-pressed="false">Con cemento blanco · $150</button>
+        </div>
+        <div class="campo" style="margin-top:12px"><label for="e-ubicacion">Ubicación de la instalación (domicilio o cementerio)</label><input id="e-ubicacion" type="text" placeholder="Ej. Calle 46 #965, Villamagna · o Cementerio General, sección 4"></div>
+      </div>
+      <p class="ayuda" id="e-ayuda"></p>
+      <div class="fila-2">
+        <div class="campo"><label for="pg-entrega">Fecha acordada</label><input id="pg-entrega" type="date"></div>
+        <div class="campo"><label for="pg-notas">Notas (opcional, salen en el ticket)</label><input id="pg-notas" type="text" placeholder="Ej. Pasa después de las 4 p.m."></div>
+      </div>
+    </div>
+
+    <!-- 4. Pagos -->
+    <div class="panel">
+      <div class="panel-cab"><span class="paso">4</span><h2>Pagos</h2></div>
+      <div class="kpis">
+        <div class="kpi"><span>Total</span><strong id="k-total">$0</strong></div>
+        <div class="kpi"><span>Pagado</span><strong id="k-pagado">$0</strong></div>
+        <div class="kpi kpi-saldo" id="k-saldo-caja"><span>Saldo pendiente</span><strong id="k-saldo">$0</strong></div>
+      </div>
+      <ul class="pagos" id="pagos"></ul>
+      <div class="pago-form">
+        <div class="campo"><label for="pg-concepto">Concepto</label><select id="pg-concepto"><option>Anticipo</option><option>Abono</option><option>Liquidación</option></select></div>
+        <div class="campo"><label for="pg-monto">Monto ($)</label><input id="pg-monto" type="number" min="0" step="1" inputmode="decimal"></div>
+        <div class="campo"><label for="pg-metodo">Forma de pago</label><select id="pg-metodo"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></div>
+        <div class="campo"><label for="pg-fecha">Fecha</label><input id="pg-fecha" type="date"></div>
+        <button type="button" class="btn btn-cafe" id="btn-pago">+ Registrar pago</button>
+      </div>
     </div>
   </section>
 
   <aside class="lado">
-    <div class="panel panel-ticket">
-      <div class="ticket-cabecera">
-        <h2>Vista previa</h2>
-        <label class="ancho">Papel
-          <select id="ancho"><option value="80">80 mm</option><option value="58">58 mm</option></select>
-        </label>
-      </div>
-      <div class="ajuste">
-        <label for="aj-ancho">Ancho de impresión (mm)</label><input id="aj-ancho" type="number" min="30" max="80" step="1">
-        <label for="aj-margen">Mover a la derecha (mm)</label><input id="aj-margen" type="number" min="0" max="10" step="0.5">
-      </div>
-      <p class="ayuda">Si en el papel se corta del lado derecho, baja el ancho de 1 en 1. Si queda pegado o cortado a la izquierda, súbele a "Mover a la derecha".</p>
+    <details class="panel panel-ticket" id="caja-vista" open>
+      <summary class="ticket-cabecera"><h2>Vista previa del ticket</h2><button type="button" class="btn btn-claro btn-mini" id="btn-ampliar">Ampliar</button></summary>
       <div class="ticket-marco"><div id="ticket-vista"></div></div>
-      <div class="acciones">
-        <button type="button" class="btn btn-cafe" id="btn-imprimir">Imprimir ticket</button>
-        <button type="button" class="btn btn-claro" id="btn-pdf">Descargar PDF</button>
-        <button type="button" class="btn btn-verde" id="btn-compartir">Mandar PDF por WhatsApp</button>
+      <details class="config">
+        <summary>Configuración de impresión</summary>
+        <div class="config-cuerpo">
+          <label class="fila-conf">Papel <select id="ancho"><option value="80">80 mm</option><option value="58">58 mm</option></select></label>
+          <label class="fila-conf">Ancho de impresión (mm) <input id="aj-ancho" type="number" min="30" max="80" step="1"></label>
+          <label class="fila-conf">Mover a la derecha (mm) <input id="aj-margen" type="number" min="0" max="10" step="0.5"></label>
+          <p class="ayuda">Si en el papel se corta del lado derecho, baja el ancho de 1 en 1. Si queda pegado o cortado a la izquierda, súbele a “Mover a la derecha”.</p>
+        </div>
+      </details>
+    </details>
+    <div class="panel acciones-panel">
+      <div class="campo" id="caja-destino">
+        <span class="label">Compartir por WhatsApp con</span>
+        <div class="destinos" id="destinos"></div>
       </div>
-      <p class="ayuda" id="ayuda-compartir">Si elegiste asesora, el PDF se manda a ella para que se lo reenvíe al cliente; si no, al cliente. En el celular se abre el menú para compartir (elige WhatsApp y el chat). En la computadora se descarga el PDF y se abre el chat para que lo adjuntes.</p>
+      <label class="check" id="caja-incluir" hidden><input type="checkbox" id="incluir-boceto"> <span>Incluir boceto aprobado en el PDF</span></label>
+      <div class="acciones">
+        <button type="button" class="btn btn-cafe" id="btn-guardar2">Guardar</button>
+        <button type="button" class="btn btn-claro" id="btn-imprimir">Imprimir ticket</button>
+        <button type="button" class="btn btn-claro" id="btn-pdf">Descargar PDF</button>
+        <button type="button" class="btn btn-verde" id="btn-compartir">Compartir por WhatsApp</button>
+      </div>
+      <p class="ayuda">En la computadora se descarga el PDF y se abre el chat: adjúntalo ahí. En el celular se abre el menú para compartir.</p>
       <p class="estado" id="estado" role="status"></p>
     </div>
   </aside>
 </main>
 
+<!-- Historial -->
 <div class="modal no-imprimir" id="modal-historial" hidden>
   <div class="modal-caja" role="dialog" aria-modal="true" aria-labelledby="titulo-historial">
     <div class="modal-cabecera">
@@ -123,7 +173,15 @@
     </div>
     <input id="buscar-nota" type="search" placeholder="Buscar por folio, cliente o teléfono" autocomplete="off">
     <ul class="historial" id="historial"></ul>
-    <p class="ayuda">Las notas se guardan en este dispositivo y navegador. Si cambias de computadora, no aparecerán.</p>
+    <p class="ayuda">Las notas y los bocetos se guardan en esta computadora y navegador.</p>
+  </div>
+</div>
+
+<!-- Ampliar imagen o ticket -->
+<div class="modal no-imprimir" id="modal-ver" hidden>
+  <div class="modal-caja modal-ver" role="dialog" aria-modal="true" aria-label="Vista ampliada">
+    <div class="modal-cabecera"><h2 id="ver-titulo">Vista ampliada</h2><button type="button" class="btn btn-claro" id="btn-cerrar-ver">Cerrar</button></div>
+    <div class="ver-cuerpo" id="ver-cuerpo"></div>
   </div>
 </div>
 
@@ -133,7 +191,7 @@
 <datalist id="lista-modelos"></datalist>
 <script src="../datos.js"></script>
 <script src="jspdf.umd.min.js"></script>
-<script src="../pedidos/sync.js"></script>
-<script src="notas.js"></script>
+<script src="../pedidos/sync.js?v=2"></script>
+<script src="notas.js?v=2"></script>
 </body>
 </html>

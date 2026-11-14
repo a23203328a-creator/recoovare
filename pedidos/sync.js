@@ -57,6 +57,8 @@
     if (leer(KI, []).indexOf(nota.id) >= 0) return null;
     var lista = leer(K, []);
     var p = lista.find(function (x) { return x.notaId === nota.id; });
+    // Nota creada desde un pedido existente: se enlaza a ese pedido y la nota pasa a llevar sus pagos
+    if (!p && nota.pedidoId) { p = lista.find(function (x) { return x.id === nota.pedidoId && !x.notaId; }); if (p) p.pagos = []; }
     var suma = function (a) { return a.reduce(function (s, i) { return s + num(i.cant) * num(i.precio); }, 0); };
     var prods = nota.items.filter(esProducto), extras = nota.items.filter(function (i) { return !esProducto(i); });
     var fechaN = fechaLocal(nota.fecha);
@@ -82,6 +84,14 @@
     // Pagos que vienen de la nota (se recalculan cada vez)
     var manuales = (p.pagos || []).filter(function (x) { return x.origen !== 'nota'; });
     var deNota = [];
+    if (Array.isArray(nota.pagos)) {
+      deNota = nota.pagos.filter(function (x) { return num(x.monto) > 0; }).map(function (x) {
+        return { fecha: x.fecha || fechaN, monto: num(x.monto), metodo: x.metodo || 'Efectivo', concepto: (x.concepto || 'Pago') + ' (nota ' + nota.folio + ')', origen: 'nota' };
+      });
+      p.pagos = deNota.concat(manuales);
+      guardar(K, lista);
+      return p;
+    }
     if (num(nota.anticipo) > 0) deNota.push({ fecha: fechaN, monto: num(nota.anticipo), metodo: nota.metodo || 'Efectivo', concepto: 'Anticipo (nota ' + nota.folio + ')', origen: 'nota' });
     if (nota.pagado) {
       var pagadoYa = num(nota.anticipo) + manuales.reduce(function (s, x) { return s + num(x.monto); }, 0);
@@ -95,5 +105,44 @@
   function sincronizarNotas() {
     leer('recoovare_notas', []).forEach(desdeNota);
   }
+  /* ---------- imágenes de bocetos (IndexedDB: guarda mucho más que localStorage) ---------- */
+  var Img = (function () {
+    var dbp = null;
+    function db() {
+      if (dbp) return dbp;
+      dbp = new Promise(function (ok, mal) {
+        if (!window.indexedDB) { mal(new Error('Este navegador no permite guardar imágenes')); return; }
+        var r = indexedDB.open('recoovare_bocetos', 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore('imgs'); };
+        r.onsuccess = function () { ok(r.result); };
+        r.onerror = function () { mal(r.error); };
+      });
+      return dbp;
+    }
+    function tx(modo, fn) {
+      return db().then(function (d) {
+        return new Promise(function (ok, mal) {
+          var t = d.transaction('imgs', modo), st = t.objectStore('imgs'), res;
+          var r = fn(st); if (r) r.onsuccess = function () { res = r.result; };
+          t.oncomplete = function () { ok(res); }; t.onerror = function () { mal(t.error); };
+        });
+      });
+    }
+    return {
+      poner: function (id, data) { return tx('readwrite', function (st) { return st.put(data, id); }); },
+      leer: function (id) { return tx('readonly', function (st) { return st.get(id); }); },
+      borrar: function (id) { return tx('readwrite', function (st) { return st.delete(id); }); },
+      todas: function () {
+        return db().then(function (d) {
+          return new Promise(function (ok, mal) {
+            var out = {}, t = d.transaction('imgs', 'readonly'), c = t.objectStore('imgs').openCursor();
+            c.onsuccess = function () { var cur = c.result; if (cur) { out[cur.key] = cur.value; cur.continue(); } };
+            t.oncomplete = function () { ok(out); }; t.onerror = function () { mal(t.error); };
+          });
+        });
+      }
+    };
+  })();
+  window.RecoovareImg = Img;
   window.RecoovareSync = { inicializar: inicializar, K: K, KF: KF, KI: KI, leer: leer, guardar: guardar, num: num, nuevoFolio: nuevoFolio, pedidoVacio: pedidoVacio, desdeNota: desdeNota, sincronizarNotas: sincronizarNotas };
 })();
