@@ -36,7 +36,7 @@ var M=[
  {t:'Pedido recibido',c:'Cuando el pedido trae todos los datos.',m:'¡Gracias por su pedido! 😊 Ya estamos preparando su boceto, se lo comparto por aquí en unas 3 a 4 horas. ✨'},
  {t:'Faltan datos',n:1,c:'Cuando falta algo. Cambia ___ por lo que falta (por ejemplo: la dirección que llevará la placa).',m:'¡Gracias! 😊 Para preparar su boceto solo me falta: ___. En cuanto me lo comparta, empezamos. ✨'},
  {t:'Con imagen de referencia',c:'Cuando el cliente manda una foto o imagen que le gustó.',m:'¡Claro! 😊 Tomamos su imagen como referencia y la adaptamos a la medida de su {p}. Le mando el boceto para que lo revise antes de aprobarlo. ✨'},
- {t:'Diseño sin referencia',c:'Cuando quiere algo personalizado pero no tiene imagen.',m:'¡Con gusto! 😊 ¿Qué colores, flores, imágenes o estilo le gustaría? Si hay algo que no quiera, también dígame. ✨'},
+ {t:'Diseño sin referencia',c:'Cuando quiere algo personalizado pero no tiene imagen.',m:'{d}'},
  {e:'Boceto'},
  {t:'Boceto listo',c:'Cuando Lancer te manda el boceto. Es la única vez que se le pide aprobarlo. Si el cliente aprueba, reenvía su respuesta a Lancer.',m:'¡Su boceto está listo! ✨ Revise que {r} estén correctos. Si quiere algún cambio, con gusto lo ajustamos; si así le gusta, confírmeme para continuar. 😊\nUna vez aprobado ya no se pueden hacer cambios.'},
  {t:'Boceto con cambios',c:'Después de cada corrección. No vuelvas a preguntar si así está bien.',m:'Aquí está su boceto con los cambios que nos pidió. ✨'},
@@ -55,7 +55,7 @@ var M=[
 var tipo='placa';
 try{tipo=localStorage.getItem('recoovare_msj_tipo')||'placa'}catch(e){}
 function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function texto(i){return M[i].m.replace(/\{p\}/g,tipo).replace(/\{r\}/g,tipo==='placa'?'apellidos, dirección y textos':'nombres, fechas y textos')}
+function texto(i){return M[i].m.replace(/\{p\}/g,tipo).replace(/\{r\}/g,tipo==='placa'?'apellidos, dirección y textos':'nombres, fechas y textos').replace(/\{d\}/g,tipo==='placa'?'¡Con gusto! 😊 ¿Qué colores, flores o estilo le gustaría para su placa? Si hay algo que no quiera, también dígame. ✨':'¡Con gusto! 😊 ¿Qué colores, flores o estilo le gustaría para su lápida? Si desea incluir una foto o una frase, puede mandármela por aquí. ✨')}
 function pintar(){
   var n=0;
   document.getElementById('lista').innerHTML=M.map(function(x,i){
