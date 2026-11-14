@@ -4,8 +4,7 @@
    aquí se suma por mes, por semana, por categoría y por forma de pago.
    ===================================================================== */
 (function () {
-  var K = 'essentia_gastos', KG = 'essentia_ganancias', KP = 'recoovare_pedidos';
-  var COSTOS_PEDIDOS = 'Costos de pedidos';
+  var K = 'essentia_gastos', KG = 'essentia_ganancias';
   var PERFUMES = 'Compra de perfumes';
   var CATS = [PERFUMES, 'Insumos y empaque', 'Publicidad', 'Envíos', 'Gasolina y traslados', 'Otros'];
   var PAGOS = ['Tarjeta', 'Transferencia', 'Efectivo', 'Caja del POS'];
@@ -54,20 +53,7 @@
   var ganancias = leer(KG, []);
   if (!Array.isArray(ganancias)) ganancias = [];
   function vivos() { return gastos.filter(function (g) { return g && !g.borrado; }); }
-  // Costos anotados en cada pedido de RECOOVARE (se cuentan en el mes en que se hizo el pedido)
-  function costosPedidos(m) {
-    var ped = leer(KP, []), out = [];
-    if (!Array.isArray(ped)) return out;
-    ped.forEach(function (p) {
-      if (!p || !p.fecha || (m && mesDe(p.fecha) !== m)) return;
-      (p.costos || []).forEach(function (x, i) {
-        if (!(num(x.monto) > 0)) return;
-        out.push({ id: 'pc-' + p.id + '-' + i, fecha: String(p.fecha).slice(0, 10), concepto: (p.folio || 'Pedido') + ' · ' + (x.concepto || 'Costo'), categoria: COSTOS_PEDIDOS, monto: num(x.monto), pago: 'Anotado en Pedidos', negocio: 'RECOOVARE', notas: p.cliente || '', desdePedido: true, creado: '' });
-      });
-    });
-    return out;
-  }
-  function delMes(m) { return vivos().filter(function (g) { return mesDe(g.fecha) === m; }).concat(costosPedidos(m)); }
+  function delMes(m) { return vivos().filter(function (g) { return mesDe(g.fecha) === m; }); }
   function gananciaDe(m) { var x = ganancias.find(function (g) { return g.mes === m && !g.borrado; }); return x ? x.ganancia : null; }
 
   var mes = mesDe(hoy());
@@ -79,8 +65,7 @@
       var m = num(g.monto); total += m;
       if (g.negocio === 'RECOOVARE') rec += m; else if (g.categoria === PERFUMES) perf += m;
     });
-    var recPed = lista.reduce(function (x, g) { return x + (g.desdePedido ? num(g.monto) : 0); }, 0);
-    return { total: r2(total), perf: r2(perf), rec: r2(rec), recPed: r2(recPed), op: r2(total - perf - rec), n: lista.filter(function (g) { return !g.desdePedido; }).length };
+    return { total: r2(total), perf: r2(perf), rec: r2(rec), op: r2(total - perf - rec), n: lista.length };
   }
 
   /* ---------- pintar ---------- */
@@ -94,7 +79,6 @@
     $('k-perf').textContent = dinero(s.perf);
     $('k-op').textContent = dinero(s.op);
     $('k-rec').textContent = dinero(s.rec);
-    $('k-rec-sub').textContent = s.recPed > 0 ? 'Incluye ' + dinero(s.recPed) + ' de costos de pedidos' : 'También se resta a tu ganancia';
     if (!s.n) $('lead').textContent = 'Todavía no hay gastos anotados en ' + nombreMes(mes) + '.';
     else $('lead').innerHTML = 'En ' + esc(nombreMes(mes)) + ' llevas <b>' + dinero(s.total) + '</b> en gastos. El <b>' + Math.round(s.perf / (s.total || 1) * 100) + '%</b> fue compra de perfumes. A tu ganancia se le restan <b>' + dinero(r2(s.op + s.rec)) + '</b>: ' + dinero(s.op) + ' de operación de ESSENTIA y ' + dinero(s.rec) + ' de RECOOVARE.';
     pintarUtilidad(s);
@@ -170,7 +154,6 @@
           var dentro = '<span class="g-txt"><b>' + esc(g.concepto) + '</b><small>' + esc(sub) + '</small></span>' +
             (g.negocio === 'RECOOVARE' ? '<span class="tag tag-r">RECOOVARE</span>' : '') +
             '<span class="g-monto">' + dinero(g.monto) + '</span>';
-          if (g.desdePedido) return '<li><a class="gasto" href="../" title="Este costo se edita en Pedidos">' + dentro + '</a></li>';
           return '<li><button type="button" class="gasto" data-id="' + esc(g.id) + '" aria-label="Editar ' + esc(g.concepto) + ', ' + esc(dinero(g.monto)) + '">' + dentro + '</button></li>';
         }).join('') + '</ul></div>';
     }).join('');
@@ -290,7 +273,7 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
   $('csv-mes').addEventListener('click', function () { csv(delMes(mes), 'gastos-essentia-' + mes + '.csv'); });
-  $('csv-todo').addEventListener('click', function () { csv(vivos().concat(costosPedidos(null)), 'gastos-essentia-todo.csv'); });
+  $('csv-todo').addEventListener('click', function () { csv(vivos(), 'gastos-essentia-todo.csv'); });
 
   var tt = null;
   function aviso(t) { var x = $('toast'); x.textContent = t; x.hidden = false; clearTimeout(tt); tt = setTimeout(function () { x.hidden = true; }, 2600); }
