@@ -222,11 +222,12 @@
     var p = precioTexto(lista, idx);
     var una = f.formas.length === 1;
     return '<div class="card-sel">' +
-        '<span class="label-sm">Medida (cm)' + (una ? ' · ' + esc(NOMBRES_FORMA[f.forma] || f.forma) : '') + '</span>' +
+        '<span class="label-sm">Medida (cm)</span>' +
         htmlMedidas(lista, idx, f.forma) +
       '</div>' +
       '<div class="price-row"><p class="price">' + p.txt + (p.otra ? '' : ' <span class="mxn">MXN</span>') + '</p><span class="price-med">' + esc(p.med) + '</span></div>';
   }
+  function formasDe(tipo, m) { var t = D.tipos[tipo]; return t.medidas ? t.medidas : [m.forma]; }
   function htmlTarjeta(tipo, m) {
     var t = D.tipos[tipo];
     var clave = claveModelo(tipo, m);
@@ -237,7 +238,7 @@
         (m.nuevo ? '<span class="tag-nuevo">Nuevo</span>' : '') +
       '</button>' +
       '<div class="card-body">' +
-        '<div class="card-tit"><span class="code">#' + esc(m.codigo) + '</span><h3>' + esc(m.nombre) + '</h3></div>' +
+        '<div class="card-tit"><div class="card-id"><span class="code">#' + esc(m.codigo) + '</span>' + (formasDe(tipo, m).length === 1 ? '<span class="card-forma">' + esc(NOMBRES_FORMA[m.forma] || m.forma) + '</span>' : '') + '</div><h3>' + esc(m.nombre) + '</h3></div>' +
         '<p class="card-cat">' + esc(m.categoria) + '</p>' +
         '<div class="js-sel">' + htmlSelTarjeta(tipo, m) + '</div>' +
         '<button type="button" class="btn-pedir">Mandar a hacer mi boceto ' + ICONO_SIG + '</button>' +
@@ -257,7 +258,20 @@
     document.getElementById('titulo-modelos').textContent = 'Elige tu ' + t.singular;
     var tot = visibles(estado.tipo).length;
     document.getElementById('conteo').textContent = lista.length === tot ? tot + ' modelos' : lista.length + ' de ' + tot + ' modelos';
-    document.getElementById('vacio').hidden = lista.length > 0;
+    var vacio = document.getElementById('vacio');
+    vacio.hidden = lista.length > 0;
+    if (!lista.length) {
+      var otro = null, qq = sinAcentos(estado.busqueda.trim().replace('#', ''));
+      if (qq) Object.keys(D.tipos).forEach(function (k) {
+        if (k === estado.tipo || otro) return;
+        var hall = visibles(k).filter(function (m) { return sinAcentos(m.codigo).indexOf(qq) >= 0 || sinAcentos(m.nombre).indexOf(qq) >= 0; });
+        if (hall.length) otro = { k: k, m: hall[0], n: hall.length };
+      });
+      vacio.innerHTML = otro
+        ? '¿Buscas ' + (otro.n === 1 ? 'la ' + esc(D.tipos[otro.k].singular) + ' <strong>#' + esc(otro.m.codigo) + '</strong>' : 'eso') + '? Está en <strong>' + esc(D.tipos[otro.k].nombre) + '</strong>.' +
+          '<br><button type="button" class="btn-pedir vacio-ir" data-ir-busca="' + otro.k + '">Ver en ' + esc(D.tipos[otro.k].nombre) + '</button>'
+        : 'No encontramos ese modelo. Prueba con otro número, nombre o categoría.';
+    }
     document.getElementById('grid').innerHTML = lista.map(function (m) { return htmlTarjeta(estado.tipo, m); }).join('');
   }
   function pintarTodo() { pintarPestanas(); pintarCategorias(); pintarModelos(); }
@@ -284,6 +298,12 @@
   document.getElementById('categorias').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-cat]'); if (!b) return;
     estado.categoria = b.getAttribute('data-cat'); pintarCategorias(); pintarModelos();
+  });
+  document.getElementById('vacio').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ir-busca]'); if (!b) return;
+    var q = estado.busqueda;
+    estado.tipo = b.getAttribute('data-ir-busca'); estado.categoria = 'todos';
+    pintarTodo();
   });
   var limpiar = document.getElementById('buscar-limpiar');
   document.getElementById('buscar').addEventListener('input', function (e) {
@@ -418,7 +438,7 @@
               htmlCampos(tipo, m, ids('instalacion')) +
             '</section>' +
             (hayEntrega ? '<section class="pd-bloque" data-b="entrega">' + cabeza('entrega', 'Entrega', '¿Cómo te la hacemos llegar?') +
-              '<p class="pd-incluida js-incluida" hidden>' + ICONO_INFO + '<span>La instalación incluye el servicio a domicilio; no necesitas elegir entrega.</span></p>' +
+              '<p class="pd-incluida js-incluida" hidden>' + ICONO_INFO + '<span>La instalación incluye el traslado sin costo; no necesitas elegir entrega.</span></p>' +
               htmlCampos(tipo, m, ids('entrega')) +
             '</section>' : '') +
             '<section class="pd-bloque pd-final" data-b="resumen">' + cabeza('resumen', 'Resumen del pedido') +
@@ -432,6 +452,7 @@
     vista.hidden = false;
     document.body.classList.add('modo-pedido');
     pintarMedidaPd();
+    reponerBorrador();
     actualizarPd();
     window.scrollTo({ top: 0, behavior: 'instant' });
     var ruta = '#pedido/' + tipo + '/' + codigo + '/' + idx;
@@ -497,7 +518,7 @@
       '<div class="pd-lineas">' + filas + '</div>' +
       '<div class="pd-total"><span>Total</span><strong>' + total + '</strong></div>' +
       (D.negocio.anticipo ? '<div class="pd-anticipo"><div><span>Anticipo para iniciar</span><strong>' + dinero(D.negocio.anticipo) + '</strong></div>' +
-        '<p>El anticipo se realiza una vez aprobado el boceto.</p></div>' : '') +
+        '<p>Se descuenta del total. Lo pagas al aprobar tu boceto.</p></div>' : '') +
       (r.confirmarZona ? '<p class="aviso">' + ICONO_INFO + '<span>La instalación se confirma al revisar tu ubicación.</span></p>' : '');
   }
   function calcularPd() {
@@ -538,7 +559,28 @@
       if (pd.idx === -1) vista.querySelector('#pd-otra').focus();
     }
   });
-  vista.addEventListener('change', function (e) { if (e.target.type === 'radio' && pd) actualizarPd(); });
+  vista.addEventListener('change', function (e) { if (e.target.type === 'radio' && pd) actualizarPd(); guardarBorrador(); });
+  vista.addEventListener('input', function () { guardarBorrador(); });
+  // Lo que el cliente escribió se conserva (mientras la página siga abierta) si regresa al catálogo y abre otro modelo
+  var borrador = {};
+  function guardarBorrador() {
+    if (!pd) return;
+    var form = vista.querySelector('.pd-form'), b = borrador[pd.tipo] = {};
+    Array.prototype.forEach.call(form.elements, function (el) {
+      if (!el.name || el.name === 'medidaOtra') return;
+      if (el.type === 'radio') { if (el.checked) b[el.name] = el.value; }
+      else if (el.value) b[el.name] = el.value;
+    });
+  }
+  function reponerBorrador() {
+    var b = borrador[pd.tipo]; if (!b) return;
+    var form = vista.querySelector('.pd-form');
+    Object.keys(b).forEach(function (k) {
+      var r = form.querySelector('input[type="radio"][name="' + k + '"][value="' + b[k] + '"]');
+      if (r) { r.checked = true; return; }
+      var el = form.elements[k]; if (el && el.type !== 'radio') el.value = b[k];
+    });
+  }
   // Link al modelo con su foto (la página /m/... muestra vista previa en WhatsApp)
   function linkModelo(tipo, m) { return location.origin + '/m/' + tipo + '/' + encodeURIComponent(m.codigo); }
   function medidaBonita(md) { return String(md).replace(/\s*[×x]\s*/g, ' × ') + ' cm'; }
@@ -593,7 +635,7 @@
 
     // MODELO
     sec.push('📋 *MODELO*\n' + prod + ' #' + r.m.codigo + ' · ' + r.m.nombre + '\n' +
-      (r.p.otra ? 'Medida: ' + otraIn.value.trim() + ' (otra medida)\nPrecio: por cotizar' : 'Medida: ' + medidaBonita(r.p.medida) + '\nPrecio: ' + dinero(r.p.precio) + ' MXN') +
+      (r.p.otra ? 'Medida: ' + otraIn.value.trim() + ' (otra medida)\nPrecio: por cotizar' : 'Medida: ' + (NOMBRES_FORMA[r.p.grupo] ? NOMBRES_FORMA[r.p.grupo] + ' · ' : '') + medidaBonita(r.p.medida) + '\nPrecio: ' + dinero(r.p.precio) + ' MXN') +
       '\nVer modelo: ' + linkModelo(r.tipo, r.m));
 
     // PERSONALIZACIÓN
@@ -622,7 +664,7 @@
       ? '*Total: por cotizar*' + (r.extras.length ? ' (+' + dinero(r.total) + ' de extras)' : '')
       : '*Total: ' + dinero(r.total) + ' MXN' + (envio ? ' + envío' : '') + '*');
     if (D.negocio.anticipo) res.push('*Anticipo: ' + dinero(D.negocio.anticipo) + ' MXN*');
-    sec.push('💰 *RESUMEN*\n' + res.join('\n') + (D.negocio.anticipo ? '\n\nEl anticipo se realiza una vez aprobado el boceto.' : ''));
+    sec.push('💰 *RESUMEN*\n' + res.join('\n') + (D.negocio.anticipo ? '\n\nEl anticipo se descuenta del total y se paga una vez aprobado el boceto.' : ''));
 
     if (pideInst || envio) sec.push('¿Me confirman la cobertura y si hay algún cargo adicional por mi ubicación?');
     if (notas.length) sec.push(notas.join('\n'));
@@ -788,7 +830,7 @@
       document.getElementById('md-resumen').innerHTML =
         '<div class="pd-lineas">' + filas + '</div>' +
         '<div class="pd-total"><span>Total</span><strong>' + dinero(r.total) + ' <small>MXN' + (r.cotizar ? ' + envío' : '') + '</small></strong></div>' +
-        (D.negocio.anticipo ? '<div class="pd-anticipo"><div><span>Anticipo para iniciar</span><strong>' + dinero(D.negocio.anticipo) + '</strong></div><p>El anticipo se realiza una vez aprobado el boceto.</p></div>' : '') +
+        (D.negocio.anticipo ? '<div class="pd-anticipo"><div><span>Anticipo para iniciar</span><strong>' + dinero(D.negocio.anticipo) + '</strong></div><p>Se descuenta del total. Lo pagas al aprobar tu boceto.</p></div>' : '') +
         '<p class="aviso">' + ICONO_INFO + '<span>Antes de hacerla te mandamos una prueba de tu diseño para que la apruebes.</span></p>' +
         (r.zona ? '<p class="aviso">' + ICONO_INFO + '<span>La instalación se confirma al revisar tu ubicación.</span></p>' : '');
     }
@@ -872,7 +914,7 @@
       if (envio) res.push('Envío: según la zona');
       res.push('*Total: ' + dinero(r.total) + ' MXN' + (envio ? ' + envío' : '') + '*');
       if (D.negocio.anticipo) res.push('*Anticipo: ' + dinero(D.negocio.anticipo) + ' MXN*');
-      sec.push('💰 *RESUMEN*\n' + res.join('\n') + (D.negocio.anticipo ? '\n\nEl anticipo se realiza una vez aprobado el boceto.' : ''));
+      sec.push('💰 *RESUMEN*\n' + res.join('\n') + (D.negocio.anticipo ? '\n\nEl anticipo se descuenta del total y se paga una vez aprobado el boceto.' : ''));
       if (pideInst || envio) sec.push('¿Me confirman la cobertura y si hay algún cargo adicional por mi ubicación?');
       sec.push('Les mando mi diseño por aquí. Quedo en espera de la prueba para aprobarla.');
       var mensaje = 'Hola ' + D.negocio.nombre + ', ya tengo mi diseño y me gustaría mandarlo a hacer:\n\n' + sec.join('\n\n');
@@ -978,9 +1020,11 @@
       var x = dias[selDia];
       if (x && x.slots.indexOf(selHora) < 0) selHora = null;
       document.getElementById('cita-dia-sel').textContent = x ? '· ' + x.largo : '';
-      cajaHoras.innerHTML = x ? x.slots.map(function (m) {
-        return '<button type="button" role="radio" data-hora="' + m + '" aria-checked="' + (m === selHora) + '">' + hora(m) + '</button>';
-      }).join('') : '<p class="muted">No hay horarios disponibles por ahora.</p>';
+      function boton(m) { return '<button type="button" role="radio" data-hora="' + m + '" aria-checked="' + (m === selHora) + '">' + hora(m) + '</button>'; }
+      var man = x ? x.slots.filter(function (m) { return m < 720; }) : [], tar = x ? x.slots.filter(function (m) { return m >= 720; }) : [];
+      cajaHoras.innerHTML = !x ? '<p class="muted">No hay horarios disponibles por ahora.</p>' :
+        (man.length ? '<div class="horas-grupo"><span class="horas-tit">Mañana</span><div class="horas-fila">' + man.map(boton).join('') + '</div></div>' : '') +
+        (tar.length ? '<div class="horas-grupo"><span class="horas-tit">Tarde</span><div class="horas-fila">' + tar.map(boton).join('') + '</div></div>' : '');
     }
     cajaDias.addEventListener('click', function (e) {
       var bt = e.target.closest('button[data-dia]'); if (!bt) return;
@@ -1007,6 +1051,8 @@
       : '<table><tbody>' + abiertos.map(function (x) {
           return '<tr><td>' + NOMBRES[x.n] + '</td><td>' + (x.r ? hora(x.r[0]) + ' – ' + hora(x.r[1]) : 'Cerrado') + '</td></tr>';
         }).join('') + '</tbody></table>';
+    var pie = document.getElementById('footer-dir');
+    if (pie) pie.innerHTML = (C.direccion ? esc(C.direccion) + '<br>' : '') + (iguales ? 'Lunes a domingo · ' + hora(abiertos[0].r[0]) + ' a ' + hora(abiertos[0].r[1]) : '');
     var info = document.getElementById('ubicacion-info');
     if (C.direccion) {
       var q = encodeURIComponent(C.direccion);

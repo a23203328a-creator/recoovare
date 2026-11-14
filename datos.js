@@ -108,9 +108,9 @@ window.CATALOGO = {
   info: [
     { titulo: "Material", texto: "Cerámica en losa, encapsulada en resina." },
     { titulo: "Tiempo de entrega", texto: "De 2 a 3 días hábiles después de tu anticipo." },
-    { titulo: "Anticipo", texto: "Se pide un anticipo de $150 para iniciar tu pedido." },
-    { titulo: "Entrega", texto: "Si no requieres instalación, pasas a recogerla o te la enviamos a domicilio con costo extra." },
-    { titulo: "Instalación", texto: "Placas: con orificios para que la instales tú, o la instalamos a domicilio: $150 con cemento blanco o $125 con taquetes y tornillos. Lápidas: instalación solo en cementerios de Mérida. La instalación tiene un rango de cobertura: al mandar tu ubicación te confirmamos si aplica." }
+    { titulo: "Anticipo", texto: "$150, que se descuentan del total. Lo pagas cuando apruebes tu boceto." },
+    { titulo: "Entrega", texto: "Si no requieres instalación, pasas a recogerla a Villamagna del Sur, Mérida, o te la enviamos a domicilio con costo extra. Si la instalamos, el traslado va incluido." },
+    { titulo: "Instalación", texto: "Puedes instalarla tú (con orificios para taquetes y tornillos, o sin orificios para cemento blanco) o la instalamos nosotros con el traslado incluido: $125 con taquetes y tornillos o $150 con cemento blanco. Placas: en tu domicilio, en Mérida y alrededores. Lápidas: en cementerios de Mérida y alrededores. Con tu ubicación te confirmamos la cobertura." }
   ],
 
   /* ---------- Tipos de producto ----------
@@ -152,9 +152,9 @@ window.CATALOGO = {
             nosotros: { titulo: "Requiero instalación", aviso: "Precios aplicables en Mérida y zonas cercanas. Comparte tu ubicación para confirmar cobertura y posibles cargos adicionales." }
           },
           opciones: [
-            { texto: "Con orificios", sub: "Se instala con taquetes y tornillos.\nTiempo: 10–20 minutos.", grupo: "yo", costo: 0, recomendada: true, mensajeCorto: "La instalo yo · Con orificios (taquetes y tornillos)",
+            { texto: "Con orificios", sub: "Se instala con taquetes y tornillos.", grupo: "yo", costo: 0, recomendada: true, mensajeCorto: "La instalo yo · Con orificios (taquetes y tornillos)",
               mensajeTexto: "La instalo yo, con orificios (taquetes y tornillos)" },
-            { texto: "Sin orificios", sub: "Se instala con cemento blanco.\nTiempo: 10–20 minutos.", grupo: "yo", costo: 0, mensajeCorto: "La instalo yo · Sin orificios (cemento blanco)",
+            { texto: "Sin orificios", sub: "Se instala con cemento blanco.", grupo: "yo", costo: 0, mensajeCorto: "La instalo yo · Sin orificios (cemento blanco)",
               mensajeTexto: "La instalo yo, sin orificios (cemento blanco)" },
             { texto: "Con taquetes y tornillos", sub: "Tiempo aproximado: 10–20 minutos.", grupo: "nosotros", costo: 125, recomendada: true, confirmarZona: true,
               mensajeTexto: "Que ustedes la instalen con taquetes y tornillos", resumen: "Instalación con taquetes y tornillos" },
@@ -163,10 +163,11 @@ window.CATALOGO = {
         ] },
         // "mostrarSi" hace que la pregunta solo salga con ciertas respuestas (0 = primera opción)
         { id: "entrega", etiqueta: "Entrega", mostrarSi: [{ campo: "instalacion", en: [0, 1] }], opciones: [
-            { texto: "Paso a recogerla", costo: 0 },
+            { texto: "Paso a recogerla (Villamagna del Sur, Mérida)", mensajeTexto: "Paso a recogerla", costo: 0 },
             { texto: "Envío a domicilio (costo extra según la zona)", mensajeTexto: "Envío a domicilio (costo según la zona)", costo: 0, cotizar: true }
         ] },
-        { id: "domicilio", msj: "Ubicación para instalar", etiqueta: "Dirección o ubicación para la instalación", ejemplo: "calle, número, colonia y referencias, o tu ubicación de Google Maps", parrafo: true, obligatorio: true,
+        { id: "domicilio", msj: "Ubicación para instalar", etiqueta: "Dirección o ubicación para la instalación", ejemplo: "la misma, o calle, número, colonia y referencias", parrafo: true, obligatorio: true,
+          ayuda: "Si es la misma dirección de la placa, escribe: la misma. También puedes pegar tu ubicación de Google Maps.",
           mostrarSi: [{ campo: "instalacion", en: [2, 3] }] },
         { id: "envio", msj: "Dirección de envío", etiqueta: "Dirección para el envío", ejemplo: "calle, número, colonia y referencias", parrafo: true, obligatorio: true,
           mostrarSi: [{ campo: "entrega", en: [1] }] }
@@ -279,9 +280,9 @@ window.CATALOGO = {
             nosotros: { titulo: "Requiero instalación", aviso: "Servicio disponible únicamente en cementerios de Mérida y alrededores." }
           },
           opciones: [
-            { texto: "Con orificios", sub: "Se instala con taquetes y tornillos.\nTiempo: 10–20 minutos.", grupo: "yo", costo: 0, recomendada: true, mensajeCorto: "La instalo yo · Con orificios (taquetes y tornillos)",
+            { texto: "Con orificios", sub: "Se instala con taquetes y tornillos.", grupo: "yo", costo: 0, recomendada: true, mensajeCorto: "La instalo yo · Con orificios (taquetes y tornillos)",
               mensajeTexto: "La instalo yo, con orificios (taquetes y tornillos)" },
-            { texto: "Sin orificios", sub: "Se instala con cemento blanco.\nTiempo: 10–20 minutos.", grupo: "yo", costo: 0, mensajeCorto: "La instalo yo · Sin orificios (cemento blanco)",
+            { texto: "Sin orificios", sub: "Se instala con cemento blanco.", grupo: "yo", costo: 0, mensajeCorto: "La instalo yo · Sin orificios (cemento blanco)",
               mensajeTexto: "La instalo yo, sin orificios (cemento blanco)" },
             { texto: "Con taquetes y tornillos", sub: "Tiempo aproximado: 10–20 minutos.", grupo: "nosotros", costo: 125, recomendada: true, confirmarZona: true,
               mensajeTexto: "Que ustedes la instalen con taquetes y tornillos", resumen: "Instalación con taquetes y tornillos" },
@@ -289,7 +290,7 @@ window.CATALOGO = {
               mensajeTexto: "Que ustedes la instalen con cemento blanco", resumen: "Instalación con cemento blanco" }
         ] },
         { id: "entrega", etiqueta: "Entrega", mostrarSi: [{ campo: "instalacion", en: [0, 1] }], opciones: [
-            { texto: "Paso a recogerla", costo: 0 },
+            { texto: "Paso a recogerla (Villamagna del Sur, Mérida)", mensajeTexto: "Paso a recogerla", costo: 0 },
             { texto: "Envío a domicilio (costo extra según la zona)", mensajeTexto: "Envío a domicilio (costo según la zona)", costo: 0, cotizar: true }
         ] },
         { id: "cementerio", msj: "Cementerio y ubicación de la tumba", etiqueta: "Cementerio y ubicación de la tumba", ejemplo: "Cementerio General, sección, fila o referencias", parrafo: true, obligatorio: true,
