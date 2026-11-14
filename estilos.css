@@ -314,9 +314,10 @@ fieldset.opciones legend { font-size: 14px; font-weight: 700; color: var(--texto
 .dias button strong { font-size: 20px; font-weight: 800; }
 .dias button[aria-checked="true"] { background: var(--cafe); border-color: var(--cafe); color: #fff; }
 .dias button[aria-checked="true"] small { color: #F3E3C3; }
-.horas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.horas button { font: inherit; font-size: 14px; font-weight: 700; min-height: 42px; border: 1.5px solid var(--borde-fuerte); border-radius: 10px; background: #fff; color: var(--cafe); cursor: pointer; white-space: nowrap; }
-.horas button[aria-checked="true"] { background: var(--cafe); border-color: var(--cafe); color: #fff; font-weight: 800; }
+.horas { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -18px; padding: 2px 18px 4px; -webkit-overflow-scrolling: touch; }
+.horas::-webkit-scrollbar { display: none; }
+.horas button { flex: none; font: inherit; font-size: 14px; font-weight: 700; min-height: 40px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--fondo); color: var(--texto); cursor: pointer; white-space: nowrap; box-shadow: inset 0 0 0 1px var(--borde); }
+.horas button[aria-checked="true"] { background: var(--cafe); color: #fff; font-weight: 800; box-shadow: none; }
 .campo.con-error .horas button { border-color: var(--error); }
 .cita-mas { border: 1px solid var(--borde); border-radius: 14px; background: var(--fondo); }
 .cita-mas summary { cursor: pointer; list-style: none; padding: 12px 14px; font-weight: 800; font-size: 15px; color: var(--cafe); display: flex; align-items: center; gap: 6px; min-height: 46px; }
@@ -346,12 +347,11 @@ fieldset.opciones legend { font-size: 14px; font-weight: 700; color: var(--texto
 .horario table { width: 100%; border-collapse: collapse; }
 .horario td { padding: 6px 0; border-top: 1px solid var(--borde); }
 .horario td:last-child { text-align: right; font-weight: 700; color: var(--texto); }
-@media (min-width: 520px) { .horas { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (min-width: 860px) {
   .cita-sec { padding: 52px 0 60px; }
   .cita-grid { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 22px; }
   .cita-form, .ubicacion { padding: 24px; }
-  .dias { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
+  .dias, .horas { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
   .ubicacion { position: sticky; top: 84px; }
 }
 .fila-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
