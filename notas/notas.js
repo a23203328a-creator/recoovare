@@ -476,7 +476,7 @@
     if (!nota.destino) nota.destino = a ? 'asesora' : 'cliente';
     if (nota.destino === 'asesora' && !a) nota.destino = 'cliente';
     var op = [{ k: 'cliente', t: 'Cliente', s: (nota.cliente.nombre || 'Sin nombre') + (tel ? ' · ' + telBonito(tel) : ' · sin WhatsApp (elegirás el chat)'), off: !tel }];
-    if (a) op.push({ k: 'asesora', t: 'Asesora', s: a.nombre + ' · ' + telBonito(a.whatsapp) + ' (se lo reenvía al cliente)' });
+    if (a) op.push({ k: 'asesora', t: 'Asesor', s: a.nombre + ' · ' + telBonito(a.whatsapp) + ' (se lo reenvía al cliente)' });
     $('destinos').innerHTML = op.map(function (o) {
       return '<label class="destino' + (o.off ? ' sin-tel' : '') + '"><input type="radio" name="destino" value="' + o.k + '"' + (nota.destino === o.k ? ' checked' : '') + '><span><strong>' + o.t + '</strong><small>' + esc(o.s) + '</small></span></label>';
     }).join('');

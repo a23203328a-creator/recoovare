@@ -59,7 +59,8 @@ window.CATALOGO = {
   vendedores: [
     { codigo: "soemy",   nombre: "Soemy Quiñones",  titulo: "Asesora de ventas", whatsapp: "529999105127" },
     { codigo: "maryfer", nombre: "Maryfer Balam",   titulo: "Asesora de ventas", whatsapp: "529994113097" },
-    { codigo: "ileana",  nombre: "Ileana Quiñones", titulo: "Asesora de ventas", whatsapp: "529993259242" }
+    { codigo: "ileana",  nombre: "Ileana Quiñones", titulo: "Asesora de ventas", whatsapp: "529993259242" },
+    { codigo: "josue",   nombre: "Josue Perez",     titulo: "Asesor de ventas",  whatsapp: "529991336736" }
   ],
 
   /* Comisión del asesor por medida (solo sobre el producto; no incluye instalación ni envío).

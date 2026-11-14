@@ -139,7 +139,7 @@
       var c = calc(p);
       return '<tr data-ver="' + esc(p.id) + '" class="' + (p.estado === 'Cancelado' ? 'e-cancelado' : '') + '">' +
         '<td class="folio">' + esc(p.folio) + (p.notaFolio ? '<span class="sub">Nota ' + esc(p.notaFolio) + '</span>' : '') + '</td>' +
-        '<td class="cliente"><b>' + esc(p.cliente || '–') + '</b>' + (p.intermediario && p.intermediario.nombre ? '<span class="sub">Asesora: ' + esc(p.intermediario.nombre) + '</span>' : '') + '</td>' +
+        '<td class="cliente"><b>' + esc(p.cliente || '–') + '</b>' + (p.intermediario && p.intermediario.nombre ? '<span class="sub">Asesor: ' + esc(p.intermediario.nombre) + '</span>' : '') + '</td>' +
         '<td class="producto">' + esc(p.producto || '–') + (num(p.extras) ? '<span class="sub">+ ' + esc(p.extrasDetalle || 'extras') + '</span>' : '') + '</td>' +
         '<td>' + selectEstado(p) + '</td>' +
         '<td>' + celdaEntrega(p) + '</td>' +
@@ -237,7 +237,7 @@
       '<section class="f-bloque"><h3>Cliente y asesor</h3>' +
         '<div class="f-dato"><span>Cliente</span><b>' + esc(p.cliente || '–') + '</b></div>' +
         '<div class="f-dato"><span>WhatsApp</span><b>' + esc(p.tel || '–') + '</b></div>' +
-        '<div class="f-dato"><span>Asesora</span><b>' + esc((p.intermediario && p.intermediario.nombre) || 'Venta directa') + '</b></div>' +
+        '<div class="f-dato"><span>Asesor</span><b>' + esc((p.intermediario && p.intermediario.nombre) || 'Venta directa') + '</b></div>' +
         '<div class="f-dato"><span>Fecha del pedido</span><b>' + fechaCorta(p.fecha) + '</b></div></section>' +
       '<section class="f-bloque"><h3>Entrega</h3>' +
         '<div class="f-dato"><span>Método</span><b>' + esc(METODOS[p.metodoEntrega] || 'Sin definir') + '</b></div>' +

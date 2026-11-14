@@ -26,7 +26,7 @@ h2{margin:0;font-size:16px;color:#4A2618} .cuando{margin:2px 0 0;font-size:13px;
 <header><div class="in"><img src="../fotos/logo.png" alt="Recoovare"><h1>Mensajes listos para WhatsApp</h1></div></header>
 <main><div class="in">
 <p class="intro">Elige quién manda y si el pedido es placa o lápida, toca <b>Copiar</b> y pégalo en el chat del cliente.</p>
-<div class="tipo"><span>Quién manda:</span><select id="quien" style="font:inherit;font-weight:700;font-size:15px;min-height:40px;border:1px solid #D9CFC6;border-radius:10px;padding:4px 10px;background:#fff"><option value="">Josmar</option><option value="soemy">Soemy</option><option value="maryfer">Maryfer</option><option value="ileana">Ileana</option></select><span style="margin-left:6px">El pedido es:</span><div class="seg" role="group" aria-label="Tipo de pedido"><button type="button" data-t="placa" aria-pressed="true">Placa</button><button type="button" data-t="lápida" aria-pressed="false">Lápida</button></div></div>
+<div class="tipo"><span>Quién manda:</span><select id="quien" style="font:inherit;font-weight:700;font-size:15px;min-height:40px;border:1px solid #D9CFC6;border-radius:10px;padding:4px 10px;background:#fff"><option value="">Josmar</option><option value="soemy">Soemy</option><option value="maryfer">Maryfer</option><option value="ileana">Ileana</option><option value="josue">Josue</option></select><span style="margin-left:6px">El pedido es:</span><div class="seg" role="group" aria-label="Tipo de pedido"><button type="button" data-t="placa" aria-pressed="true">Placa</button><button type="button" data-t="lápida" aria-pressed="false">Lápida</button></div></div>
 <div id="lista"></div>
 </div></main>
 <script>
@@ -56,7 +56,7 @@ var M=[
 ];
 var tipo='placa',quien='';
 try{quien=localStorage.getItem('recoovare_msj_quien')||''}catch(e){}
-var NOMBRES={'':'Josmar',soemy:'Soemy',maryfer:'Maryfer',ileana:'Ileana'};
+var NOMBRES={'':'Josmar',soemy:'Soemy',maryfer:'Maryfer',ileana:'Ileana',josue:'Josue'};
 try{tipo=localStorage.getItem('recoovare_msj_tipo')||'placa'}catch(e){}
 function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function texto(i){return M[i].m.replace(/\{q\}/g,NOMBRES[quien]).replace(/\{l\}/g,'https://recoovare.pages.dev'+(quien?'/'+quien:'')).replace(/\{p\}/g,tipo).replace(/\{r\}/g,tipo==='placa'?'apellidos, dirección y textos':'nombres, fechas y textos').replace(/\{d\}/g,tipo==='placa'?'¡Con gusto! 😊 ¿Qué colores, flores o estilo le gustaría para su placa? Si hay algo que no quiera, también dígame. ✨':'¡Con gusto! 😊 ¿Qué colores, flores o estilo le gustaría para su lápida? Si desea incluir una foto o una frase, puede mandármela por aquí. ✨')}
