@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap">
 <link rel="stylesheet" href="../panel.css?v=1">
-<link rel="stylesheet" href="gastos.css?v=1">
+<link rel="stylesheet" href="gastos.css?v=2">
 </head>
 <body>
 
@@ -40,7 +40,7 @@
     <div class="kpi kpi-main"><span>Total gastado</span><strong id="k-total">—</strong><small id="k-n">—</small></div>
     <div class="kpi"><span>Compra de perfumes</span><strong id="k-perf">—</strong><small>Inventario: lo recuperas al vender</small></div>
     <div class="kpi"><span>Operación de ESSENTIA</span><strong id="k-op">—</strong><small>Lo que se resta a tu ganancia</small></div>
-    <div class="kpi"><span>Pagado para RECOOVARE</span><strong id="k-rec">—</strong><small>Inversión en el otro negocio</small></div>
+    <div class="kpi"><span>Gastos de RECOOVARE</span><strong id="k-rec">—</strong><small id="k-rec-sub">También se resta a tu ganancia</small></div>
   </section>
 
   <div class="dos">
@@ -51,7 +51,7 @@
         <input id="u-ganancia" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ventas menos costo por artículo">
       </div>
       <div class="cuenta" id="u-cuenta" aria-live="polite"></div>
-      <p class="ayuda">Usa la ganancia que ya descuenta el costo por artículo. Por eso aquí solo se resta la operación: la compra de perfumes ya va dentro de ese costo, y lo de RECOOVARE va aparte.</p>
+      <p class="ayuda">Usa la ganancia que ya descuenta el costo por artículo. Por eso aquí se restan la operación de ESSENTIA y los gastos de RECOOVARE (que pagas con dinero de ESSENTIA), pero no la compra de perfumes: esa ya va dentro de ese costo.</p>
     </section>
 
     <section class="panel" aria-labelledby="c-titulo">
@@ -119,6 +119,6 @@
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script src="../nube.js?v=2"></script>
-<script>RecoovareNube.iniciar(['gastos.js?v=1']);</script>
+<script>RecoovareNube.iniciar(['gastos.js?v=2']);</script>
 </body>
 </html>
