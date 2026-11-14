@@ -54,11 +54,18 @@
   }
   function telVisible(n) { n = String(n || '').replace(/\D/g, '').slice(-10); return n.length === 10 ? n.slice(0, 3) + ' ' + n.slice(3, 6) + ' ' + n.slice(6) : n; }
   if (VENDEDOR) {
-    var banda = document.getElementById('asesor');
-    if (banda) {
-      banda.innerHTML = '<div class="wrap asesor-in"><span>Te atiende <strong>' + esc(VENDEDOR.nombre) + '</strong> · ' + esc(VENDEDOR.titulo || 'Asesor de ventas') + ' de ' + esc(D.negocio.nombre) + '</span>' +
-        '<a href="' + esc(linkWA('Hola ' + VENDEDOR.nombre + ', quiero información sobre las placas y lápidas de ' + D.negocio.nombre + '.')) + '" target="_blank" rel="noopener">WhatsApp ' + esc(telVisible(VENDEDOR.whatsapp)) + '</a></div>';
-      banda.hidden = false;
+    // Burbuja flotante con la asesora (abajo a la derecha)
+    var burbuja = document.getElementById('burbuja-asesor');
+    if (burbuja) {
+      var nom1 = VENDEDOR.nombre.split(' ')[0];
+      var esAsesor = /^asesor\b(?!a)/i.test(VENDEDOR.titulo || '');
+      burbuja.href = linkWA('Hola ' + nom1 + ', quiero información sobre las placas y lápidas de ' + D.negocio.nombre + '.');
+      burbuja.innerHTML = '<span class="burbuja-ini" aria-hidden="true">' + esc(nom1.charAt(0).toUpperCase()) + '</span>' +
+        '<span class="burbuja-txt"><small>¿Dudas? ' + (esAsesor ? 'Tu asesor' : 'Tu asesora') + '</small><b>Escríbele a ' + esc(nom1) + '</b></span>' +
+        '<svg class="burbuja-wa" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18.5l1.2-3.6A8 8 0 1 1 8.6 18.2z"/></svg>';
+      burbuja.setAttribute('aria-label', 'Escribirle por WhatsApp a ' + VENDEDOR.nombre);
+      burbuja.hidden = false;
+      document.body.classList.add('con-burbuja');
     }
   }
   function visibles(tipo) { return D.tipos[tipo].modelos.filter(function (m) { return !m.oculto; }); }

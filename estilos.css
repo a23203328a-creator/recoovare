@@ -629,3 +629,22 @@ body.modo-pedido main, body.modo-diseno main { display: none; }
   .card-forma { font-size: 11px; }
   .card .sizes .reco { font-size: 9.5px; text-transform: none; letter-spacing: 0; padding: 2px 6px; top: -8px; }
 }
+
+/* ============ Burbuja flotante de la asesora ============ */
+.burbuja { position: fixed; right: 18px; bottom: 18px; z-index: 900; display: flex; align-items: center; gap: 10px; background: var(--verde-wa); color: #fff; text-decoration: none; border-radius: 999px; padding: 7px 16px 7px 7px; box-shadow: 0 10px 28px rgba(15,94,49,.35); transition: transform .2s, background .2s; }
+.burbuja[hidden] { display: none; }
+.burbuja:hover { background: var(--verde-wa-oscuro); transform: translateY(-2px); }
+.burbuja-ini { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: var(--verde-wa); font-family: var(--titulos); font-weight: 700; font-size: 19px; display: flex; align-items: center; justify-content: center; flex: none; }
+.burbuja-txt { display: flex; flex-direction: column; line-height: 1.15; }
+.burbuja-txt small { font-size: 12.5px; opacity: .9; }
+.burbuja-txt b { font-size: 16px; font-weight: 800; }
+.burbuja-wa { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 2; stroke-linejoin: round; flex: none; }
+#pedido-vista:not([hidden]) ~ .burbuja, #diseno-vista:not([hidden]) ~ .burbuja { display: none; }
+body.con-burbuja .footer, body.con-burbuja footer { padding-bottom: 84px; }
+@media (max-width: 760px) {
+  .burbuja { right: 12px; bottom: 12px; padding: 6px 14px 6px 6px; gap: 8px; }
+  .burbuja-ini { width: 36px; height: 36px; font-size: 16px; }
+  .burbuja-txt small { font-size: 11.5px; }
+  .burbuja-txt b { font-size: 14.5px; }
+  .burbuja-wa { display: none; }
+}
