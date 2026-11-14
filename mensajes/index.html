@@ -11,90 +11,69 @@ main .in{display:flex;flex-direction:column;gap:12px;padding-top:16px;padding-bo
 .msg{background:#fff;border:1.5px solid #A7814F;border-radius:14px;padding:14px}
 .cab{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 h2{margin:0;font-size:16px;color:#4A2618} .cuando{margin:2px 0 0;font-size:13px;color:#5E4E45}
-.texto{white-space:pre-wrap;margin-top:10px;font-size:15.5px;line-height:1.5;background:#FAF7F2;border-radius:10px;padding:10px 12px}
+.texto{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:10px;font-size:15.5px;line-height:1.5;background:#FAF7F2;border-radius:10px;padding:10px 12px}
 .copiar{font:inherit;font-weight:800;font-size:15px;min-height:44px;min-width:92px;padding:8px 14px;border-radius:10px;border:0;background:#157A40;color:#fff;cursor:pointer;flex:none}
 .copiar.ok{background:#4A2618}
+
+.tipo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid #E8E0D8;border-radius:14px;padding:10px 12px;position:sticky;top:0;z-index:2}
+.tipo span{font-weight:800;font-size:15px}
+.seg{display:inline-flex;background:#F4EFE9;border-radius:999px;padding:3px}
+.seg button{font:inherit;font-weight:800;font-size:15px;min-height:40px;padding:6px 18px;border:0;border-radius:999px;background:transparent;color:#5E4E45;cursor:pointer}
+.seg button[aria-pressed="true"]{background:#4A2618;color:#fff}
+.etapa{margin:14px 0 0;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#5A6762}
+.nuevo{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;background:#F3E3C3;color:#6A3E12;border-radius:999px;padding:1px 8px;vertical-align:middle}
 </style></head><body>
 <header><div class="in"><img src="../fotos/logo.png" alt="Recoovare"><h1>Mensajes listos para WhatsApp</h1></div></header>
 <main><div class="in">
-<p class="intro">Toca <b>Copiar</b> y pégalo en el chat del cliente. Son los mismos mensajes del manual de ventas.</p>
-<article class="msg"><div class="cab"><div><h2>Mensaje 1 · Pedido recibido</h2><p class="cuando">Cuando te llega el pedido y ya revisaste que tenga los datos completos.</p></div><button type="button" class="copiar" data-i="0">Copiar</button></div><div class="texto">¡Perfecto! 😊 Muchas gracias por enviarnos su pedido.
-
-Vamos a comenzar con la elaboración de su boceto digital para que pueda visualizar cómo quedaría su placa antes de realizarla.
-
-Su boceto estará listo en un plazo estimado máximo de 3-4 horas. En cuanto lo tengamos, se lo compartiré por este medio. ✨</div></article><article class="msg"><div class="cab"><div><h2>Mensaje 2 · Diseño con imagen de referencia</h2><p class="cuando">Cuando el cliente manda una foto o imagen que le gustó.</p></div><button type="button" class="copiar" data-i="1">Copiar</button></div><div class="texto">¡Claro que sí! 😊 Podemos tomar su imagen como referencia y realizar un diseño lo más parecido posible, adaptándolo a la medida de su placa.
-
-Prepararemos un boceto digital para que pueda visualizar el resultado y solicitar cualquier ajuste antes de aprobarlo. ✨</div></article><article class="msg"><div class="cab"><div><h2>Mensaje 3 · Diseño personalizado sin referencia</h2><p class="cuando">Cuando el cliente quiere algo personalizado pero no tiene imagen.</p></div><button type="button" class="copiar" data-i="2">Copiar</button></div><div class="texto">¡Con gusto le hacemos un diseño especial! 😊
-
-Para prepararlo a su gusto, ¿me podría decir qué colores, flores, imágenes o estilo le gustaría incluir? Si hay algo que no quiera, también me lo puede comentar. ✨</div></article><article class="msg"><div class="cab"><div><h2>Mensaje 4 · Boceto listo</h2><p class="cuando">Cuando Lancer te manda el boceto.</p></div><button type="button" class="copiar" data-i="3">Copiar</button></div><div class="texto">¡Ya tenemos listo su boceto! 😊✨
-
-Le comparto cómo quedaría su placa en la medida que seleccionó.
-
-Por favor, revise que los nombres, fechas, textos y demás detalles estén correctos.
-
-Si desea realizar algún cambio, con gusto podemos ajustarlo.
-
-Si todo está a su gusto, solo necesito que me confirme su aprobación para continuar con el proceso. 🙌🏻</div></article><article class="msg"><div class="cab"><div><h2>Mensaje 5 · Boceto actualizado</h2><p class="cuando">Después de cada corrección.</p></div><button type="button" class="copiar" data-i="4">Copiar</button></div><div class="texto">Le comparto su boceto actualizado con los cambios que nos solicitó. 😊
-
-¿Así estaría correcto o le gustaría ajustar algún otro detalle?</div></article><article class="msg"><div class="cab"><div><h2>Mensaje 6 · Aprobación final por escrito</h2><p class="cuando">Cuando el cliente ya está conforme. Guarda su respuesta y reenvíasela a Lancer.</p></div><button type="button" class="copiar" data-i="5">Copiar</button></div><div class="texto">¡Perfecto! 😊
-
-Entonces, ¿me confirma que autoriza este diseño con todos los nombres, fechas, textos y detalles tal como aparecen en el boceto?
-
-Una vez aprobado y comenzada su fabricación, ya no podremos realizar modificaciones.</div></article><article class="msg"><div class="cab"><div><h2>Mensaje 7 · Fabricación y anticipo</h2><p class="cuando">En cuanto el cliente aprueba su diseño.</p></div><button type="button" class="copiar" data-i="6">Copiar</button></div><div class="texto">¡Muchas gracias por confirmar su diseño! 😊✨
-
-Le comento cómo trabajamos:
-
-Su placa estará lista en un plazo estimado de 2 a 3 días hábiles, contados a partir de la confirmación de su anticipo.
-
-Para comenzar su fabricación, solicitamos únicamente un anticipo de $150, y el resto lo puede liquidar al momento de recibir su pedido.
-
-Puede realizar su anticipo acudiendo a la oficina o mediante transferencia bancaria o depósito en OXXO.
-
-¿De qué manera le gustaría realizarlo?</div></article><article class="msg"><div class="cab"><div><h2>Mensaje 8 · Anticipo confirmado + ticket</h2><p class="cuando">Solo cuando Lancer ya confirmó el pago. Envíalo junto con el PDF del ticket que te mandó Lancer.</p></div><button type="button" class="copiar" data-i="7">Copiar</button></div><div class="texto">¡Muchas gracias! 😊
-
-Su anticipo de $150 ha sido confirmado correctamente.
-
-Su pedido ya quedó autorizado para comenzar con el proceso de fabricación. ✨
-
-El tiempo estimado de elaboración es de 2 a 3 días hábiles.
-
-Le comparto su nota de venta con el folio de su pedido, el anticipo y el saldo pendiente. Por favor consérvela para la entrega.
-
-En cuanto esté listo, le avisaré por este mismo medio para coordinar su entrega.</div></article><article class="msg"><div class="cab"><div><h2>Mensaje 9 · Seguimiento de boceto sin respuesta</h2><p class="cuando">Cuando el cliente no responde después de recibir su boceto. Solo una vez; no insistas.</p></div><button type="button" class="copiar" data-i="8">Copiar</button></div><div class="texto">¡Hola! 😊 Buen día.
-
-Solo quería saber si tuvo oportunidad de revisar el boceto que le compartimos.
-
-Quedo pendiente de cualquier modificación o de su aprobación para continuar con su pedido. ✨</div></article><article class="msg"><div class="cab"><div><h2>Mensaje 10 · Pedido listo: entrega a domicilio</h2><p class="cuando">Cuando Lancer confirma que está terminado y el cliente pidió envío.</p></div><button type="button" class="copiar" data-i="9">Copiar</button></div><div class="texto">¡Hola! 😊✨
-
-Le tengo una excelente noticia: ¡su placa ya está lista!
-
-Vamos a coordinar su entrega a domicilio.
-
-¿Me podría compartir su ubicación de Google Maps y confirmarme qué día y horario tendría disponible para recibirla?
-
-Con esos datos verificaremos la disponibilidad de entrega.</div></article><article class="msg"><div class="cab"><div><h2>Mensaje 11 · Pedido listo: recoger en el local</h2><p class="cuando">Cuando Lancer confirma que está terminado y el cliente pasa a recoger.</p></div><button type="button" class="copiar" data-i="10">Copiar</button></div><div class="texto">¡Hola! 😊
-
-Su placa ya está terminada y lista para recoger. ✨
-
-Puede pasar por ella a nuestro local en el horario de atención.
-
-Le comparto nuestra ubicación para que pueda visitarnos:
-📍 Calle 46a4 #965 x 143 y 145, Villamagna del Sur, Mérida, Yucatán
-🕒 Horario: lunes a domingo de 11:00 a.m. a 7:00 p.m.
-https://maps.app.goo.gl/8GmmaSbQXzLBScMY9</div></article><article class="msg"><div class="cab"><div><h2>Mensaje 12 · Agradecimiento final</h2><p class="cuando">Cuando el cliente ya recibió su pedido y liquidó.</p></div><button type="button" class="copiar" data-i="11">Copiar</button></div><div class="texto">¡Muchas gracias por confiar en Recoovare! 🤎
-
-Esperamos que su placa haya quedado justo como la imaginaba.
-
-Fue un gusto atenderle. Si en algún momento necesita otro diseño, estaremos encantados de ayudarle.
-
-¡Gracias por su compra! ✨</div></article>
+<p class="intro">Elige si el pedido es placa o lápida, toca <b>Copiar</b> y pégalo en el chat del cliente.</p>
+<div class="tipo"><span>El pedido es:</span><div class="seg" role="group" aria-label="Tipo de pedido"><button type="button" data-t="placa" aria-pressed="true">Placa</button><button type="button" data-t="lápida" aria-pressed="false">Lápida</button></div></div>
+<div id="lista"></div>
 </div></main>
 <script>
-var M=["¡Perfecto! 😊 Muchas gracias por enviarnos su pedido.\n\nVamos a comenzar con la elaboración de su boceto digital para que pueda visualizar cómo quedaría su placa antes de realizarla.\n\nSu boceto estará listo en un plazo estimado máximo de 3-4 horas. En cuanto lo tengamos, se lo compartiré por este medio. ✨", "¡Claro que sí! 😊 Podemos tomar su imagen como referencia y realizar un diseño lo más parecido posible, adaptándolo a la medida de su placa.\n\nPrepararemos un boceto digital para que pueda visualizar el resultado y solicitar cualquier ajuste antes de aprobarlo. ✨", "¡Con gusto le hacemos un diseño especial! 😊\n\nPara prepararlo a su gusto, ¿me podría decir qué colores, flores, imágenes o estilo le gustaría incluir? Si hay algo que no quiera, también me lo puede comentar. ✨", "¡Ya tenemos listo su boceto! 😊✨\n\nLe comparto cómo quedaría su placa en la medida que seleccionó.\n\nPor favor, revise que los nombres, fechas, textos y demás detalles estén correctos.\n\nSi desea realizar algún cambio, con gusto podemos ajustarlo.\n\nSi todo está a su gusto, solo necesito que me confirme su aprobación para continuar con el proceso. 🙌🏻", "Le comparto su boceto actualizado con los cambios que nos solicitó. 😊\n\n¿Así estaría correcto o le gustaría ajustar algún otro detalle?", "¡Perfecto! 😊\n\nEntonces, ¿me confirma que autoriza este diseño con todos los nombres, fechas, textos y detalles tal como aparecen en el boceto?\n\nUna vez aprobado y comenzada su fabricación, ya no podremos realizar modificaciones.", "¡Muchas gracias por confirmar su diseño! 😊✨\n\nLe comento cómo trabajamos:\n\nSu placa estará lista en un plazo estimado de 2 a 3 días hábiles, contados a partir de la confirmación de su anticipo.\n\nPara comenzar su fabricación, solicitamos únicamente un anticipo de $150, y el resto lo puede liquidar al momento de recibir su pedido.\n\nPuede realizar su anticipo acudiendo a la oficina o mediante transferencia bancaria o depósito en OXXO.\n\n¿De qué manera le gustaría realizarlo?", "¡Muchas gracias! 😊\n\nSu anticipo de $150 ha sido confirmado correctamente.\n\nSu pedido ya quedó autorizado para comenzar con el proceso de fabricación. ✨\n\nEl tiempo estimado de elaboración es de 2 a 3 días hábiles.\n\nLe comparto su nota de venta con el folio de su pedido, el anticipo y el saldo pendiente. Por favor consérvela para la entrega.\n\nEn cuanto esté listo, le avisaré por este mismo medio para coordinar su entrega.", "¡Hola! 😊 Buen día.\n\nSolo quería saber si tuvo oportunidad de revisar el boceto que le compartimos.\n\nQuedo pendiente de cualquier modificación o de su aprobación para continuar con su pedido. ✨", "¡Hola! 😊✨\n\nLe tengo una excelente noticia: ¡su placa ya está lista!\n\nVamos a coordinar su entrega a domicilio.\n\n¿Me podría compartir su ubicación de Google Maps y confirmarme qué día y horario tendría disponible para recibirla?\n\nCon esos datos verificaremos la disponibilidad de entrega.", "¡Hola! 😊\n\nSu placa ya está terminada y lista para recoger. ✨\n\nPuede pasar por ella a nuestro local en el horario de atención.\n\nLe comparto nuestra ubicación para que pueda visitarnos:\n📍 Calle 46a4 #965 x 143 y 145, Villamagna del Sur, Mérida, Yucatán\n🕒 Horario: lunes a domingo de 11:00 a.m. a 7:00 p.m.\nhttps://maps.app.goo.gl/8GmmaSbQXzLBScMY9", "¡Muchas gracias por confiar en Recoovare! 🤎\n\nEsperamos que su placa haya quedado justo como la imaginaba.\n\nFue un gusto atenderle. Si en algún momento necesita otro diseño, estaremos encantados de ayudarle.\n\n¡Gracias por su compra! ✨"];
+var MAPA='https://maps.app.goo.gl/8GmmaSbQXzLBScMY9';
+var M=[
+ {e:'Al recibir el pedido'},
+ {t:'Pedido recibido',c:'Cuando el pedido trae todos los datos.',m:'¡Gracias por su pedido! 😊 Ya estamos preparando su boceto, se lo comparto por aquí en unas 3 a 4 horas. ✨'},
+ {t:'Faltan datos',n:1,c:'Cuando falta algo. Cambia ___ por lo que falta (por ejemplo: la dirección que llevará la placa).',m:'¡Gracias! 😊 Para preparar su boceto solo me falta: ___. En cuanto me lo comparta, empezamos. ✨'},
+ {t:'Con imagen de referencia',c:'Cuando el cliente manda una foto o imagen que le gustó.',m:'¡Claro! 😊 Tomamos su imagen como referencia y la adaptamos a la medida de su {p}. Le mando el boceto para que lo revise antes de aprobarlo. ✨'},
+ {t:'Diseño sin referencia',c:'Cuando quiere algo personalizado pero no tiene imagen.',m:'¡Con gusto! 😊 ¿Qué colores, flores, imágenes o estilo le gustaría? Si hay algo que no quiera, también dígame. ✨'},
+ {e:'Boceto'},
+ {t:'Boceto listo',c:'Cuando Lancer te manda el boceto. Es la única vez que se le pide aprobarlo. Si el cliente aprueba, reenvía su respuesta a Lancer.',m:'¡Su boceto está listo! ✨ Revise que nombres, fechas y textos estén correctos. Si quiere algún cambio, con gusto lo ajustamos; si así le gusta, confírmeme para continuar. 😊\nUna vez aprobado ya no se pueden hacer cambios.'},
+ {t:'Boceto con cambios',c:'Después de cada corrección. No vuelvas a preguntar si así está bien.',m:'Aquí está su boceto con los cambios que nos pidió. ✨'},
+ {t:'Seguimiento del boceto',c:'Si no responde después de recibir su boceto. Solo una vez; no insistas.',m:'¡Hola, buen día! 😊 ¿Pudo revisar su boceto? Quedo pendiente. ✨'},
+ {e:'Anticipo'},
+ {t:'Aprobado + anticipo',c:'En cuanto el cliente aprueba su boceto.',m:'¡Perfecto, gracias! 😊 Para comenzar solo pedimos un anticipo de $150; el resto lo paga al recibirla. Puede pagar en el local, por transferencia o en OXXO. ¿Cuál prefiere?'},
+ {t:'Datos para pagar',n:1,c:'Cuando elige transferencia u OXXO. Mándalo junto con la imagen de datos de pago.',m:'Le comparto los datos para su anticipo de $150:\n💳 BBVA · Wendy Ileana Quiñones Encalada\n4152 3142 1231 7278\nAl hacerlo, mándeme su comprobante por aquí, por favor. 😊'},
+ {t:'Anticipo confirmado + nota',c:'Solo cuando Lancer ya confirmó el pago. Mándalo junto con el PDF de la nota.',m:'¡Anticipo recibido, gracias! ✅ Su {p} estará lista en 2 a 3 días hábiles. Le comparto su nota con el folio y el saldo pendiente. Le aviso por aquí cuando esté lista. ✨'},
+ {e:'Pedido listo'},
+ {t:'Lista · envío a domicilio',c:'Cuando Lancer confirma que está terminada y pidió envío.',m:'¡Su {p} ya está lista! 🎉 ¿Me comparte su ubicación de Google Maps y qué día y horario le queda bien para recibirla?'},
+ {t:'Lista · instalación',n:1,c:'Cuando Lancer confirma que está terminada y pidió instalación.',m:'¡Su {p} ya está lista! 🎉 Para agendar la instalación, ¿me comparte su ubicación de Google Maps y qué día y horario le queda bien?'},
+ {t:'Lista · recoger',c:'Cuando Lancer confirma que está terminada y pasa a recogerla.',m:'¡Su {p} ya está lista para recoger! 🎉\n📍 Calle 46a4 #965 x 143 y 145, Villamagna del Sur\n🕒 Lunes a domingo, 11 a.m. a 7 p.m.\n'+MAPA},
+ {e:'Al final'},
+ {t:'Agradecimiento',c:'Cuando ya recibió su pedido y liquidó.',m:'¡Gracias por confiar en Recoovare! 🤎 Esperamos que le encante. Aquí estamos cuando necesite otro diseño. ✨'}
+];
+var tipo='placa';
+try{tipo=localStorage.getItem('recoovare_msj_tipo')||'placa'}catch(e){}
+function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function texto(i){return M[i].m.replace(/\{p\}/g,tipo)}
+function pintar(){
+  var n=0;
+  document.getElementById('lista').innerHTML=M.map(function(x,i){
+    if(x.e)return '<h2 class="etapa">'+esc(x.e)+'</h2>';
+    n++;
+    return '<article class="msg" style="margin-top:10px"><div class="cab"><div><h2>'+n+' · '+esc(x.t)+(x.n?'<span class="nuevo">Nuevo</span>':'')+'</h2><p class="cuando">'+esc(x.c)+'</p></div><button type="button" class="copiar" data-i="'+i+'">Copiar</button></div><div class="texto">'+esc(texto(i))+'</div></article>';
+  }).join('');
+  document.querySelectorAll('.seg button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t===tipo?'true':'false')});
+}
 function copiar(t,b){
   var ok=function(){b.textContent='¡Copiado!';b.classList.add('ok');setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
   if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(ok,function(){viejo(t);ok()})}else{viejo(t);ok()}
 }
 function viejo(t){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}a.remove()}
-document.addEventListener('click',function(e){var b=e.target.closest('.copiar');if(b)copiar(M[+b.dataset.i],b)});
-</script></body></html>
+document.addEventListener('click',function(e){
+  var b=e.target.closest('.copiar');if(b){copiar(texto(+b.dataset.i),b);return}
+  var s=e.target.closest('.seg button');if(s){tipo=s.dataset.t;try{localStorage.setItem('recoovare_msj_tipo',tipo)}catch(er){}pintar()}
+});
+pintar();
+</script>
+</body></html>
