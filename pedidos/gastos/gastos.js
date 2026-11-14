@@ -137,14 +137,11 @@
     return { op: r.op, rec: r.rec, gan: gan, u: gan === null ? null : r2(gan - r.op - r.rec) };
   }
   function celdaU(u) { return u === null ? '<span class="falta">Falta la ganancia</span>' : '<span class="' + (u >= 0 ? 'pos' : 'neg') + '">' + (u < 0 ? '−' : '') + dinero(Math.abs(u)) + '</span>'; }
-  function semanasVisibles() {
-    var hasta = mes === mesDe(hoy()) ? hoy() : '9999';
-    return semanasDe(mes).filter(function (s) { return s.a <= hasta; });
-  }
+  function semanasVisibles() { return semanasDe(mes); }
   function pintarTabla(lista) {
     $('t-sem').innerHTML = semanasVisibles().map(function (sem) {
       var c = cuentaSem(lista, sem), db = fechaDe(sem.b);
-      return '<tr data-fila="' + sem.a + '"><td class="sem">' + esc(sem.k) + '<small>' + (sem.a <= hoy() && sem.b >= hoy() ? 'Semana en curso' : '') + '</small></td>' +
+      return '<tr data-fila="' + sem.a + '"><td class="sem">' + esc(sem.k) + '<small>' + (sem.a <= hoy() && sem.b >= hoy() ? 'Semana en curso' : sem.a > hoy() ? 'Todavía no empieza' : '') + '</small></td>' +
         '<td class="num" data-label="Ganancia Shopify"><input type="number" min="0" step="0.01" inputmode="decimal" data-sem="' + sem.a + '" data-fin="' + sem.b + '" value="' + (c.gan === null ? '' : c.gan) + '" placeholder="$0.00" aria-label="Ganancia de Shopify del ' + esc(sem.k) + '"></td>' +
         '<td class="num menos" data-label="− Operación ESSENTIA">' + dinero(c.op) + '</td>' +
         '<td class="num menos" data-label="− Gastos RECOOVARE">' + dinero(c.rec) + '</td>' +
