@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">
+<title>Guía para vendedores – Recoovare</title><link rel="icon" href="../fotos/logo.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap">
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:'Nunito',system-ui,sans-serif;background:#FAF7F2;color:#3B2A22;line-height:1.5}
+header{background:#fff;border-bottom:1px solid #E8E0D8} .in{max-width:760px;margin:0 auto;padding:12px 16px}
+header .in{display:flex;align-items:center;gap:14px;flex-wrap:wrap} header img{height:32px} h1{margin:0;font-size:19px;color:#4A2618}
+main .in{display:flex;flex-direction:column;gap:14px;padding-top:16px;padding-bottom:48px}
+.hola{background:#fff;border:1px solid #E8E0D8;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.hola h2{margin:0;font-size:20px;color:#4A2618}
+.hola p{margin:0;color:#5E4E45}
+select{font:inherit;font-weight:700;font-size:16px;min-height:44px;border:1px solid #D9CFC6;border-radius:10px;padding:4px 10px;background:#fff;color:#3B2A22}
+.link{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#F3E3C3;border-radius:12px;padding:10px 12px}
+.link b{font-size:17px;color:#6A3E12;word-break:break-all;flex:1;min-width:200px}
+.btn{font:inherit;font-weight:800;font-size:15px;min-height:44px;padding:8px 14px;border-radius:10px;border:0;background:#157A40;color:#fff;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.btn.cafe{background:#4A2618} .btn.ok{background:#4A2618}
+.botones{display:flex;gap:8px;flex-wrap:wrap}
+section.card{background:#fff;border:1px solid #E8E0D8;border-radius:16px;padding:16px}
+section.card h2{margin:0 0 10px;font-size:18px;color:#4A2618;display:flex;align-items:center;gap:10px}
+.n{width:28px;height:28px;border-radius:50%;background:#4A2618;color:#fff;font-size:14px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+ol.pasos{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0}
+ol.pasos li{position:relative;padding:0 0 16px 40px}
+ol.pasos li::before{counter-increment:p;content:counter(p);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;background:#F3E3C3;color:#6A3E12;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+ol.pasos li::after{content:"";position:absolute;left:13px;top:30px;bottom:2px;width:2px;background:#E8E0D8}
+ol.pasos li:last-child{padding-bottom:0} ol.pasos li:last-child::after{display:none}
+ol.pasos{counter-reset:p}
+ol.pasos b{color:#3B2A22} ol.pasos p{margin:2px 0 0;color:#5E4E45;font-size:15px}
+.msj{display:inline-block;background:#E3EBE7;color:#3F4A46;font-weight:800;font-size:13px;border-radius:999px;padding:1px 9px;margin-top:4px}
+.tabla{width:100%;border-collapse:collapse;font-size:15px}
+.tabla th{text-align:left;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#5A6762;padding:6px 4px;border-bottom:1px solid #E8E0D8}
+.tabla td{padding:8px 4px;border-bottom:1px solid #F0EAE3} .tabla td.r{text-align:right;font-weight:800;color:#4A2618;white-space:nowrap}
+.tabla tr:last-child td{border-bottom:0}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.dos{grid-template-columns:1fr}}
+ul.reglas{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;color:#5E4E45} ul.reglas b{color:#3B2A22}
+.nota{font-size:14px;color:#5E4E45;margin:8px 0 0}
+</style></head><body>
+<header><div class="in"><img src="../fotos/logo.png" alt="Recoovare"><h1>Guía para vendedores</h1></div></header>
+<main><div class="in">
+
+<div class="hola">
+  <h2 id="saludo">¡Bienvenido al equipo!</h2>
+  <p>Aquí tienes todo lo que necesitas para vender placas y lápidas de Recoovare.</p>
+  <label style="font-weight:800">¿Quién eres? <select id="quien"></select></label>
+  <div class="link"><b id="mi-link">recoovare.pages.dev</b><button class="btn cafe" id="copiar-link" type="button">Copiar mi link</button></div>
+  <p class="nota" style="margin:0">Comparte <b>siempre tu link</b>: los pedidos y citas de ese link te llegan a tu WhatsApp con tu nombre.</p>
+  <div class="botones"><a class="btn" id="ir-mensajes" href="../mensajes/">Abrir mensajes listos</a><a class="btn cafe" id="ir-catalogo" href="../" target="_blank" rel="noopener">Ver el catálogo</a></div>
+</div>
+
+<section class="card">
+  <h2><span class="n">1</span>Cómo va un pedido</h2>
+  <ol class="pasos">
+    <li><b>Manda el catálogo</b><p>Cuando alguien pida modelos o precios, mándale tu link.</p><span class="msj">Mensaje 1</span></li>
+    <li><b>Te llega el pedido</b><p>El cliente elige su modelo, toca "Mandar a hacer mi boceto" y te llega a tu WhatsApp con todos sus datos. Reenvíaselo a Lancer.</p><span class="msj">Mensaje 2, o 3 si faltan datos</span></li>
+    <li><b>Boceto</b><p>Lancer te manda el boceto en 1 a 2 horas. Mándaselo al cliente. Si pide cambios, pásaselos a Lancer y luego manda el boceto corregido.</p><span class="msj">Mensajes 6 y 7</span></li>
+    <li><b>Aprobación y anticipo</b><p>Cuando el cliente apruebe, reenvía su respuesta a Lancer y pídele el anticipo de $150.</p><span class="msj">Mensaje 9</span></li>
+    <li><b>Pago</b><p>Si paga por transferencia u OXXO, mándale los datos de pago con la imagen. Reenvía su comprobante a Lancer. Cuando Lancer lo confirme, mándale su nota.</p><span class="msj">Mensajes 10 y 11</span></li>
+    <li><b>Pedido listo</b><p>En 2 a 3 días hábiles Lancer te avisa que está lista. Coordina la entrega, instalación o que pase a recogerla.</p><span class="msj">Mensajes 12, 13 o 14</span></li>
+    <li><b>Entrega</b><p>El cliente paga el resto al recibirla. Agradécele su compra.</p><span class="msj">Mensaje 15</span></li>
+  </ol>
+</section>
+
+<section class="card">
+  <h2><span class="n">2</span>Precios</h2>
+  <p class="nota" style="margin:0 0 10px">Mismo precio para placas y lápidas; solo cambia por la medida. Recomendamos <b>35×25</b>.</p>
+  <div class="dos" id="precios"></div>
+  <table class="tabla" style="margin-top:14px">
+    <tr><th>Extras</th><th></th></tr>
+    <tr><td>Anticipo (se descuenta del total)</td><td class="r" id="anticipo">$150</td></tr>
+    <tr><td>Instalación con taquetes y tornillos</td><td class="r">$125</td></tr>
+    <tr><td>Instalación con cemento blanco</td><td class="r">$150</td></tr>
+    <tr><td>Envío a domicilio (sin instalación)</td><td class="r">Según la zona</td></tr>
+    <tr><td>Recoger en Villamagna del Sur</td><td class="r">Sin costo</td></tr>
+  </table>
+  <p class="nota">La instalación incluye el traslado. Placas: en su domicilio, en Mérida y alrededores. Lápidas: en cementerios de Mérida y alrededores.</p>
+</section>
+
+<section class="card">
+  <h2><span class="n">3</span>Tu comisión</h2>
+  <p class="nota" style="margin:0 0 10px">Por cada pieza vendida con tu link. Es sobre el producto; no incluye instalación ni envío.</p>
+  <table class="tabla" id="comisiones"></table>
+</section>
+
+<section class="card">
+  <h2><span class="n">4</span>Reglas importantes</h2>
+  <ul class="reglas">
+    <li><b>El cliente es de quien lo trajo primero.</b> Si ya abrió el link de otro vendedor, sus pedidos le siguen llegando a esa persona.</li>
+    <li><b>No insistas.</b> Pregunta una sola vez si el boceto está bien, y da seguimiento solo una vez si no contesta.</li>
+    <li><b>La fabricación empieza con el anticipo.</b> Los 2 a 3 días hábiles cuentan desde que Lancer confirma el pago.</li>
+    <li><b>Solo los datos de pago oficiales.</b> Usa los del mensaje 10 y la imagen de datos de pago.</li>
+    <li><b>Dudas de precio especial, otra medida o algo fuera de lo normal:</b> pregúntale a Lancer antes de confirmar al cliente.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2><span class="n">5</span>Oficina</h2>
+  <p style="margin:0">📍 Calle 46a4 #965 x 143 y 145, Villamagna del Sur, Mérida<br>🕒 Lunes a domingo, 11 a.m. a 7 p.m.<br><a href="https://maps.app.goo.gl/8GmmaSbQXzLBScMY9" target="_blank" rel="noopener">Ver en Google Maps</a></p>
+</section>
+
+</div></main>
+<script src="../datos.js"></script>
+<script>
+(function(){
+  var D=window.CATALOGO||{}, V=D.vendedores||[];
+  function dinero(n){return '$'+Number(n).toLocaleString('es-MX')}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  var NF={ovalada:'Ovalada',rectangular:'Rectangular',cuadrada:'Cuadrada'};
+  // Precios (de datos.js): ovalada y rectangular tienen las mismas medidas, se muestran juntas
+  var P=D.precios||{};
+  document.getElementById('precios').innerHTML=[['Ovalada o rectangular',P.rectangular||P.ovalada||[]],['Cuadrada',P.cuadrada||[]]].map(function(x){
+    return '<table class="tabla"><tr><th>'+x[0]+'</th><th></th></tr>'+x[1].map(function(p){return '<tr><td>'+esc(p.medida)+' cm'+(p.recomendada?' ⭐':'')+'</td><td class="r">'+dinero(p.precio)+'</td></tr>'}).join('')+'</table>';
+  }).join('');
+  if(D.negocio&&D.negocio.anticipo) document.getElementById('anticipo').textContent=dinero(D.negocio.anticipo);
+  // Comisiones
+  var C=D.comisiones||{};
+  document.getElementById('comisiones').innerHTML='<tr><th>Medida</th><th style="text-align:right">Comisión</th></tr>'+Object.keys(C).map(function(k){return '<tr><td>'+esc(k)+' cm</td><td class="r">'+dinero(C[k])+'</td></tr>'}).join('');
+  // Quién soy
+  var sel=document.getElementById('quien');
+  sel.innerHTML='<option value="">Elige tu nombre…</option>'+V.map(function(v){return '<option value="'+esc(v.codigo)+'">'+esc(v.nombre)+'</option>'}).join('');
+  var q=(new URLSearchParams(location.search).get('a')||'').toLowerCase(), guardado='';
+  try{guardado=localStorage.getItem('recoovare_guia_quien')||''}catch(e){}
+  var cod=V.some(function(v){return v.codigo===q})?q:guardado;
+  function pintar(){
+    var v=V.find(function(x){return x.codigo===cod});
+    sel.value=v?v.codigo:'';
+    var link='recoovare.pages.dev'+(v?'/'+v.codigo:'');
+    document.getElementById('mi-link').textContent=link;
+    document.getElementById('saludo').textContent=v?'¡Hola, '+v.nombre.split(' ')[0]+'! Bienvenid'+(/asesor\b(?!a)/i.test(v.titulo||'')?'o':'a')+' al equipo':'¡Bienvenido al equipo!';
+    document.getElementById('ir-catalogo').href='https://'+link;
+    document.getElementById('copiar-link').dataset.t='https://'+link;
+  }
+  sel.addEventListener('change',function(){cod=sel.value;try{localStorage.setItem('recoovare_guia_quien',cod);if(cod)localStorage.setItem('recoovare_msj_quien',cod)}catch(e){}pintar()});
+  if(cod){try{localStorage.setItem('recoovare_msj_quien',cod)}catch(e){}}
+  document.getElementById('copiar-link').addEventListener('click',function(){
+    var b=this,t=b.dataset.t;
+    var ok=function(){b.textContent='¡Copiado!';setTimeout(function(){b.textContent='Copiar mi link'},1600)};
+    if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(ok,ok);else{var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}a.remove();ok()}
+  });
+  pintar();
+})();
+</script>
+</body></html>
