@@ -179,6 +179,7 @@ html.sin-scroll { overflow: hidden; }
 .vacio { padding: 28px; background: #fff; border: 1px solid var(--borde); border-radius: 16px; text-align: center; font-size: 16px; color: var(--texto-suave); margin: 0; }
 .grid { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: stretch; }
 
+
 /* ============ Tarjeta de modelo ============ */
 .card { background: #fff; border: 1px solid var(--borde); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; transition: box-shadow .2s; }
 .card:hover { box-shadow: 0 12px 28px rgba(74,38,24,.08); }
@@ -202,6 +203,7 @@ html.sin-scroll { overflow: hidden; }
 /* Formato: Rectangular / Cuadrada */
 .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; padding: 3px; background: #EFE7DE; border-radius: 12px; }
 .seg button { font: inherit; font-size: 14px; font-weight: 700; min-height: 38px; border: 0; border-radius: 9px; background: transparent; color: var(--texto-suave); cursor: pointer; }
+.seg .f-corta { display: none; }
 .seg button[aria-pressed="true"] { background: #fff; color: var(--cafe); font-weight: 800; box-shadow: 0 1px 4px rgba(74,38,24,.18); }
 
 /* Medidas */
@@ -535,3 +537,38 @@ body.modo-pedido main, body.modo-diseno main { display: none; }
 #diseno-vista .pd-precio-fila { padding-top: 12px; }
 #diseno-vista .pd-bloque[data-b] fieldset > legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 #md-resumen .aviso { margin: 10px 0 0; }
+
+/* Celular: dos productos por fila con tarjeta compacta */
+@media (max-width: 599px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .card { border-radius: 16px; }
+  .card-img img { top: 6px; left: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }
+  .card-img .zoom { width: 24px; height: 24px; right: 5px; bottom: 5px; background: rgba(255,255,255,.85); }
+  .card-img .zoom svg { width: 13px; height: 13px; }
+  .card-body { padding: 10px 10px 12px; gap: 8px; }
+  .card-tit { flex-direction: column; gap: 4px; }
+  .card-tit .code { font-size: 11.5px; padding: 1px 8px; }
+  .card-tit h3 { font-size: 14px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-cat { display: none; }
+  .card-sel { gap: 6px; padding-top: 8px; }
+  .card .label-sm { font-size: 10.5px; letter-spacing: .03em; }
+  .card .seg { padding: 2px; border-radius: 10px; }
+  .card .seg button { font-size: 12.5px; min-height: 32px; border-radius: 8px; padding: 0 2px; }
+  .card .seg .f-larga { display: none; }
+  .card .seg .f-corta { display: inline; }
+  .card .card-sel > .label-sm { display: none; }
+  .card .price-med { display: none; }
+  .card .sizes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+  .card .sizes button { font-size: 13px; min-height: 36px; border-radius: 9px; }
+  .card .sizes button.es-reco, .card .sizes:has(.es-reco) button:not(.es-reco) { margin-top: 0; }
+  .card .sizes:has(.es-reco) { padding-top: 7px; row-gap: 9px; }
+  .card .sizes .reco { font-size: 8px; padding: 2px 5px; top: -7px; letter-spacing: 0; }
+  .card .otra-medida { font-size: 11.5px; min-height: 28px; padding: 2px 0; white-space: nowrap; align-self: center; }
+  .card .otra-medida[aria-pressed="true"] { padding: 6px 8px; }
+  .card .price-row { justify-content: center; }
+  .card .price { font-size: 20px; }
+  .card .price .mxn { font-size: 11px; }
+  .card .price-med { font-size: 12px; }
+  .card .btn-pedir { font-size: 13.5px; min-height: 44px; padding: 6px 8px; border-radius: 12px; line-height: 1.2; gap: 4px; }
+  .card .btn-pedir svg { display: none; }
+}

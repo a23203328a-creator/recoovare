@@ -82,6 +82,7 @@
     return formas.map(function (f) { return NOMBRES_FORMA[f] || f; }).join(' o ');
   }
   // Selector de formato (si hay más de uno) + medidas del formato elegido + "Otra medida"
+  var CORTO_FORMA = { rectangular: 'Rect.', cuadrada: 'Cuad.', ovalada: 'Oval.' };
   function formaDe(lista, idx, forma) {
     var formas = [];
     lista.forEach(function (x) { if (formas.indexOf(x.grupo) < 0) formas.push(x.grupo); });
@@ -93,7 +94,8 @@
     var h = '';
     if (f.formas.length > 1) {
       h += '<div class="seg" role="group" aria-label="Formato">' + f.formas.map(function (x) {
-        return '<button type="button" data-forma="' + esc(x) + '" aria-pressed="' + (x === f.forma) + '">' + esc(NOMBRES_FORMA[x] || x) + '</button>';
+        var largo = NOMBRES_FORMA[x] || x, corto = CORTO_FORMA[x] || largo;
+        return '<button type="button" data-forma="' + esc(x) + '" aria-pressed="' + (x === f.forma) + '" aria-label="' + esc(largo) + '"><span class="f-larga">' + esc(largo) + '</span><span class="f-corta" aria-hidden="true">' + esc(corto) + '</span></button>';
       }).join('') + '</div>';
     }
     h += '<div class="sizes" role="group" aria-label="Medida en centímetros">' + lista.map(function (x, i) {
