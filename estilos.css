@@ -129,6 +129,43 @@ p { margin: 0; }
   .pedir-cta { flex-direction: column; text-align: center; }
 }
 
+/* ============ Lo que debes saber ============ */
+.saber-datos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 8px; }
+.dato { background: var(--fondo); border: 1px solid var(--borde); border-radius: 20px; padding: 22px; display: flex; gap: 16px; align-items: flex-start; }
+.dato-ico, .saber-h-ico { flex: none; width: 52px; height: 52px; border-radius: 50%; background: #fff; border: 2px solid var(--etiqueta); display: flex; align-items: center; justify-content: center; }
+.dato-ico svg, .saber-h-ico svg { width: 26px; height: 26px; fill: none; stroke: var(--cafe); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.dato-tit, .inst-tit { display: block; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--salvia); }
+.dato-valor { display: block; font-family: var(--titulos); font-size: 20px; color: var(--cafe); margin: 4px 0 2px; }
+.dato p { margin: 0; color: var(--texto-suave); font-size: 15px; }
+.saber-dos { display: grid; grid-template-columns: 1fr 1.4fr; gap: 18px; align-items: start; }
+.saber-card { background: var(--fondo); border: 1px solid var(--borde); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.saber-card h3 { display: flex; align-items: center; gap: 12px; font-size: 20px; margin: 0; }
+.saber-h-ico { width: 44px; height: 44px; }
+.saber-h-ico svg { width: 22px; height: 22px; }
+.opciones { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.opciones li { background: #fff; border: 1px solid var(--borde); border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.opciones strong { display: block; color: var(--texto); font-size: 15.5px; }
+.opciones span { display: block; color: var(--texto-suave); font-size: 14px; }
+.opciones em { font-style: normal; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.tag-ok { background: #E3EBE7; color: var(--salvia-oscuro); }
+.tag-extra { background: var(--etiqueta); color: var(--etiqueta-texto); }
+.opciones em.precio { background: none; padding: 0; font-family: var(--titulos); font-size: 18px; color: var(--cafe); }
+.inst-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.inst-col { display: flex; flex-direction: column; gap: 8px; }
+.cobertura { border-top: 1px dashed var(--borde-fuerte); padding-top: 12px; display: flex; flex-direction: column; gap: 2px; }
+.cobertura p { margin: 0; font-size: 15px; color: var(--texto-suave); }
+.cobertura strong { color: var(--texto); }
+@media (max-width: 900px) {
+  .saber-dos { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .saber-datos { grid-template-columns: 1fr; gap: 12px; }
+  .dato { padding: 16px; }
+  .dato-ico { width: 46px; height: 46px; }
+  .saber-card { padding: 18px; }
+  .inst-cols { grid-template-columns: 1fr; }
+}
+
 /* ============ Catálogo (placas y lápidas) — primero celular ============ */
 input, textarea { font: inherit; font-size: 16px; padding: 12px 14px; border: 1.5px solid var(--borde-fuerte); border-radius: 12px; background: #fff; color: var(--texto); width: 100%; }
 input { min-height: 48px; }

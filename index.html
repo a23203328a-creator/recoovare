@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="estilos.css?v=20261113202825">
+<link rel="stylesheet" href="estilos.css?v=202611141000">
 </head>
 <body>
 
@@ -19,7 +19,6 @@
     <nav aria-label="Secciones" class="nav">
       <a href="#modelos" data-ir="placas">Placas</a>
       <a href="#modelos" data-ir="lapidas">Lápidas</a>
-      <a href="#precios">Precios</a>
       <a href="#como-pedir">Cómo pedir</a>
       <a href="#cita">Cita</a>
     </nav>
@@ -207,19 +206,65 @@
   </div>
 </section>
 
-<section id="precios" class="band">
+<section id="info-sec" class="band saber">
   <div class="wrap stack">
-    <div>
-      <h2>Precios por tamaño</h2>
-      <p class="muted">Mismos precios para placas y lápidas. El precio depende solo del tamaño; personalizar textos, colores o fotos no cuesta más.</p>
+    <div class="pedir-head">
+      <span class="eyebrow">Lo que debes saber</span>
+      <h2>Todo claro antes de pedir</h2>
+      <p class="muted">Tiempos, pagos, entrega e instalación en un vistazo.</p>
     </div>
-    <div class="precios" id="tablas-precios"></div>
-  </div>
-</section>
 
-<section class="wrap stack" id="info-sec">
-  <h2>Lo que debes saber</h2>
-  <div class="info" id="info"></div>
+    <div class="saber-datos">
+      <div class="dato">
+        <div class="dato-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/><path d="M3 16.5L12 21l9-4.5"/></svg></div>
+        <div><span class="dato-tit">Material</span><strong class="dato-valor">Cerámica en losa</strong><p>Encapsulada en resina.</p></div>
+      </div>
+      <div class="dato">
+        <div class="dato-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></div>
+        <div><span class="dato-tit">Tiempo de entrega</span><strong class="dato-valor">2 a 3 días hábiles</strong><p>Después de tu anticipo.</p></div>
+      </div>
+      <div class="dato">
+        <div class="dato-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></svg></div>
+        <div><span class="dato-tit">Anticipo</span><strong class="dato-valor js-anticipo">$150</strong><p>Se descuenta del total. Lo pagas al aprobar tu boceto.</p></div>
+      </div>
+    </div>
+
+    <div class="saber-dos">
+      <article class="saber-card">
+        <h3><span class="saber-h-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg></span>Entrega</h3>
+        <ul class="opciones">
+          <li><div><strong>Pasas a recogerla</strong><span>Villamagna del Sur, Mérida.</span></div><em class="tag-ok">Sin costo</em></li>
+          <li><div><strong>Te la enviamos a domicilio</strong><span>Si no requieres instalación.</span></div><em class="tag-extra">Costo extra</em></li>
+          <li><div><strong>Si te la instalamos</strong><span>Llevamos la pieza al lugar.</span></div><em class="tag-ok">Traslado incluido</em></li>
+        </ul>
+      </article>
+
+      <article class="saber-card">
+        <h3><span class="saber-h-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.5 5.5l4 4L9 19H5v-4z"/><path d="M12.5 7.5l4 4"/></svg></span>Instalación</h3>
+        <div class="inst-cols">
+          <div class="inst-col">
+            <span class="inst-tit">La instalas tú</span>
+            <ul class="opciones">
+              <li><div><strong>Con orificios</strong><span>Para taquetes y tornillos.</span></div></li>
+              <li><div><strong>Sin orificios</strong><span>Para cemento blanco.</span></div></li>
+            </ul>
+          </div>
+          <div class="inst-col">
+            <span class="inst-tit">Te la instalamos</span>
+            <ul class="opciones">
+              <li><div><strong>Con taquetes y tornillos</strong><span>Traslado incluido.</span></div><em class="precio">$125</em></li>
+              <li><div><strong>Con cemento blanco</strong><span>Traslado incluido.</span></div><em class="precio">$150</em></li>
+            </ul>
+          </div>
+        </div>
+        <div class="cobertura">
+          <p><strong>Placas:</strong> en tu domicilio, en Mérida y alrededores.</p>
+          <p><strong>Lápidas:</strong> en cementerios de Mérida y alrededores.</p>
+          <p class="muted">Con tu ubicación te confirmamos la cobertura.</p>
+        </div>
+      </article>
+    </div>
+  </div>
 </section>
 
 
@@ -327,6 +372,6 @@
   </div>
 </div>
 <script src="datos.js?v=20261113202825"></script>
-<script src="app.js?v=20261113202825"></script>
+<script src="app.js?v=202611141000"></script>
 </body>
 </html>

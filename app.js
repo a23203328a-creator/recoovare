@@ -144,17 +144,6 @@
     document.getElementById('footer-links').innerHTML = html;
   })();
 
-  /* ---------- precios e info ---------- */
-  document.getElementById('tablas-precios').innerHTML = Object.keys(D.precios).map(function (forma) {
-    return '<div class="tabla-precio"><h3>' + esc(NOMBRES_FORMA[forma] || forma) + '</h3>' +
-      D.precios[forma].map(function (p) {
-        return '<div class="fila"><span>' + esc(p.medida) + ' cm' + (p.recomendada ? '<span class="tag-rec">Recomendada</span>' : '') + '</span><span class="p">' + dinero(p.precio) + '</span></div>';
-      }).join('') + '</div>';
-  }).join('');
-  document.getElementById('info').innerHTML = (D.info || []).map(function (i) {
-    return '<div class="info-item"><h3>' + esc(i.titulo) + '</h3><p>' + esc(i.texto) + '</p></div>';
-  }).join('');
-
   /* ---------- pestañas y categorías ---------- */
   function pintarPestanas() {
     document.getElementById('tabs').innerHTML = Object.keys(D.tipos).map(function (k) {
