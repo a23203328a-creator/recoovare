@@ -387,7 +387,7 @@ select:focus { border-color: var(--cafe); outline: none; box-shadow: 0 0 0 3px r
 /* ==========================================================
    Página del pedido
    ========================================================== */
-body.modo-pedido main { display: none; }
+body.modo-pedido main, body.modo-diseno main { display: none; }
 .pd { background: var(--fondo); min-height: 70vh; }
 .pd-wrap { padding-top: 18px; padding-bottom: 48px; }
 .pd-volver { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-weight: 800; font-size: 15px; color: var(--cafe); background: #fff; border: 1.5px solid var(--borde); border-radius: 999px; padding: 8px 16px 8px 12px; cursor: pointer; min-height: 42px; }
@@ -456,3 +456,32 @@ body.modo-pedido main { display: none; }
   .op-txt strong { font-size: 14px; }
 }
 .op-reco { display: inline-block; vertical-align: 1px; margin-left: 4px; font-style: normal; font-size: 11px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: #fff; background: var(--salvia); padding: 2px 8px; border-radius: 999px; }
+
+/* ============ Tarjeta "¿Ya tienes tu diseño?" y su página ============ */
+.md-tarjeta-sec { padding: 8px 0 40px; }
+.md-tarjeta { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px 14px; background: #fff; border: 1px solid var(--borde); border-radius: 20px; padding: 16px; }
+.md-tarjeta-ico { width: 48px; height: 48px; border-radius: 50%; background: var(--fondo); border: 2px solid var(--etiqueta); display: flex; align-items: center; justify-content: center; }
+.md-tarjeta-ico svg { width: 24px; height: 24px; fill: none; stroke: var(--cafe); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.md-tarjeta-txt h2 { font-size: 19px; line-height: 1.2; }
+.md-tarjeta-txt p { margin: 2px 0 0; font-size: 14px; color: var(--texto-suave); }
+.md-tarjeta .btn-pedir { grid-column: 1 / -1; }
+@media (min-width: 640px) {
+  .md-tarjeta { grid-template-columns: auto 1fr auto; padding: 18px 22px; max-width: 760px; margin: 0 auto; }
+  .md-tarjeta .btn-pedir { grid-column: auto; padding: 8px 22px; }
+}
+.md-wrap { max-width: 760px; }
+.md-pasos { background: #fff; border: 1px solid var(--borde); border-radius: 20px; padding: 16px 18px; margin-bottom: 16px; }
+.md-pasos-tit { margin: 0 0 10px; font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--salvia); }
+.md-pasos ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.md-pasos li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--texto-suave); line-height: 1.4; }
+.md-pasos li .num { flex: none; width: 26px; height: 26px; font-size: 13px; box-shadow: none; }
+.md-pasos li strong { color: var(--texto); }
+@media (min-width: 640px) { .md-pasos ol { grid-template-columns: 1fr 1fr; gap: 12px 18px; } }
+.md-campos { display: flex; flex-direction: column; gap: 16px; }
+.md-medidas { display: flex; flex-direction: column; gap: 10px; }
+.op-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.op-dos .op-card { padding: 12px; }
+.op-dos .op-txt strong { font-size: 14px; }
+#diseno-vista .pd-precio-fila { padding-top: 12px; }
+#diseno-vista .pd-bloque[data-b] fieldset > legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+#md-resumen .aviso { margin: 10px 0 0; }

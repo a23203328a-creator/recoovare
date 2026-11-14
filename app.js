@@ -458,10 +458,14 @@
     if (history.state && history.state.pedido) history.back();
     else { history.replaceState(null, '', location.pathname + location.search + '#modelos'); cerrarPedido(); }
   }
+  var disenoVista = null;
+  function rutaDiseno() { var mt = /^#mi-diseno(?:\/([a-z]+))?/.exec(location.hash); return mt ? (mt[1] || estado.tipo) : null; }
   window.addEventListener('popstate', function () {
     var r = rutaPedido();
     if (r) abrirPedido(r.tipo, r.codigo, r.idx, false);
     else cerrarPedido();
+    var rd = rutaDiseno();
+    if (disenoVista) { if (rd) disenoVista.abrir(rd, false); else disenoVista.cerrar(); }
   });
   function rutaPedido() {
     var mt = /^#pedido\/([a-z]+)\/([^\/]+)\/(-?\d+)/.exec(location.hash);
@@ -745,11 +749,14 @@
     function recomendada(f) { var i = (D.precios[f] || []).findIndex(function (p) { return p.recomendada; }); return i >= 0 ? i : 0; }
     est.idx = recomendada(est.forma);
     var caja = document.getElementById('md-campos');
+    var vistaD = document.getElementById('diseno-vista');
     function camposDe() { return D.tipos[est.tipo].campos.filter(function (c) { return SOLO.indexOf(c.id) >= 0; }); }
     function visibles() {
       for (var k = 0; k < 2; k++) camposDe().forEach(function (c) {
         var el = caja.querySelector('[data-campo="' + c.id + '"]'); if (el) el.hidden = !campoVisible(c, caja);
       });
+      var ent = caja.querySelector('[data-campo="entrega"]');
+      document.getElementById('md-incluida').hidden = !(ent && ent.hidden);
     }
     function precio() { return (D.precios[est.forma] || [])[est.idx] || { medida: '', precio: 0 }; }
     function calcular() {
@@ -760,7 +767,7 @@
         if (c.opciones) {
           var mk = caja.querySelector('input[name="' + c.id + '"]:checked');
           var o = c.opciones[mk ? Number(mk.value) : 0];
-          if (o.costo) extras.push({ n: c.etiqueta, c: o.costo });
+          if (o.costo) extras.push({ n: o.resumen || (c.etiqueta + ' · ' + o.texto), c: o.costo });
           if (o.cotizar) cotizar = true; if (o.confirmarZona) zona = true;
           lineas.push('• ' + c.etiqueta + ': ' + textoMsg(o) + (o.costo ? ' (+' + dinero(o.costo) + ')' : ''));
         }
@@ -770,26 +777,35 @@
     }
     function resumen() {
       var r = calcular();
+      var prod = mayus(D.tipos[est.tipo].singular);
       document.getElementById('md-precio').textContent = dinero(r.p.precio);
-      var det = 'Diseño propio ' + NOMBRES_FORMA[est.forma].toLowerCase() + ' ' + r.p.medida + ' cm: ' + dinero(r.p.precio);
-      r.extras.forEach(function (e) { det += '<br>' + esc(e.n) + ': ' + dinero(e.c); });
-      document.getElementById('md-resumen').innerHTML = '<p>' + det + '</p><p class="total">Total: ' + dinero(r.total) + ' MXN' + (r.cotizar ? ' + envío' : '') + '</p>' +
-        (r.zona ? '<p>La instalación se confirma al revisar tu ubicación.</p>' : '') +
-        (D.negocio.anticipo ? '<p>Anticipo para iniciar: <strong>' + dinero(D.negocio.anticipo) + '</strong><br><small>El anticipo se realiza una vez aprobado el boceto.</small></p>' : '');
+      document.getElementById('md-medida-txt').textContent = NOMBRES_FORMA[est.forma] + ' · ' + r.p.medida + ' cm';
+      var filas = '<div class="pd-fila"><span>' + esc(prod + ' con diseño propio · ' + r.p.medida + ' cm') + '</span><span>' + dinero(r.p.precio) + '</span></div>';
+      r.extras.forEach(function (e) { filas += '<div class="pd-fila"><span>' + esc(e.n) + '</span><span>+' + dinero(e.c) + '</span></div>'; });
+      if (r.cotizar) filas += '<div class="pd-fila"><span>Envío a domicilio</span><span>Según la zona</span></div>';
+      document.getElementById('md-resumen').innerHTML =
+        '<div class="pd-lineas">' + filas + '</div>' +
+        '<div class="pd-total"><span>Total</span><strong>' + dinero(r.total) + ' <small>MXN' + (r.cotizar ? ' + envío' : '') + '</small></strong></div>' +
+        (D.negocio.anticipo ? '<div class="pd-anticipo"><div><span>Anticipo para iniciar</span><strong>' + dinero(D.negocio.anticipo) + '</strong></div><p>El anticipo se realiza una vez aprobado el boceto.</p></div>' : '') +
+        '<p class="aviso">' + ICONO_INFO + '<span>Antes de hacerla te mandamos una prueba de tu diseño para que la apruebes.</span></p>' +
+        (r.zona ? '<p class="aviso">' + ICONO_INFO + '<span>La instalación se confirma al revisar tu ubicación.</span></p>' : '');
     }
     function pintarMedidas() {
-      document.getElementById('md-medidas').innerHTML = FORMAS[est.tipo].map(function (f) {
-        return '<span class="grupo-medida">' + esc(NOMBRES_FORMA[f] || f) + '</span><div class="sizes" role="group" aria-label="Tamaño ' + esc(NOMBRES_FORMA[f] || f) + '">' +
-          (D.precios[f] || []).map(function (p, i) {
-            var on = est.forma === f && est.idx === i;
-            return '<button type="button" data-forma="' + f + '" data-i="' + i + '" aria-pressed="' + on + '">' + esc(p.medida) + '</button>';
-          }).join('') + '</div>';
-      }).join('');
+      var formas = FORMAS[est.tipo];
+      document.getElementById('md-medidas').innerHTML =
+        '<div class="seg" role="group" aria-label="Formato">' + formas.map(function (f) {
+          return '<button type="button" data-forma="' + f + '" aria-pressed="' + (est.forma === f) + '">' + esc(NOMBRES_FORMA[f] || f) + '</button>';
+        }).join('') + '</div>' +
+        '<div class="sizes" role="group" aria-label="Medida en centímetros">' + (D.precios[est.forma] || []).map(function (p, i) {
+          return '<button type="button" data-forma="' + est.forma + '" data-i="' + i + '" aria-pressed="' + (est.idx === i) + '"' + (p.recomendada ? ' class="es-reco"' : '') + '>' +
+            (p.recomendada ? '<span class="reco">Recomendada</span>' : '') + esc(p.medida) + '</button>';
+        }).join('') + '</div>';
     }
     function pintarTipo() {
       if (FORMAS[est.tipo].indexOf(est.forma) < 0) { est.forma = FORMAS[est.tipo][0]; est.idx = recomendada(est.forma); }
       pintarMedidas();
-      caja.innerHTML = htmlCampos(est.tipo, { codigo: 'propio' }, SOLO);
+      document.getElementById('md-inst').innerHTML = htmlCampos(est.tipo, { codigo: 'propio' }, ['instalacion', 'domicilio', 'cementerio']);
+      document.getElementById('md-ent').innerHTML = htmlCampos(est.tipo, { codigo: 'propio' }, ['entrega', 'envio']);
       visibles(); resumen();
     }
     form.addEventListener('change', function (e) {
@@ -798,7 +814,10 @@
     });
     document.getElementById('md-medidas').addEventListener('click', function (e) {
       var b = e.target.closest('button[data-forma]'); if (!b) return;
-      est.forma = b.getAttribute('data-forma'); est.idx = Number(b.getAttribute('data-i'));
+      var nf = b.getAttribute('data-forma');
+      if (b.hasAttribute('data-i')) est.idx = Number(b.getAttribute('data-i'));
+      else if (nf !== est.forma) est.idx = recomendada(nf);
+      est.forma = nf;
       pintarMedidas(); resumen();
     });
     form.addEventListener('submit', function (e) {
@@ -858,6 +877,41 @@
       window.open(linkWA(mensaje), '_blank', 'noopener');
     });
     pintarTipo();
+
+    /* --- página propia --- */
+    var vueltaD = 0;
+    function abrir(tipo, empujar) {
+      if (D.tipos[tipo] && tipo !== est.tipo) {
+        est.tipo = tipo;
+        form.querySelector('input[name="md-tipo"][value="' + tipo + '"]').checked = true;
+        pintarTipo();
+      }
+      if (!vistaD.hidden) return;
+      vueltaD = window.scrollY;
+      vistaD.hidden = false;
+      document.body.classList.add('modo-diseno');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      if (empujar) history.pushState({ diseno: true }, '', '#mi-diseno/' + est.tipo);
+    }
+    function cerrar() {
+      if (vistaD.hidden) return;
+      vistaD.hidden = true;
+      document.body.classList.remove('modo-diseno');
+      function ir() { window.scrollTo({ top: vueltaD, behavior: 'instant' }); }
+      ir(); requestAnimationFrame(ir);
+    }
+    disenoVista = { abrir: abrir, cerrar: cerrar };
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest('.js-abrir-diseno'); if (!a) return;
+      e.preventDefault(); abrir(estado.tipo, true);
+    });
+    vistaD.querySelector('.js-volver-diseno').addEventListener('click', function () {
+      if (history.state && history.state.diseno) history.back();
+      else { history.replaceState(null, '', location.pathname + location.search + '#mi-diseno'); cerrar(); vueltaD = 0; document.getElementById('mi-diseno').scrollIntoView({ block: 'center', behavior: 'instant' }); }
+    });
+    form.addEventListener('change', function (e) {
+      if (e.target.name === 'md-tipo' && history.state && history.state.diseno) history.replaceState(history.state, '', '#mi-diseno/' + e.target.value);
+    });
   })();
 
   /* ---------- cita para diseñar en persona ---------- */
@@ -960,13 +1014,15 @@
     estado.tipo = rutaIni.tipo; pintarTodo();
     if (!abrirPedido(rutaIni.tipo, rutaIni.codigo, rutaIni.idx, false)) history.replaceState(null, '', location.pathname + location.search);
   }
+  var rutaD = rutaDiseno();
+  if (!rutaIni && rutaD && disenoVista) disenoVista.abrir(rutaD, false);
 
   /* ---------- aviso de bienvenida: ¿placas o lápidas? ---------- */
   (function () {
     var bv = document.getElementById('bienvenida'); if (!bv) return;
     var visto = false;
     try { visto = sessionStorage.getItem('recoovare_bienvenida') === '1'; } catch (e) {}
-    if (D.tipos[h] || rutaIni || visto) return; // si el link ya dice qué ver, o ya lo vio en esta visita, no se muestra
+    if (D.tipos[h] || rutaIni || rutaD || visto) return; // si el link ya dice qué ver, o ya lo vio en esta visita, no se muestra
     function cerrar() {
       bv.hidden = true; document.body.style.overflow = '';
       try { sessionStorage.setItem('recoovare_bienvenida', '1'); } catch (e) {}

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="estilos.css?v=20261113191734">
+<link rel="stylesheet" href="estilos.css?v=20261113195039">
 </head>
 <body>
 
@@ -115,7 +115,7 @@
       </div>
       <div class="chips" role="group" aria-label="Categorías" id="categorias"></div>
     </div>
-    <a class="franja-diseno" href="#mi-diseno">
+    <a class="franja-diseno js-abrir-diseno" href="#mi-diseno">
       <span class="franja-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></span>
       <span class="franja-txt"><strong>¿Ya tienes tu diseño?</strong> <span>Mándalo aquí</span></span>
       <svg class="franja-flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -138,53 +138,15 @@
   </div>
 </div>
 
-<section id="mi-diseno" class="band">
-  <div class="wrap stack">
-    <div>
-      <h2>¿Ya tienes tu diseño?</h2>
-      <p class="muted">Si ya traes tu diseño hecho, lo hacemos en cerámica encapsulada en resina. Mismo precio por medida que los modelos del catálogo.</p>
-    </div>
-    <div class="cita-grid">
-      <form id="form-diseno" class="cita-form" novalidate>
-        <div class="campo">
-          <label for="md-nombre">Tu nombre <span class="req" aria-hidden="true">*</span></label>
-          <input id="md-nombre" name="nombre" type="text" placeholder="Ej. María López" autocomplete="name">
-          <p class="msg-error" hidden>Escribe tu nombre.</p>
-        </div>
-        <fieldset class="campo opciones">
-          <legend>¿Qué es?</legend>
-          <div class="fila-2">
-            <label class="opcion"><input type="radio" name="md-tipo" value="placas" checked><span>Placa domiciliaria</span></label>
-            <label class="opcion"><input type="radio" name="md-tipo" value="lapidas"><span>Lápida</span></label>
-          </div>
-        </fieldset>
-        <div class="campo">
-          <span class="label-sm">Forma y tamaño (cm)</span>
-          <div id="md-medidas"></div>
-        </div>
-        <p class="price"><span id="md-precio">$700</span> <span class="mxn">MXN</span></p>
-        <div id="md-campos" class="md-campos"></div>
-        <div class="campo">
-          <label for="md-notas">Comentarios (opcional)</label>
-          <textarea id="md-notas" name="notas" placeholder="Ej. es para la fachada, quiero que se vea igual a mi imagen…"></textarea>
-        </div>
-        <p class="ayuda">Antes de hacerla te mandamos una prueba de tu diseño para que la apruebes.</p>
-        <div class="resumen" id="md-resumen"></div>
-        <button type="submit" class="btn-wa">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.5A8.4 8.4 0 1 1 21 11.5z"/></svg>
-          Enviar y mandar mi diseño por WhatsApp
-        </button>
-        <p class="nota">Al abrirse el chat, adjunta tu diseño (imagen o PDF) en el mismo mensaje.</p>
-      </form>
-      <div class="ubicacion">
-        <h3>Así funciona</h3>
-        <ol class="pasos-diseno">
-          <li><strong>Llena el formulario</strong> con la medida, instalación o entrega.</li>
-          <li><strong>Manda tu diseño</strong> por WhatsApp en el chat que se abre.</li>
-          <li><strong>Revisa la prueba</strong> que te enviamos y apruébala.</li>
-          <li><strong>Lo hacemos</strong> en 2 a 3 días hábiles después de tu anticipo.</li>
-        </ol>
+<section id="mi-diseno" class="md-tarjeta-sec">
+  <div class="wrap">
+    <div class="md-tarjeta">
+      <span class="md-tarjeta-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="15.5" cy="8.5" r="1.5"/></svg></span>
+      <div class="md-tarjeta-txt">
+        <h2>¿Ya tienes tu diseño?</h2>
+        <p>Lo hacemos en placa domiciliaria o lápida.</p>
       </div>
+      <button type="button" class="btn-pedir js-abrir-diseno">Enviar mi diseño <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </div>
   </div>
 </section>
@@ -270,6 +232,73 @@
 <!-- Página del pedido: se llena al picar "Mandar a hacer mi boceto" -->
 <div id="pedido-vista" class="pd" hidden></div>
 
+<!-- Página "Enviar mi diseño": se abre con el botón de la tarjeta -->
+<div id="diseno-vista" class="pd" hidden>
+  <div class="wrap pd-wrap md-wrap">
+    <button type="button" class="pd-volver js-volver-diseno"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Volver al catálogo</button>
+    <div class="pd-head">
+      <span class="eyebrow">Diseño propio</span>
+      <h1>Enviar mi diseño</h1>
+      <p>Si ya traes tu diseño hecho, lo hacemos en cerámica encapsulada en resina. Mismo precio por medida que los modelos del catálogo.</p>
+    </div>
+    <div class="md-pasos">
+      <p class="md-pasos-tit">Así funciona</p>
+      <ol>
+        <li><span class="num">1</span><span><strong>Llena el formulario</strong> con la medida, instalación o entrega.</span></li>
+        <li><span class="num">2</span><span><strong>Manda tu diseño</strong> por WhatsApp en el chat que se abre.</span></li>
+        <li><span class="num">3</span><span><strong>Revisa la prueba</strong> que te enviamos y apruébala.</span></li>
+        <li><span class="num">4</span><span><strong>Lo hacemos</strong> en 2 a 3 días hábiles después de tu anticipo.</span></li>
+      </ol>
+    </div>
+    <form id="form-diseno" class="pd-form" novalidate>
+      <section class="pd-bloque">
+        <div class="pd-cab"><span class="pd-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><div><h2>Tus datos</h2><p>¿A nombre de quién y qué vamos a hacer?</p></div></div>
+        <div class="campo">
+          <label for="md-nombre">Tu nombre <span class="req" aria-hidden="true">*</span></label>
+          <input id="md-nombre" name="nombre" type="text" placeholder="Ej. María López" autocomplete="name">
+          <p class="msg-error" hidden>Escribe tu nombre.</p>
+        </div>
+        <fieldset class="campo opciones">
+          <legend>¿Qué es?</legend>
+          <div class="op-lista op-dos">
+            <label class="op-card"><input type="radio" name="md-tipo" value="placas" checked><span class="op-marca" aria-hidden="true"></span><span class="op-txt"><strong>Placa domiciliaria</strong></span></label>
+            <label class="op-card"><input type="radio" name="md-tipo" value="lapidas"><span class="op-marca" aria-hidden="true"></span><span class="op-txt"><strong>Lápida</strong></span></label>
+          </div>
+        </fieldset>
+      </section>
+      <section class="pd-bloque">
+        <div class="pd-cab"><span class="pd-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.5" y="7.5" width="19" height="9" rx="1.8"/><path d="M7 7.5v3M11 7.5v2M15 7.5v3M19 7.5v2"/></svg></span><div><h2>Medida</h2><p>Elige el formato y el tamaño en centímetros.</p></div></div>
+        <div id="md-medidas" class="md-medidas"></div>
+        <div class="pd-precio-fila"><span class="pd-medida" id="md-medida-txt"></span><span class="pd-precio" id="md-precio">$700</span></div>
+      </section>
+      <div id="md-campos" class="md-campos">
+        <section class="pd-bloque" data-b="instalacion">
+          <div class="pd-cab"><span class="pd-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.6 2.6l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.4 2.4-2.4-.6-.6-2.4z"/></svg></span><div><h2>Instalación</h2><p>Elige solo una opción.</p></div></div>
+          <div id="md-inst"></div>
+        </section>
+        <section class="pd-bloque" data-b="entrega">
+          <div class="pd-cab"><span class="pd-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/></svg></span><div><h2>Entrega</h2><p>¿Cómo te la hacemos llegar?</p></div></div>
+          <p class="pd-incluida" id="md-incluida" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg><span>La instalación incluye el servicio a domicilio; no necesitas elegir entrega.</span></p>
+          <div id="md-ent"></div>
+        </section>
+      </div>
+      <section class="pd-bloque pd-final">
+        <div class="pd-cab"><span class="pd-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span><div><h2>Resumen</h2></div></div>
+        <div class="campo">
+          <label for="md-notas">Comentarios (opcional)</label>
+          <textarea id="md-notas" name="notas" placeholder="Ej. es para la fachada, quiero que se vea igual a mi imagen…"></textarea>
+        </div>
+        <div id="md-resumen"></div>
+        <button type="submit" class="btn-wa">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.5A8.4 8.4 0 1 1 21 11.5z"/></svg>
+          Enviar mi diseño por WhatsApp
+        </button>
+        <p class="nota">Al abrirse el chat, adjunta tu diseño (imagen o PDF) en el mismo mensaje.</p>
+      </section>
+    </form>
+  </div>
+</div>
+
 <footer class="footer">
   <div class="wrap footer-in">
     <div>
@@ -300,7 +329,7 @@
     <button type="button" class="bv-todo" id="bv-todo">Solo quiero ver todo</button>
   </div>
 </div>
-<script src="datos.js?v=20261113191734"></script>
-<script src="app.js?v=20261113191734"></script>
+<script src="datos.js?v=20261113195039"></script>
+<script src="app.js?v=20261113195039"></script>
 </body>
 </html>
