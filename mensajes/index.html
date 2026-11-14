@@ -25,13 +25,15 @@ h2{margin:0;font-size:16px;color:#4A2618} .cuando{margin:2px 0 0;font-size:13px;
 </style></head><body>
 <header><div class="in"><img src="../fotos/logo.png" alt="Recoovare"><h1>Mensajes listos para WhatsApp</h1></div></header>
 <main><div class="in">
-<p class="intro">Elige si el pedido es placa o lápida, toca <b>Copiar</b> y pégalo en el chat del cliente.</p>
-<div class="tipo"><span>El pedido es:</span><div class="seg" role="group" aria-label="Tipo de pedido"><button type="button" data-t="placa" aria-pressed="true">Placa</button><button type="button" data-t="lápida" aria-pressed="false">Lápida</button></div></div>
+<p class="intro">Elige quién manda y si el pedido es placa o lápida, toca <b>Copiar</b> y pégalo en el chat del cliente.</p>
+<div class="tipo"><span>Quién manda:</span><select id="quien" style="font:inherit;font-weight:700;font-size:15px;min-height:40px;border:1px solid #D9CFC6;border-radius:10px;padding:4px 10px;background:#fff"><option value="">Josmar</option><option value="soemy">Soemy</option><option value="maryfer">Maryfer</option><option value="ileana">Ileana</option></select><span style="margin-left:6px">El pedido es:</span><div class="seg" role="group" aria-label="Tipo de pedido"><button type="button" data-t="placa" aria-pressed="true">Placa</button><button type="button" data-t="lápida" aria-pressed="false">Lápida</button></div></div>
 <div id="lista"></div>
 </div></main>
 <script>
 var MAPA='https://maps.app.goo.gl/8GmmaSbQXzLBScMY9';
 var M=[
+ {e:'Primer contacto'},
+ {t:'Mandar el catálogo',n:1,c:'Cuando alguien pide modelos o precios. El link ya lleva tu nombre para que el pedido te llegue a ti.',m:'¡Hola! 😊 Soy {q}, mucho gusto.\n\nAquí puedes ver todos nuestros modelos de placas y lápidas con sus precios por medida:\n👉 {l}\n\nCuando elijas uno, toca "Mandar a hacer mi boceto", llena tus datos y te llega todo por aquí. Te hago tu boceto digital gratis y sin compromiso. ✨\n\nCualquier duda, me puedes decir. 😊'},
  {e:'Al recibir el pedido'},
  {t:'Pedido recibido',c:'Cuando el pedido trae todos los datos.',m:'¡Gracias por su pedido! 😊 Ya estamos preparando su boceto, se lo comparto por aquí en unas 1 a 2 horas. ✨'},
  {t:'Faltan datos',n:1,c:'Cuando falta algo. Cambia ___ por lo que falta (por ejemplo: la dirección que llevará la placa).',m:'¡Gracias! 😊 Para preparar su boceto solo me falta: ___. En cuanto me lo comparta, empezamos. ✨'},
@@ -52,10 +54,12 @@ var M=[
  {e:'Al final'},
  {t:'Agradecimiento',c:'Cuando ya recibió su pedido y liquidó.',m:'¡Gracias por confiar en Recoovare! 🤎 Esperamos que le encante. Aquí estamos cuando necesite otro diseño. ✨'}
 ];
-var tipo='placa';
+var tipo='placa',quien='';
+try{quien=localStorage.getItem('recoovare_msj_quien')||''}catch(e){}
+var NOMBRES={'':'Josmar',soemy:'Soemy',maryfer:'Maryfer',ileana:'Ileana'};
 try{tipo=localStorage.getItem('recoovare_msj_tipo')||'placa'}catch(e){}
 function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function texto(i){return M[i].m.replace(/\{p\}/g,tipo).replace(/\{r\}/g,tipo==='placa'?'apellidos, dirección y textos':'nombres, fechas y textos').replace(/\{d\}/g,tipo==='placa'?'¡Con gusto! 😊 ¿Qué colores, flores o estilo le gustaría para su placa? Si hay algo que no quiera, también dígame. ✨':'¡Con gusto! 😊 ¿Qué colores, flores o estilo le gustaría para su lápida? Si desea incluir una foto o una frase, puede mandármela por aquí. ✨')}
+function texto(i){return M[i].m.replace(/\{q\}/g,NOMBRES[quien]).replace(/\{l\}/g,'https://recoovare.pages.dev'+(quien?'/'+quien:'')).replace(/\{p\}/g,tipo).replace(/\{r\}/g,tipo==='placa'?'apellidos, dirección y textos':'nombres, fechas y textos').replace(/\{d\}/g,tipo==='placa'?'¡Con gusto! 😊 ¿Qué colores, flores o estilo le gustaría para su placa? Si hay algo que no quiera, también dígame. ✨':'¡Con gusto! 😊 ¿Qué colores, flores o estilo le gustaría para su lápida? Si desea incluir una foto o una frase, puede mandármela por aquí. ✨')}
 function pintar(){
   var n=0;
   document.getElementById('lista').innerHTML=M.map(function(x,i){
@@ -74,6 +78,8 @@ document.addEventListener('click',function(e){
   var b=e.target.closest('.copiar');if(b){copiar(texto(+b.dataset.i),b);return}
   var s=e.target.closest('.seg button');if(s){tipo=s.dataset.t;try{localStorage.setItem('recoovare_msj_tipo',tipo)}catch(er){}pintar()}
 });
+document.getElementById('quien').value=quien;
+document.getElementById('quien').addEventListener('change',function(e){quien=e.target.value;try{localStorage.setItem('recoovare_msj_quien',quien)}catch(er){}pintar()});
 pintar();
 </script>
 </body></html>
