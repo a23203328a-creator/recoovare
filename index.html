@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="estilos.css?v=20261113190707">
+<link rel="stylesheet" href="estilos.css?v=20261113191734">
 </head>
 <body>
 
@@ -97,23 +97,46 @@
   </div>
 </section>
 
-<section id="modelos" class="wrap stack modelos">
-  <div class="tabs" role="group" aria-label="Tipo de producto" id="tabs"></div>
-  <div class="modelos-head">
-    <div>
-      <h2 id="titulo-modelos">Elige tu placa</h2>
-      <p class="muted" id="conteo"></p>
+<section id="modelos" class="modelos">
+  <div class="wrap cat">
+    <div class="cat-head">
+      <div class="tabs" role="group" aria-label="Tipo de producto" id="tabs"></div>
+      <div class="cat-fila">
+        <div class="cat-titulo">
+          <h2 id="titulo-modelos">Elige tu placa</h2>
+          <p id="conteo"></p>
+        </div>
+        <div class="buscar">
+          <label for="buscar" class="sr-only">Busca por número o nombre</label>
+          <svg class="buscar-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input id="buscar" type="search" placeholder="Busca por número o nombre" autocomplete="off" enterkeyhint="search">
+          <button type="button" class="buscar-limpiar" id="buscar-limpiar" aria-label="Borrar búsqueda" hidden>×</button>
+        </div>
+      </div>
+      <div class="chips" role="group" aria-label="Categorías" id="categorias"></div>
     </div>
-    <div class="buscar">
-      <label for="buscar">Buscar por número o nombre</label>
-      <input id="buscar" type="search" placeholder="Ej. 007, L03 o girasoles" autocomplete="off">
+    <a class="franja-diseno" href="#mi-diseno">
+      <span class="franja-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></span>
+      <span class="franja-txt"><strong>¿Ya tienes tu diseño?</strong> <span>Mándalo aquí</span></span>
+      <svg class="franja-flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <p class="vacio" id="vacio" hidden>No encontramos ese modelo. Prueba con otro número, nombre o categoría.</p>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- Foto ampliada de un modelo -->
+<div class="visor" id="visor" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada del modelo">
+  <div class="visor-caja">
+    <button type="button" class="visor-cerrar" id="visor-cerrar" aria-label="Cerrar foto">×</button>
+    <div class="visor-foto"><img id="visor-img" alt=""></div>
+    <p class="visor-ayuda" id="visor-ayuda" aria-live="polite">Toca la foto para acercar</p>
+    <div class="visor-pie">
+      <div><span class="code" id="visor-code"></span> <strong id="visor-nombre"></strong></div>
+      <button type="button" class="btn-pedir" id="visor-pedir">Mandar a hacer mi boceto</button>
     </div>
   </div>
-  <div class="chips" role="group" aria-label="Categorías" id="categorias"></div>
-  <p class="aviso-diseno">¿Ya tienes tu diseño hecho? <a href="#mi-diseno">Mándalo aquí</a></p>
-  <p class="vacio" id="vacio" hidden>No encontramos ese modelo. Prueba con otro número o categoría.</p>
-  <div class="grid" id="grid"></div>
-</section>
+</div>
 
 <section id="mi-diseno" class="band">
   <div class="wrap stack">
@@ -277,7 +300,7 @@
     <button type="button" class="bv-todo" id="bv-todo">Solo quiero ver todo</button>
   </div>
 </div>
-<script src="datos.js?v=20261113190707"></script>
-<script src="app.js?v=20261113190707"></script>
+<script src="datos.js?v=20261113191734"></script>
+<script src="app.js?v=20261113191734"></script>
 </body>
 </html>

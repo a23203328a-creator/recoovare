@@ -11,9 +11,14 @@
   var ICONO_INFO = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg>';
   var ICONO_SIG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
   var ICONO_ATRAS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>';
+  var ICONOS_TIPO = {
+    placas: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><rect x="9" y="13" width="6" height="4" rx="1"/>',
+    lapidas: '<path d="M6 21V9a6 6 0 0 1 12 0v12z"/><path d="M12 9v6M9.5 11.5h5"/><path d="M4 21h16"/>'
+  };
+  var ICONO_ZOOM = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>';
   var ICONO_FLECHA = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 
-  var estado = { tipo: 'placas', categoria: 'todos', busqueda: '', medida: {} };
+  var estado = { tipo: 'placas', categoria: 'todos', busqueda: '', medida: {}, forma: {} };
 
   /* ---------- utilidades ---------- */
   function esc(t) {
@@ -76,20 +81,34 @@
     var formas = t.medidas ? t.medidas : [m.forma];
     return formas.map(function (f) { return NOMBRES_FORMA[f] || f; }).join(' o ');
   }
-  function htmlMedidas(lista, idx) {
-    var grupos = [];
-    lista.forEach(function (s, i) {
-      var g = grupos[grupos.length - 1];
-      if (!g || g.nombre !== s.grupo) { g = { nombre: s.grupo, items: [] }; grupos.push(g); }
-      g.items.push({ s: s, i: i });
-    });
-    var conTitulo = grupos.length > 1;
-    return grupos.map(function (g) {
-      return (conTitulo ? '<span class="grupo-medida">' + esc(NOMBRES_FORMA[g.nombre] || g.nombre) + '</span>' : '') +
-        '<div class="sizes" role="group" aria-label="Tamaño ' + esc(NOMBRES_FORMA[g.nombre] || g.nombre) + '">' +
-        g.items.map(function (x) { return '<button type="button" data-medida="' + x.i + '" aria-pressed="' + (x.i === idx) + '">' + esc(x.s.medida) + '</button>'; }).join('') +
-        '</div>';
-    }).join('');
+  // Selector de formato (si hay más de uno) + medidas del formato elegido + "Otra medida"
+  function formaDe(lista, idx, forma) {
+    var formas = [];
+    lista.forEach(function (x) { if (formas.indexOf(x.grupo) < 0) formas.push(x.grupo); });
+    if (formas.indexOf(forma) < 0) forma = (idx >= 0 && lista[idx]) ? lista[idx].grupo : formas[0];
+    return { formas: formas, forma: forma };
+  }
+  function htmlMedidas(lista, idx, formaElegida) {
+    var f = formaDe(lista, idx, formaElegida);
+    var h = '';
+    if (f.formas.length > 1) {
+      h += '<div class="seg" role="group" aria-label="Formato">' + f.formas.map(function (x) {
+        return '<button type="button" data-forma="' + esc(x) + '" aria-pressed="' + (x === f.forma) + '">' + esc(NOMBRES_FORMA[x] || x) + '</button>';
+      }).join('') + '</div>';
+    }
+    h += '<div class="sizes" role="group" aria-label="Medida en centímetros">' + lista.map(function (x, i) {
+      if (x.grupo !== f.forma) return '';
+      return '<button type="button" data-medida="' + i + '" aria-pressed="' + (i === idx) + '"' + (x.recomendada ? ' class="es-reco"' : '') + '>' +
+        (x.recomendada ? '<span class="reco">Recomendada</span>' : '') + esc(x.medida) + '</button>';
+    }).join('') + '</div>';
+    h += '<button type="button" class="otra-medida" data-medida="-1" aria-pressed="' + (idx === -1) + '">Otra medida · Cotizar</button>';
+    return h;
+  }
+  // Al cambiar de formato, elige la medida recomendada de ese formato (o la primera)
+  function medidaDeForma(lista, forma) {
+    var i = lista.findIndex(function (x) { return x.grupo === forma && x.recomendada; });
+    if (i < 0) i = lista.findIndex(function (x) { return x.grupo === forma; });
+    return i;
   }
   // ¿Se muestra este campo con las respuestas actuales?
   function campoVisible(c, form) {
@@ -137,7 +156,9 @@
   /* ---------- pestañas y categorías ---------- */
   function pintarPestanas() {
     document.getElementById('tabs').innerHTML = Object.keys(D.tipos).map(function (k) {
-      return '<button type="button" data-tipo="' + k + '" aria-pressed="' + (estado.tipo === k) + '">' + esc(D.tipos[k].nombre) + ' (' + visibles(k).length + ')</button>';
+      return '<button type="button" data-tipo="' + k + '" aria-pressed="' + (estado.tipo === k) + '">' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS_TIPO[k] || '') + '</svg>' +
+        '<span>' + esc(D.tipos[k].nombre) + '</span><small>' + visibles(k).length + '</small></button>';
     }).join('');
   }
   function pintarCategorias() {
@@ -147,7 +168,7 @@
       return { k: c, n: c, c: mods.filter(function (m) { return m.categoria === c; }).length };
     })).filter(function (c) { return c.c > 0; });
     document.getElementById('categorias').innerHTML = cats.map(function (c) {
-      return '<button type="button" data-cat="' + esc(c.k) + '" aria-pressed="' + (estado.categoria === c.k) + '">' + esc(c.n) + ' (' + c.c + ')</button>';
+      return '<button type="button" data-cat="' + esc(c.k) + '" aria-pressed="' + (estado.categoria === c.k) + '">' + esc(c.n) + ' <small>' + c.c + '</small></button>';
     }).join('');
   }
 
@@ -189,20 +210,34 @@
         (c.obligatorio ? '<p class="msg-error" hidden>Este dato es necesario.</p>' : '') + '</div>';
     }).join('');
   }
+  function precioTexto(lista, idx) {
+    return idx === -1 ? { otra: true, txt: 'A cotizar', med: 'Otra medida' } : { txt: dinero((lista[idx] || {}).precio || 0), med: ((lista[idx] || {}).medida || '') + ' cm' };
+  }
+  function htmlSelTarjeta(tipo, m) {
+    var clave = claveModelo(tipo, m), lista = preciosDe(m, tipo);
+    var idx = estado.medida[clave] != null ? estado.medida[clave] : medidaInicial(m, tipo);
+    var f = formaDe(lista, idx, estado.forma[clave]);
+    var p = precioTexto(lista, idx);
+    var una = f.formas.length === 1;
+    return '<div class="card-sel">' +
+        '<span class="label-sm">Medida (cm)' + (una ? ' · ' + esc(NOMBRES_FORMA[f.forma] || f.forma) : '') + '</span>' +
+        htmlMedidas(lista, idx, f.forma) +
+      '</div>' +
+      '<div class="price-row"><p class="price">' + p.txt + (p.otra ? '' : ' <span class="mxn">MXN</span>') + '</p><span class="price-med">' + esc(p.med) + '</span></div>';
+  }
   function htmlTarjeta(tipo, m) {
     var t = D.tipos[tipo];
     var clave = claveModelo(tipo, m);
-    var lista = preciosDe(m, tipo);
-    var idx = estado.medida[clave] != null ? estado.medida[clave] : medidaInicial(m, tipo);
-    var p = idx === -1 ? { medida: 'Otra medida', precio: 0, otra: true } : (lista[idx] || { medida: '', precio: 0 });
     return '<article class="card" data-clave="' + esc(clave) + '">' +
-      '<div class="card-img"><img loading="lazy" src="' + esc(t.carpeta + m.foto) + '" alt="' + esc(mayus(t.singular) + ' modelo ' + m.codigo + ', ' + m.nombre) + '"></div>' +
+      '<button type="button" class="card-img js-ampliar" aria-label="Ver foto grande del modelo #' + esc(m.codigo) + '">' +
+        '<img loading="lazy" decoding="async" width="484" height="323" src="' + esc(t.carpeta + m.foto) + '" alt="' + esc(mayus(t.singular) + ' modelo ' + m.codigo + ', ' + m.nombre) + '">' +
+        '<span class="zoom">' + ICONO_ZOOM + '</span>' +
+        (m.nuevo ? '<span class="tag-nuevo">Nuevo</span>' : '') +
+      '</button>' +
       '<div class="card-body">' +
-        '<div class="card-meta"><span class="code">#' + esc(m.codigo) + '</span><span>' + esc(m.categoria) + ' · ' + esc(formaTexto(tipo, m)) + '</span>' + (m.nuevo ? '<span class="tag-nuevo">Nuevo</span>' : '') + '</div>' +
-        '<h3>' + esc(m.nombre) + '</h3>' +
-        '<div><span class="label-sm">Tamaño (cm)</span>' + htmlMedidas(lista, idx) +
-          '<button type="button" class="otra-medida" data-medida="-1" aria-pressed="' + (idx === -1) + '">Otra medida (cotizar)</button></div>' +
-        '<div class="price-row"><p class="price"><span class="js-precio">' + (p.otra ? 'A cotizar' : dinero(p.precio)) + '</span> <span class="mxn"' + (p.otra ? ' hidden' : '') + '>MXN</span></p><span class="tag-rec js-rec"' + (p.recomendada ? '' : ' hidden') + '>Medida recomendada</span></div>' +
+        '<div class="card-tit"><span class="code">#' + esc(m.codigo) + '</span><h3>' + esc(m.nombre) + '</h3></div>' +
+        '<p class="card-cat">' + esc(m.categoria) + '</p>' +
+        '<div class="js-sel">' + htmlSelTarjeta(tipo, m) + '</div>' +
         '<button type="button" class="btn-pedir">Mandar a hacer mi boceto ' + ICONO_SIG + '</button>' +
       '</div></article>';
   }
@@ -218,7 +253,8 @@
     var t = D.tipos[estado.tipo];
     var lista = filtrados();
     document.getElementById('titulo-modelos').textContent = 'Elige tu ' + t.singular;
-    document.getElementById('conteo').textContent = 'Mostrando ' + lista.length + ' de ' + visibles(estado.tipo).length + ' ' + t.nombre.toLowerCase();
+    var tot = visibles(estado.tipo).length;
+    document.getElementById('conteo').textContent = lista.length === tot ? tot + ' modelos' : lista.length + ' de ' + tot + ' modelos';
     document.getElementById('vacio').hidden = lista.length > 0;
     document.getElementById('grid').innerHTML = lista.map(function (m) { return htmlTarjeta(estado.tipo, m); }).join('');
   }
@@ -234,7 +270,7 @@
   function irA(tipo) {
     if (!D.tipos[tipo]) return;
     estado.tipo = tipo; estado.categoria = 'todos'; estado.busqueda = '';
-    document.getElementById('buscar').value = '';
+    document.getElementById('buscar').value = ''; document.getElementById('buscar-limpiar').hidden = true;
     pintarTodo();
   }
   document.querySelectorAll('[data-ir]').forEach(function (a) {
@@ -247,8 +283,12 @@
     var b = e.target.closest('button[data-cat]'); if (!b) return;
     estado.categoria = b.getAttribute('data-cat'); pintarCategorias(); pintarModelos();
   });
+  var limpiar = document.getElementById('buscar-limpiar');
   document.getElementById('buscar').addEventListener('input', function (e) {
-    estado.busqueda = e.target.value; pintarModelos();
+    estado.busqueda = e.target.value; limpiar.hidden = !e.target.value; pintarModelos();
+  });
+  limpiar.addEventListener('click', function () {
+    var b = document.getElementById('buscar'); b.value = ''; estado.busqueda = ''; limpiar.hidden = true; pintarModelos(); b.focus();
   });
 
   var grid = document.getElementById('grid');
@@ -256,23 +296,70 @@
     var card = e.target.closest('.card'); if (!card) return;
     var clave = card.getAttribute('data-clave');
 
+    var info0 = buscarModelo(clave);
+    var bf = e.target.closest('button[data-forma]');
     var bm = e.target.closest('button[data-medida]');
-    if (bm) {
-      var i = Number(bm.getAttribute('data-medida'));
-      estado.medida[clave] = i;
-      var bmod = buscarModelo(clave);
-      var p = i === -1 ? { otra: true } : preciosDe(bmod.m, bmod.tipo)[i];
-      card.querySelectorAll('button[data-medida]').forEach(function (b) { b.setAttribute('aria-pressed', String(b === bm)); });
-      card.querySelector('.js-precio').textContent = p.otra ? 'A cotizar' : dinero(p.precio);
-      card.querySelector('.mxn').hidden = !!p.otra;
-      card.querySelector('.js-rec').hidden = !p.recomendada;
+    if (bf || bm) {
+      var lista0 = preciosDe(info0.m, info0.tipo);
+      if (bf) {
+        var fo = bf.getAttribute('data-forma');
+        estado.forma[clave] = fo;
+        var actual = estado.medida[clave] != null ? estado.medida[clave] : medidaInicial(info0.m, info0.tipo);
+        if (actual !== -1 && (!lista0[actual] || lista0[actual].grupo !== fo)) estado.medida[clave] = medidaDeForma(lista0, fo);
+      } else {
+        estado.medida[clave] = Number(bm.getAttribute('data-medida'));
+      }
+      card.querySelector('.js-sel').innerHTML = htmlSelTarjeta(info0.tipo, info0.m);
+      var foco = card.querySelector('.js-sel button[aria-pressed="true"]' + (bf ? '[data-forma]' : ''));
+      if (foco) foco.focus({ preventScroll: true });
       return;
     }
+    if (e.target.closest('.js-ampliar')) { abrirVisor(info0.tipo, info0.m); return; }
     if (e.target.closest('.btn-pedir')) {
-      var info = buscarModelo(clave);
-      var ix = estado.medida[clave] != null ? estado.medida[clave] : medidaInicial(info.m, info.tipo);
-      abrirPedido(info.tipo, info.m.codigo, ix, true);
+      var ix = estado.medida[clave] != null ? estado.medida[clave] : medidaInicial(info0.m, info0.tipo);
+      abrirPedido(info0.tipo, info0.m.codigo, ix, true);
     }
+  });
+
+  /* ---------- foto ampliada ---------- */
+  var visor = document.getElementById('visor'), visorModelo = null, visorFoco = null;
+  function abrirVisor(tipo, m) {
+    var t = D.tipos[tipo];
+    visorModelo = { tipo: tipo, m: m };
+    visorFoco = document.activeElement;
+    document.getElementById('visor-img').src = t.carpeta + m.foto;
+    document.getElementById('visor-img').alt = mayus(t.singular) + ' modelo ' + m.codigo + ', ' + m.nombre;
+    document.getElementById('visor-code').textContent = '#' + m.codigo;
+    document.getElementById('visor-nombre').textContent = m.nombre;
+    document.querySelector('.visor-foto').classList.remove('acercada');
+    document.getElementById('visor-ayuda').textContent = 'Toca la foto para acercar';
+    visor.hidden = false;
+    document.documentElement.classList.add('sin-scroll');
+    document.getElementById('visor-cerrar').focus({ preventScroll: true });
+  }
+  function cerrarVisor() {
+    if (visor.hidden) return;
+    visor.hidden = true;
+    document.documentElement.classList.remove('sin-scroll');
+    if (visorFoco && visorFoco.focus) visorFoco.focus({ preventScroll: true });
+  }
+  document.getElementById('visor-cerrar').addEventListener('click', cerrarVisor);
+  visor.addEventListener('click', function (e) {
+    if (e.target === visor) { cerrarVisor(); return; }
+    // tocar la foto la acerca (2×) para ver detalles; otro toque la regresa
+    var vf = e.target.closest('.visor-foto');
+    if (vf) {
+      var r = vf.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+      var z = vf.classList.toggle('acercada');
+      document.getElementById('visor-ayuda').textContent = z ? 'Toca otra vez para alejar' : 'Toca la foto para acercar';
+      if (z) requestAnimationFrame(function () { vf.scrollLeft = px * vf.scrollWidth - r.width / 2; vf.scrollTop = py * vf.scrollHeight - r.height / 2; });
+    }
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarVisor(); });
+  document.getElementById('visor-pedir').addEventListener('click', function () {
+    var v = visorModelo; cerrarVisor(); if (!v) return;
+    var cl = claveModelo(v.tipo, v.m);
+    abrirPedido(v.tipo, v.m.codigo, estado.medida[cl] != null ? estado.medida[cl] : medidaInicial(v.m, v.tipo), true);
   });
 
   /* ==========================================================
@@ -289,6 +376,7 @@
     return '<div class="pd-cab"><span class="pd-ico" aria-hidden="true"><svg viewBox="0 0 24 24">' + ICONOS_PD[b] + '</svg></span><div><h2>' + esc(titulo) + '</h2>' + (sub ? '<p>' + esc(sub) + '</p>' : '') + '</div></div>';
   }
   var pd = null; // { tipo, m, idx, vuelta }
+  try { history.scrollRestoration = 'manual'; } catch (e) {}
   var vista = document.getElementById('pedido-vista');
 
   function precioPd() {
@@ -343,7 +431,7 @@
     document.body.classList.add('modo-pedido');
     pintarMedidaPd();
     actualizarPd();
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
     var ruta = '#pedido/' + tipo + '/' + codigo + '/' + idx;
     if (empujar) history.pushState({ pedido: true }, '', ruta);
     document.title = 'Pedido #' + m.codigo + ' – ' + D.negocio.nombre;
@@ -358,10 +446,13 @@
     document.body.classList.remove('modo-pedido');
     document.title = TITULO;
     if (estado.tipo !== tipo) irA(tipo); else pintarModelos();
-    var card = document.querySelector('.card[data-clave="' + clave.replace(/"/g, '') + '"]');
-    if (vuelta > 0 && card) window.scrollTo(0, vuelta);
-    else if (card) card.scrollIntoView({ block: 'center' });
-    else document.getElementById('modelos').scrollIntoView();
+    function ir() {
+      var card = document.querySelector('.card[data-clave="' + clave.replace(/"/g, '') + '"]');
+      if (vuelta > 0 && card) window.scrollTo({ top: vuelta, behavior: 'instant' });
+      else if (card) card.scrollIntoView({ block: 'center', behavior: 'instant' });
+      else document.getElementById('modelos').scrollIntoView();
+    }
+    ir(); requestAnimationFrame(ir);
   }
   function volverCatalogo() {
     if (history.state && history.state.pedido) history.back();
@@ -380,8 +471,7 @@
     var p = precioPd();
     vista.querySelector('.js-pd-medida').textContent = p.otra ? 'Otra medida' : p.medida + ' cm';
     vista.querySelector('.js-pd-precio').textContent = p.otra ? 'A cotizar' : dinero(p.precio);
-    vista.querySelector('.js-pd-medidas').innerHTML = htmlMedidas(preciosDe(pd.m, pd.tipo), pd.idx) +
-      '<button type="button" class="otra-medida" data-medida="-1" aria-pressed="' + (pd.idx === -1) + '">Otra medida (cotizar)</button>';
+    vista.querySelector('.js-pd-medidas').innerHTML = htmlMedidas(preciosDe(pd.m, pd.tipo), pd.idx, estado.forma[claveModelo(pd.tipo, pd.m)]);
     vista.querySelector('.js-otra').hidden = !p.otra;
   }
   function actualizarPd() {
@@ -422,6 +512,17 @@
   }
   vista.addEventListener('click', function (e) {
     if (e.target.closest('.js-volver')) { volverCatalogo(); return; }
+    var bf = e.target.closest('button[data-forma]');
+    if (bf && pd) {
+      var cl = claveModelo(pd.tipo, pd.m), li = preciosDe(pd.m, pd.tipo), fo = bf.getAttribute('data-forma');
+      estado.forma[cl] = fo;
+      if (pd.idx !== -1 && (!li[pd.idx] || li[pd.idx].grupo !== fo)) {
+        pd.idx = medidaDeForma(li, fo); estado.medida[cl] = pd.idx;
+        history.replaceState(history.state, '', '#pedido/' + pd.tipo + '/' + pd.m.codigo + '/' + pd.idx);
+      }
+      pintarMedidaPd(); actualizarPd();
+      return;
+    }
     var bm = e.target.closest('button[data-medida]');
     if (bm && pd) {
       pd.idx = Number(bm.getAttribute('data-medida'));
