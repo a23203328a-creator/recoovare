@@ -262,11 +262,18 @@ window.CATALOGO = {
       categorias: ["Negro y dorado", "Mármol blanco", "Con foto", "Libro abierto", "Religiosas", "Dobles", "Colores", "Angelitos"],
       // Las lápidas pueden pedirse en cualquiera de estas medidas
       medidas: ["rectangular", "cuadrada"],
+      // Botón "Usar la del modelo" en Frase y Dedicatoria.
+      // sinFrase: lápidas que NO traen frase (ahí solo sale el cuadro para escribir).
+      // conDedicatoria: lápidas que SÍ traen dedicatoria ("Recuerdo de su esposa, hijos…").
+      // Al agregar una lápida nueva, ponla en la lista que corresponda.
+      sinFrase: ["L02", "L04", "L05", "L09", "L63", "L64"],
+      conDedicatoria: ["L01", "L02", "L03", "L04", "L05", "L06", "L07", "L08", "L09", "L17", "L19", "L20", "L22", "L29", "L31", "L32", "L33", "L34", "L35", "L36", "L37", "L39", "L40", "L41", "L43", "L44", "L46", "L47", "L48", "L49", "L50", "L51", "L52", "L54", "L58", "L65", "L67", "L68", "L69", "L71", "L72", "L77", "L78", "L82", "L83", "L86"],
       campos: [
         { id: "nombre",        msj: "Nombre completo", etiqueta: "Nombre completo", ejemplo: "José Antonio Herrera Ramírez", obligatorio: true },
         { id: "nacimiento",    msj: "Nacimiento", corto: true, etiqueta: "Fecha de nacimiento", ejemplo: "01/11/1985" },
         { id: "fallecimiento", msj: "Fallecimiento", corto: true, etiqueta: "Fecha de fallecimiento", ejemplo: "02/07/2022" },
-        { id: "frase",         msj: "Frase o mensaje", etiqueta: "Frase o mensaje", ejemplo: "Siempre en nuestra mente y corazón", parrafo: true },
+        { id: "frase",         msj: "Frase o mensaje", etiqueta: "Frase o mensaje", ejemplo: "Siempre en nuestra mente y corazón", parrafo: true, delModelo: "frase" },
+        { id: "dedicatoria",   msj: "Dedicatoria", etiqueta: "Dedicatoria", ejemplo: "Recuerdo de su esposa, hijos y nietos", parrafo: true, delModelo: "dedicatoria" },
         { id: "foto", msj: "Foto", corto: true, etiqueta: "¿Lleva foto?",
           ayuda: "Si lleva foto, mándala por WhatsApp en el mismo chat después de enviar tu boceto.",
           opciones: [

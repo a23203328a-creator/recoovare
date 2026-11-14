@@ -179,6 +179,26 @@
       (o.costo ? '<span class="op-precio">+' + dinero(o.costo) + '</span>' : '') + '</label>';
   }
   function textoMsg(o) { return o.mensajeTexto || o.texto; }
+  // Frase / dedicatoria: ¿el modelo trae la suya? (listas en datos.js)
+  function tieneDelModelo(tipo, m, c) {
+    var t = D.tipos[tipo];
+    if (!c.delModelo || !m || m.codigo === 'propio') return false;
+    if (c.delModelo === 'frase') return (t.sinFrase || []).indexOf(m.codigo) < 0;
+    if (c.delModelo === 'dedicatoria') return (t.conDedicatoria || []).indexOf(m.codigo) >= 0;
+    return false;
+  }
+  function usaDelModelo(caja) {
+    if (!caja || !caja.hasAttribute('data-del-modelo')) return false;
+    var mk = caja.querySelector('input[type="radio"]:checked');
+    return !mk || mk.value === 'modelo';
+  }
+  function syncDelModelo(form) {
+    form.querySelectorAll('[data-del-modelo]').forEach(function (caja) {
+      var usa = usaDelModelo(caja), ctl = caja.querySelector('textarea, input[type="text"]');
+      if (ctl) ctl.hidden = usa;
+      var nota = caja.querySelector('.dm-nota'); if (nota) nota.hidden = !usa;
+    });
+  }
   function htmlCampos(tipo, m, solo) {
     var id = claveModelo(tipo, m).replace(/[^a-zA-Z0-9]/g, '-');
     return D.tipos[tipo].campos.filter(function (c) { return !solo || solo.indexOf(c.id) >= 0; }).map(function (c) {
@@ -203,6 +223,16 @@
       var control = c.parrafo
         ? '<textarea id="' + fid + '" name="' + esc(c.id) + '" placeholder="' + esc(ej(c.ejemplo)) + '"></textarea>'
         : '<input id="' + fid + '" name="' + esc(c.id) + '" type="text" placeholder="' + esc(ej(c.ejemplo)) + '">';
+      if (tieneDelModelo(tipo, m, c)) {
+        var cual = c.delModelo === 'dedicatoria' ? 'la dedicatoria' : 'la frase';
+        return '<div class="campo campo-dm" data-campo="' + esc(c.id) + '" data-del-modelo="1"><label for="' + fid + '">' + esc(c.etiqueta) + '</label>' +
+          '<div class="dm-fila" role="radiogroup" aria-label="' + esc(c.etiqueta) + '">' +
+            '<label class="opcion"><input type="radio" name="' + esc(c.id) + '__modo" value="modelo" checked><span>Usar la del modelo</span></label>' +
+            '<label class="opcion"><input type="radio" name="' + esc(c.id) + '__modo" value="otra"><span>Escribir otra</span></label>' +
+          '</div>' +
+          '<p class="dm-nota">Se usará ' + cual + ' que aparece en el modelo #' + esc(m.codigo) + '.</p>' +
+          control.replace('<textarea ', '<textarea hidden ').replace('<input ', '<input hidden ') + '</div>';
+      }
       return '<div class="campo" data-campo="' + esc(c.id) + '"><label for="' + fid + '">' + esc(c.etiqueta) + (c.obligatorio ? ' <span class="req" aria-hidden="true">*</span>' : '') + '</label>' + control +
         (c.ayuda ? '<p class="ayuda">' + esc(c.ayuda) + '</p>' : '') +
         (c.obligatorio ? '<p class="msg-error" hidden>Este dato es necesario.</p>' : '') + '</div>';
@@ -503,6 +533,7 @@
     for (var k = 0; k < 2; k++) campos.forEach(function (c) {
       var caja = form.querySelector('[data-campo="' + c.id + '"]'); if (caja) caja.hidden = !campoVisible(c, form);
     });
+    syncDelModelo(form);
     var ent = form.querySelector('[data-campo="entrega"]'), inc = form.querySelector('.js-incluida');
     if (ent && inc) inc.hidden = !ent.hidden;
     var r = calcularPd();
@@ -555,7 +586,13 @@
       if (pd.idx === -1) vista.querySelector('#pd-otra').focus();
     }
   });
-  vista.addEventListener('change', function (e) { if (e.target.type === 'radio' && pd) actualizarPd(); guardarBorrador(); });
+  vista.addEventListener('change', function (e) {
+    if (e.target.type === 'radio' && pd) actualizarPd();
+    if (e.target.type === 'radio' && /__modo$/.test(e.target.name) && e.target.value === 'otra') {
+      var ta = e.target.closest('[data-del-modelo]').querySelector('textarea, input[type="text"]'); if (ta) ta.focus();
+    }
+    guardarBorrador();
+  });
   vista.addEventListener('input', function () { guardarBorrador(); });
   // Lo que el cliente escribió se conserva (mientras la página siga abierta) si regresa al catálogo y abre otro modelo
   var borrador = {};
@@ -606,6 +643,7 @@
         if (o.mensaje) notas.push(o.mensaje);
         return;
       }
+      if (usaDelModelo(caja)) { dato[c.id] = 'La del modelo #' + pd.m.codigo; return; }
       var el = form.elements[c.id], v = (el.value || '').trim();
       marcar(el, !!c.obligatorio && !v);
       dato[c.id] = v;

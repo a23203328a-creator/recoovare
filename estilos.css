@@ -648,3 +648,10 @@ body.con-burbuja .footer, body.con-burbuja footer { padding-bottom: 84px; }
   .burbuja-txt b { font-size: 14.5px; }
   .burbuja-wa { display: none; }
 }
+
+/* Frase / dedicatoria: "Usar la del modelo" o "Escribir otra" */
+.dm-fila { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dm-fila .opcion + .opcion { margin-top: 0; }
+.dm-fila .opcion { align-items: center; font-weight: 700; }
+.dm-nota { margin: 8px 0 0; font-size: 14px; color: var(--salvia-oscuro); }
+.campo-dm textarea { margin-top: 8px; }
