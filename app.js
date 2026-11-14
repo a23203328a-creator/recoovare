@@ -933,49 +933,94 @@
       var h = Math.floor(m / 60), mm = m % 60;
       return (h % 12 || 12) + ':' + (mm < 10 ? '0' : '') + mm + (h < 12 ? ' a.m.' : ' p.m.');
     }
-    // Días disponibles
-    var hoy = new Date(); hoy.setHours(0, 0, 0, 0);
-    var ahora = new Date();
-    var dias = [];
-    for (var i = 0; i < (Number(C.diasAdelante) || 21); i++) {
-      var d = new Date(hoy); d.setDate(hoy.getDate() + i);
-      var r = rango(C.horario[CLAVES[d.getDay()]]);
-      if (!r) continue;
-      var slots = [];
-      for (var t = r[0]; t + paso <= r[1]; t += paso) slots.push(t);
-      if (i === 0) {
-        var limite = ahora.getHours() * 60 + ahora.getMinutes() + 60; // al menos 1 hora de anticipación
-        slots = slots.filter(function (s) { return s >= limite; });
-      }
-      if (!slots.length) continue;
-      var etiqueta = mayus(d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' }));
-      if (i === 0) etiqueta += ' (hoy)'; else if (i === 1) etiqueta += ' (mañana)';
-      dias.push({ etiqueta: etiqueta, slots: slots });
-    }
-    var selDia = document.getElementById('cita-dia');
-    var selHora = document.getElementById('cita-hora');
-    selDia.innerHTML = dias.map(function (x, i) { return '<option value="' + i + '">' + esc(x.etiqueta) + '</option>'; }).join('');
-    function pintarHoras() {
-      var x = dias[Number(selDia.value) || 0];
-      selHora.innerHTML = x ? x.slots.map(function (m) { return '<option>' + hora(m) + '</option>'; }).join('') : '';
-    }
-    selDia.addEventListener('change', pintarHoras);
-    pintarHoras();
+    var ICONO_PIN = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+    var ICONO_RELOJ = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    var DIAS_C = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+    var MESES_C = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
-    // Horario y ubicación
-    var filas = [1, 2, 3, 4, 5, 6, 0].map(function (n) {
-      var r = rango(C.horario[CLAVES[n]]);
-      return '<tr><td>' + NOMBRES[n] + '</td><td>' + (r ? hora(r[0]) + ' – ' + hora(r[1]) : 'Cerrado') + '</td></tr>';
-    }).join('');
-    document.getElementById('horario').innerHTML = '<table><tbody>' + filas + '</tbody></table>';
+    // Días y horas válidos (se recalculan, así nunca se ofrece una hora que ya pasó)
+    var dias = [], selDia = 0, selHora = null;
+    function calcularDias() {
+      var hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+      var ahora = new Date();
+      var lista = [];
+      for (var i = 0; i < (Number(C.diasAdelante) || 21); i++) {
+        var d = new Date(hoy); d.setDate(hoy.getDate() + i);
+        var r = rango(C.horario[CLAVES[d.getDay()]]);
+        if (!r) continue;
+        var slots = [];
+        for (var t = r[0]; t + paso <= r[1]; t += paso) slots.push(t);
+        if (i === 0) {
+          var limite = ahora.getHours() * 60 + ahora.getMinutes() + 60; // al menos 1 hora de anticipación
+          slots = slots.filter(function (x) { return x >= limite; });
+        }
+        if (!slots.length) continue;
+        var largo = mayus(d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' }));
+        lista.push({ clave: d.toDateString(), largo: largo, corto: i === 0 ? 'Hoy' : i === 1 ? 'Mañana' : mayus(DIAS_C[d.getDay()]), num: d.getDate(), mes: MESES_C[d.getMonth()], slots: slots });
+      }
+      return lista;
+    }
+    var cajaDias = document.getElementById('cita-dias'), cajaHoras = document.getElementById('cita-horas');
+    function pintarCita() {
+      var antes = dias[selDia] && dias[selDia].clave;
+      dias = calcularDias();
+      var j = dias.findIndex(function (x) { return x.clave === antes; });
+      selDia = j >= 0 ? j : 0;
+      cajaDias.innerHTML = dias.map(function (x, i) {
+        return '<button type="button" role="radio" data-dia="' + i + '" aria-checked="' + (i === selDia) + '" aria-label="' + esc(x.largo) + '">' +
+          '<small>' + esc(x.corto) + '</small><strong>' + x.num + '</strong><small>' + esc(x.mes) + '</small></button>';
+      }).join('');
+      pintarHoras();
+    }
+    function pintarHoras() {
+      var x = dias[selDia];
+      if (x && x.slots.indexOf(selHora) < 0) selHora = null;
+      document.getElementById('cita-dia-sel').textContent = x ? '· ' + x.largo : '';
+      cajaHoras.innerHTML = x ? x.slots.map(function (m) {
+        return '<button type="button" role="radio" data-hora="' + m + '" aria-checked="' + (m === selHora) + '">' + hora(m) + '</button>';
+      }).join('') : '<p class="muted">No hay horarios disponibles por ahora.</p>';
+    }
+    cajaDias.addEventListener('click', function (e) {
+      var bt = e.target.closest('button[data-dia]'); if (!bt) return;
+      selDia = Number(bt.getAttribute('data-dia'));
+      cajaDias.querySelectorAll('button').forEach(function (z) { z.setAttribute('aria-checked', String(z === bt)); });
+      pintarHoras();
+    });
+    cajaHoras.addEventListener('click', function (e) {
+      var bt = e.target.closest('button[data-hora]'); if (!bt) return;
+      selHora = Number(bt.getAttribute('data-hora'));
+      cajaHoras.querySelectorAll('button').forEach(function (z) { z.setAttribute('aria-checked', String(z === bt)); });
+      document.getElementById('cita-hora-error').hidden = true;
+      cajaHoras.closest('.campo').classList.remove('con-error');
+    });
+    pintarCita();
+    // si la página se queda abierta, al volver se quitan las horas que ya pasaron
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) pintarCita(); });
+
+    // Horario: una sola línea si todos los días son iguales
+    var abiertos = [1, 2, 3, 4, 5, 6, 0].map(function (n) { return { n: n, r: rango(C.horario[CLAVES[n]]) }; });
+    var iguales = abiertos.every(function (x) { return x.r && abiertos[0].r && x.r[0] === abiertos[0].r[0] && x.r[1] === abiertos[0].r[1]; });
+    document.getElementById('horario').innerHTML = iguales
+      ? '<p class="horario-linea">' + ICONO_RELOJ + '<span><strong>Lunes a domingo</strong> · ' + hora(abiertos[0].r[0]) + ' a ' + hora(abiertos[0].r[1]) + '</span></p>'
+      : '<table><tbody>' + abiertos.map(function (x) {
+          return '<tr><td>' + NOMBRES[x.n] + '</td><td>' + (x.r ? hora(x.r[0]) + ' – ' + hora(x.r[1]) : 'Cerrado') + '</td></tr>';
+        }).join('') + '</tbody></table>';
     var info = document.getElementById('ubicacion-info');
     if (C.direccion) {
       var q = encodeURIComponent(C.direccion);
       var link = C.mapa || ('https://www.google.com/maps/search/?api=1&query=' + q);
-      info.innerHTML = '<p class="dir">' + esc(C.direccion) + '</p>' +
+      var src = 'https://www.google.com/maps?q=' + encodeURIComponent(C.coordenadas || C.direccion) + '&z=17&output=embed';
+      info.innerHTML = '<p class="dir">' + ICONO_PIN + '<span>' + esc(C.direccion) + '</span></p>' +
         (C.referencias ? '<p class="muted">' + esc(C.referencias) + '</p>' : '') +
-        '<iframe title="Mapa de ubicación de ' + esc(D.negocio.nombre) + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=' + encodeURIComponent(C.coordenadas || C.direccion) + '&z=17&output=embed"></iframe>' +
-        '<a class="btn btn-primary btn-mapa" href="' + esc(link) + '" target="_blank" rel="noopener">Cómo llegar</a>';
+        '<a class="btn-mapa" href="' + esc(link) + '" target="_blank" rel="noopener">' + ICONO_PIN + ' Cómo llegar</a>' +
+        '<details class="ver-mapa"><summary>Ver mapa</summary><div class="mapa-caja"></div></details>';
+      var det = info.querySelector('.ver-mapa');
+      // el mapa solo se carga al abrirlo (ahorra datos en celular)
+      det.addEventListener('toggle', function () {
+        var c = det.querySelector('.mapa-caja');
+        if (det.open && !c.firstChild) c.innerHTML = '<iframe title="Mapa de ubicación de ' + esc(D.negocio.nombre) + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="' + esc(src) + '"></iframe>';
+      });
+      if (window.matchMedia && window.matchMedia('(min-width: 860px)').matches) det.open = true;
     } else {
       info.innerHTML = '<p class="muted">Te compartimos la ubicación exacta por WhatsApp al confirmar tu cita. Estamos en ' + esc(D.negocio.ciudad) + '.</p>';
     }
@@ -984,21 +1029,27 @@
       e.preventDefault();
       var nombre = form.elements.nombre;
       var caja = nombre.closest('.campo');
-      if (!nombre.value.trim()) {
-        caja.classList.add('con-error'); caja.querySelector('.msg-error').hidden = false; nombre.setAttribute('aria-invalid', 'true'); nombre.focus(); return;
-      }
-      caja.classList.remove('con-error'); caja.querySelector('.msg-error').hidden = true; nombre.removeAttribute('aria-invalid');
+      var malNombre = !nombre.value.trim();
+      caja.classList.toggle('con-error', malNombre); caja.querySelector('.msg-error').hidden = !malNombre;
+      if (malNombre) nombre.setAttribute('aria-invalid', 'true'); else nombre.removeAttribute('aria-invalid');
+      pintarCita(); // vuelve a validar por si ya pasó la hora elegida
+      var d = dias[selDia];
+      var malHora = !d || selHora == null;
+      document.getElementById('cita-hora-error').hidden = !malHora;
+      cajaHoras.closest('.campo').classList.toggle('con-error', malHora);
+      if (malNombre) { nombre.focus(); return; }
+      if (malHora) { cajaHoras.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
       var que = form.querySelector('input[name="que"]:checked');
-      var d = dias[Number(selDia.value) || 0];
-      var lineas = [
-        '• Nombre: ' + nombre.value.trim(),
-        '• Quiero diseñar: ' + (que ? que.value : ''),
-        '• Día: ' + (d ? d.etiqueta.replace(/ \((hoy|mañana)\)$/, '') : ''),
-        '• Hora: ' + selHora.value
+      var sec = [
+        '👤 *DATOS*\nNombre: ' + nombre.value.trim() + '\nQuiero diseñar: ' + (que ? que.value : ''),
+        '📅 *VISITA SOLICITADA*\nDía: ' + d.largo + '\nHora: ' + hora(selHora)
       ];
-      if (form.elements.modelo.value.trim()) lineas.push('• Modelo que me gustó: ' + form.elements.modelo.value.trim());
-      if (form.elements.notas.value.trim()) lineas.push('• Comentarios: ' + form.elements.notas.value.trim());
-      var mensaje = 'Hola ' + D.negocio.nombre + ', quiero agendar una cita para diseñar en persona:\n\n' + lineas.join('\n') + '\n\n¿Tienen disponibilidad?';
+      var det = [];
+      if (form.elements.modelo.value.trim()) det.push('*Modelo que me gustó:* ' + form.elements.modelo.value.trim());
+      if (form.elements.notas.value.trim()) det.push('*Comentarios:*\n' + form.elements.notas.value.trim());
+      if (det.length) sec.push('📝 *DETALLES*\n' + det.join('\n\n'));
+      sec.push('¿Me confirman si tienen disponibilidad en ese horario?');
+      var mensaje = 'Hola ' + D.negocio.nombre + ', me gustaría agendar una visita para diseñar en persona:\n\n' + sec.join('\n\n');
       window.open(linkWA(mensaje), '_blank', 'noopener');
     });
   })();
