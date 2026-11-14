@@ -59,7 +59,7 @@
     if (burbuja) {
       var nom1 = VENDEDOR.nombre.split(' ')[0];
       var esAsesor = /^asesor\b(?!a)/i.test(VENDEDOR.titulo || '');
-      burbuja.href = linkWA('Hola ' + nom1 + ', quiero información sobre las placas y lápidas de ' + D.negocio.nombre + '.');
+      burbuja.href = 'https://wa.me/' + numeroWA();
       burbuja.innerHTML = '<span class="burbuja-ini" aria-hidden="true">' + esc(nom1.charAt(0).toUpperCase()) + '</span>' +
         '<span class="burbuja-txt"><small>¿Dudas? ' + (esAsesor ? 'Tu asesor' : 'Tu asesora') + '</small><b>Escríbele a ' + esc(nom1) + '</b></span>' +
         '<svg class="burbuja-wa" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18.5l1.2-3.6A8 8 0 1 1 8.6 18.2z"/></svg>';
