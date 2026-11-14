@@ -152,11 +152,11 @@ window.CATALOGO = {
             nosotros: { titulo: "Requiero instalación", aviso: "Precios aplicables en Mérida y zonas cercanas. Comparte tu ubicación para confirmar cobertura y posibles cargos adicionales." }
           },
           opciones: [
-            { texto: "Por mi cuenta · Con orificios", sub: "Para instalar con taquetes y tornillos.", grupo: "yo", costo: 0,
+            { texto: "Con orificios", sub: "Se instala con taquetes y tornillos.\nTiempo: 10–20 minutos.", grupo: "yo", costo: 0, recomendada: true, mensajeCorto: "La instalo yo · Con orificios (taquetes y tornillos)",
               mensajeTexto: "La instalo yo, con orificios (taquetes y tornillos)" },
-            { texto: "Por mi cuenta · Sin orificios", sub: "Para instalar con cemento blanco.", grupo: "yo", costo: 0,
+            { texto: "Sin orificios", sub: "Se instala con cemento blanco.\nTiempo: 10–20 minutos.", grupo: "yo", costo: 0, mensajeCorto: "La instalo yo · Sin orificios (cemento blanco)",
               mensajeTexto: "La instalo yo, sin orificios (cemento blanco)" },
-            { texto: "Con taquetes y tornillos", sub: "Tiempo aproximado: 10–20 minutos.", grupo: "nosotros", costo: 125, confirmarZona: true,
+            { texto: "Con taquetes y tornillos", sub: "Tiempo aproximado: 10–20 minutos.", grupo: "nosotros", costo: 125, recomendada: true, confirmarZona: true,
               mensajeTexto: "Que ustedes la instalen con taquetes y tornillos", resumen: "Instalación con taquetes y tornillos" },
             { texto: "Con cemento blanco", sub: "Tiempo aproximado: 30–40 minutos.", grupo: "nosotros", costo: 150, confirmarZona: true,
               mensajeTexto: "Que ustedes la instalen con cemento blanco", resumen: "Instalación con cemento blanco" }
@@ -279,11 +279,11 @@ window.CATALOGO = {
             nosotros: { titulo: "Requiero instalación", aviso: "Servicio disponible únicamente en cementerios de Mérida y alrededores." }
           },
           opciones: [
-            { texto: "Por mi cuenta · Con orificios", sub: "Para instalar con taquetes y tornillos.", grupo: "yo", costo: 0,
+            { texto: "Con orificios", sub: "Se instala con taquetes y tornillos.\nTiempo: 10–20 minutos.", grupo: "yo", costo: 0, recomendada: true, mensajeCorto: "La instalo yo · Con orificios (taquetes y tornillos)",
               mensajeTexto: "La instalo yo, con orificios (taquetes y tornillos)" },
-            { texto: "Por mi cuenta · Sin orificios", sub: "Para instalar con cemento blanco.", grupo: "yo", costo: 0,
+            { texto: "Sin orificios", sub: "Se instala con cemento blanco.\nTiempo: 10–20 minutos.", grupo: "yo", costo: 0, mensajeCorto: "La instalo yo · Sin orificios (cemento blanco)",
               mensajeTexto: "La instalo yo, sin orificios (cemento blanco)" },
-            { texto: "Con taquetes y tornillos", sub: "Tiempo aproximado: 10–20 minutos.", grupo: "nosotros", costo: 125, confirmarZona: true,
+            { texto: "Con taquetes y tornillos", sub: "Tiempo aproximado: 10–20 minutos.", grupo: "nosotros", costo: 125, recomendada: true, confirmarZona: true,
               mensajeTexto: "Que ustedes la instalen con taquetes y tornillos", resumen: "Instalación con taquetes y tornillos" },
             { texto: "Con cemento blanco", sub: "Tiempo aproximado: 30–40 minutos.", grupo: "nosotros", costo: 150, confirmarZona: true,
               mensajeTexto: "Que ustedes la instalen con cemento blanco", resumen: "Instalación con cemento blanco" }

@@ -155,7 +155,8 @@
   function htmlOpcion(c, o, i) {
     return '<label class="op-card"><input type="radio" name="' + esc(c.id) + '" value="' + i + '"' + (i === 0 ? ' checked' : '') + '>' +
       '<span class="op-marca" aria-hidden="true"></span>' +
-      '<span class="op-txt"><strong>' + esc(o.texto) + '</strong>' + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + '</span>' +
+      '<span class="op-txt"><strong>' + esc(o.texto) + (o.recomendada ? ' <em class="op-reco">Recomendada</em>' : '') + '</strong>' +
+      (o.sub ? '<small>' + esc(o.sub).replace(/\n/g, '<br>') + '</small>' : '') + '</span>' +
       (o.costo ? '<span class="op-precio">+' + dinero(o.costo) + '</span>' : '') + '</label>';
   }
   function textoMsg(o) { return o.mensajeTexto || o.texto; }
@@ -496,7 +497,7 @@
     var inst = opcion.instalacion, pideInst = !!(inst && inst.confirmarZona), envio = !!(opcion.entrega && opcion.entrega.cotizar);
     if (inst) {
       var txtInst = inst.grupo === 'yo'
-        ? 'La instalo yo · ' + inst.texto.replace(/^Por mi cuenta\s*·\s*/, '') + (inst.sub ? ' (' + sinPunto(inst.sub).replace(/^Para instalar con\s*/i, 'para ') + ')' : '')
+        ? (inst.mensajeCorto || 'La instalo yo · ' + inst.texto)
         : inst.texto + (inst.costo ? ' · +' + dinero(inst.costo) : '');
       var ubic = bloqueCampos(ids('instalacion').filter(function (id) { return id !== 'instalacion'; }));
       sec.push('🔧 *INSTALACIÓN*\n' + txtInst + (ubic ? '\n\n' + ubic : ''));
@@ -738,7 +739,7 @@
       var inst = opcion.instalacion, pideInst = !!(inst && inst.confirmarZona), envio = !!(opcion.entrega && opcion.entrega.cotizar);
       if (inst) {
         var txtInst = inst.grupo === 'yo'
-          ? 'La instalo yo · ' + inst.texto.replace(/^Por mi cuenta\s*·\s*/, '') + (inst.sub ? ' (' + sinPunto(inst.sub).replace(/^Para instalar con\s*/i, 'para ') + ')' : '')
+          ? (inst.mensajeCorto || 'La instalo yo · ' + inst.texto)
           : inst.texto + (inst.costo ? ' · +' + dinero(inst.costo) : '');
         sec.push('🔧 *INSTALACIÓN*\n' + txtInst + dir('domicilio') + dir('cementerio'));
       }

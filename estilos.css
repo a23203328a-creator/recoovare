@@ -373,3 +373,4 @@ body.modo-pedido main { display: none; }
   .op-card { padding: 11px 12px; gap: 10px; }
   .op-txt strong { font-size: 14px; }
 }
+.op-reco { display: inline-block; vertical-align: 1px; margin-left: 4px; font-style: normal; font-size: 11px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: #fff; background: var(--salvia); padding: 2px 8px; border-radius: 999px; }
