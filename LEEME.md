@@ -165,6 +165,30 @@ Entra a **https://recoovare.pages.dev/pedidos/** (privado, no aparece en el men�
 
 ---
 
+## Agenda (ESSENTIA y RECOOVARE)
+
+Entra a **https://recoovare.pages.dev/pedidos/agenda/** (privada, con el mismo inicio de sesión que Pedidos). También hay un botón "Agenda" en Pedidos.
+
+- Una sola agenda para los dos negocios: **Cita RECOOVARE** (cliente viene al local a diseñar), **Entrega RECOOVARE** (entrega o instalación de un pedido), **ESSENTIA** (entrega a domicilio o visita al local) y **Ocupado** (para bloquear un horario).
+- Si algo choca o queda muy pegado a otra cosa en otro lugar, te avisa. El tiempo de traslado se cambia abajo a la derecha (30 min de inicio).
+- **Horarios libres para citas**: con el horario de citas de `datos.js` (sección `cita`) te dice qué huecos tienes ese día. "Copiar" o "Mandar por WhatsApp" para pasárselo a tus asesoras.
+- **Pedidos sin fecha en la agenda**: los pedidos activos que aún no tienen entrega agendada. Al agendar uno, su fecha de entrega, forma de entrega y ubicación se actualizan en Pedidos. Al marcar la entrega como hecha te pregunta si también lo marcas como Entregado.
+- "Confirmar por WhatsApp" abre el chat del cliente con el mensaje de confirmación ya escrito.
+
+---
+
+## Gastos de ESSENTIA
+
+Entra a **https://recoovare.pages.dev/pedidos/gastos/** (privada). Reemplaza la hoja de Excel de gastos.
+
+- "+ Anotar gasto": monto, concepto, categoría, de qué negocio es (ESSENTIA o RECOOVARE), con qué pagaste y la fecha. Si escribes un concepto que ya usaste, propone la misma categoría y forma de pago.
+- Arriba ves el mes: total, compra de perfumes (inventario), operación de ESSENTIA y lo que pagaste para RECOOVARE.
+- **Utilidad del mes**: escribe la ganancia de Shopify (que ya descuenta el costo por artículo) y se le resta solo la operación. La compra de perfumes no se resta otra vez.
+- Toca un gasto para editarlo o borrarlo. Abajo puedes descargar el mes o todo para Excel.
+- Ya trae cargados los 11 gastos del 9 al 12 de noviembre de 2026 que tenías en el Excel.
+
+---
+
 ## Asesores de ventas
 
 - Cada asesor tiene su link corto: `recoovare.pages.dev/CODIGO` (ej. `recoovare.pages.dev/soemy`). Cada link corto es una carpeta con su `index.html` (copia la carpeta `soemy`, renómbrala con el código nuevo y cambia `soemy` por el código dentro del archivo). Ahí los pedidos, "¿Ya tienes tu diseño?" y las citas llegan a SU WhatsApp, con su nombre al final del mensaje. Arriba sale "Te atiende …".

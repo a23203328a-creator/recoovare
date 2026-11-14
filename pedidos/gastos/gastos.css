@@ -1,0 +1,60 @@
+/* Gastos ESSENTIA: negro y azul */
+:root { --acento: var(--essentia); }
+.barra { border-bottom: 3px solid var(--essentia); }
+.marca { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 24px; letter-spacing: .01em; }
+input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 3px rgba(37,99,235,.18); }
+
+.cabeza { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.mes-nav { display: flex; align-items: center; gap: 8px; }
+.mes-nav h2 { font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 700; min-width: 9ch; text-align: center; text-transform: capitalize; }
+.btn-flecha { min-width: 44px; padding: 0; font-size: 22px; line-height: 1; }
+.btn-grande { min-height: 50px; font-size: 16px; padding: 10px 22px; }
+@media (max-width: 560px) { .cabeza .btn-grande { width: 100%; } .mes-nav { width: 100%; justify-content: space-between; } }
+.lead { margin: 0; font-size: 16px; line-height: 1.55; max-width: 70ch; }
+.lead b { font-variant-numeric: tabular-nums; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.kpi { background: #fff; border: 1px solid var(--borde); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.kpi span { font-size: 13px; font-weight: 700; color: var(--suave); }
+.kpi strong { font-size: 26px; font-weight: 800; color: var(--tinta); font-variant-numeric: tabular-nums; }
+.kpi small { font-size: 12px; color: var(--suave); }
+.kpi-main { background: var(--tinta); border-color: var(--tinta); }
+.kpi-main span, .kpi-main small { color: #AEB4C0; }
+.kpi-main strong { color: #fff; }
+
+.dos { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start; }
+
+.utilidad .cuenta { display: flex; flex-direction: column; gap: 6px; font-variant-numeric: tabular-nums; }
+.cuenta .r { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; }
+.cuenta .r.menos span:last-child { color: var(--alerta); }
+.cuenta .r.total { border-top: 1px solid var(--borde); padding-top: 8px; font-weight: 800; font-size: 18px; }
+.cuenta .r.total.pos span:last-child { color: var(--ok); }
+.cuenta .r.total.neg span:last-child { color: var(--alerta); }
+.cuenta .r.aparte { color: var(--suave); font-size: 13px; }
+
+.barras { display: flex; flex-direction: column; gap: 12px; }
+.barra-f { display: flex; flex-direction: column; gap: 5px; }
+.barra-f .top { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+.barra-f .top span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barra-f .top b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.barra-f .pista { height: 10px; background: #EEF0F4; border-radius: 6px; overflow: hidden; }
+.barra-f .llena { height: 100%; background: var(--essentia); border-radius: 6px; }
+.barra-f.rec .llena { background: var(--recoovare); }
+.barra-f small { font-size: 12px; color: var(--suave); font-variant-numeric: tabular-nums; }
+
+.lista { display: flex; flex-direction: column; gap: 14px; }
+.dia-g h3 { font-size: 13px; font-weight: 700; color: var(--suave); display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.dia-g h3 b { color: var(--texto); font-variant-numeric: tabular-nums; }
+.dia-g ul { list-style: none; margin: 0; padding: 0; border: 1px solid var(--borde); border-radius: 12px; overflow: hidden; }
+.gasto { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-top: 1px solid var(--borde); cursor: pointer; background: #fff; width: 100%; font: inherit; text-align: left; color: inherit; border-left: 0; border-right: 0; border-bottom: 0; }
+.dia-g li:first-child .gasto { border-top: 0; }
+.gasto:hover { background: #F8F9FB; }
+.gasto .g-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.gasto .g-txt b { font-size: 15px; }
+.gasto .g-txt small { color: var(--suave); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gasto .g-monto { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pie-lista { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.monto { font-size: 26px; font-weight: 800; min-height: 56px; }
+.grupo-op { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.grupo-op legend { margin-bottom: 8px; padding: 0; }

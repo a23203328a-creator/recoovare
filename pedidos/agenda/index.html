@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Agenda – ESSENTIA y RECOOVARE</title>
+<link rel="icon" href="../../fotos/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="../panel.css?v=1">
+<link rel="stylesheet" href="agenda.css?v=1">
+</head>
+<body>
+
+<header class="barra">
+  <div class="barra-in">
+    <h1><small>ESSENTIA · RECOOVARE</small>Agenda</h1>
+    <nav class="barra-links" aria-label="Secciones">
+      <a href="./" aria-current="page">Agenda</a>
+      <a href="../">Pedidos</a>
+      <a href="../gastos/">Gastos ESSENTIA</a>
+    </nav>
+  </div>
+</header>
+
+<main class="contenedor">
+  <section class="panel semana" aria-label="Semana">
+    <div class="semana-cab">
+      <button type="button" class="btn btn-claro btn-flecha" id="sem-ant" aria-label="Semana anterior">‹</button>
+      <h2 id="sem-titulo">—</h2>
+      <button type="button" class="btn btn-claro btn-flecha" id="sem-sig" aria-label="Semana siguiente">›</button>
+      <button type="button" class="btn btn-claro btn-mini" id="btn-hoy">Hoy</button>
+    </div>
+    <div class="dias" id="dias" role="tablist" aria-label="Días de la semana"></div>
+    <div class="leyenda" aria-hidden="true">
+      <span><i class="pt pt-r"></i>RECOOVARE</span><span><i class="pt pt-e"></i>ESSENTIA</span><span><i class="pt pt-o"></i>Ocupado</span>
+    </div>
+  </section>
+
+  <div class="columnas">
+    <section class="panel" id="panel-dia" aria-labelledby="dia-titulo">
+      <div class="panel-cab">
+        <h2 id="dia-titulo">—</h2>
+        <button type="button" class="btn btn-principal" id="btn-nuevo">+ Agendar</button>
+      </div>
+      <ul class="eventos" id="eventos"></ul>
+      <p class="vacio" id="dia-vacio" hidden>Nada agendado este día.</p>
+    </section>
+
+    <aside class="lateral">
+      <section class="panel" id="panel-libres" aria-labelledby="libres-titulo">
+        <div class="panel-cab"><h2 id="libres-titulo">Horarios libres para citas</h2></div>
+        <p class="ayuda" id="libres-ayuda"></p>
+        <ul class="libres" id="libres"></ul>
+        <div class="libres-acciones">
+          <button type="button" class="btn btn-claro btn-mini" id="libres-copiar">Copiar</button>
+          <a class="btn btn-verde btn-mini" id="libres-wa" href="#" target="_blank" rel="noopener">Mandar por WhatsApp</a>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-pendientes" aria-labelledby="pend-titulo">
+        <div class="panel-cab"><h2 id="pend-titulo">Pedidos sin fecha en la agenda</h2></div>
+        <p class="ayuda">Pedidos de RECOOVARE activos que todavía no tienen entrega o instalación agendada.</p>
+        <ul class="pendientes" id="pendientes"></ul>
+        <p class="vacio" id="pend-vacio" hidden>Todos los pedidos activos ya están agendados.</p>
+      </section>
+
+      <section class="panel">
+        <div class="campo">
+          <label for="margen">Tiempo de traslado entre lugares</label>
+          <select id="margen">
+            <option value="0">Sin margen</option>
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="45">45 min</option>
+            <option value="60">1 hora</option>
+          </select>
+        </div>
+        <p class="ayuda">Se usa para avisarte si dos cosas en lugares distintos quedan muy pegadas, y para calcular tus horarios libres.</p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<!-- ============ AGENDAR / EDITAR ============ -->
+<div class="modal" id="modal" hidden>
+  <form class="modal-caja" id="form" role="dialog" aria-modal="true" aria-labelledby="m-titulo" novalidate>
+    <div class="modal-cab">
+      <h2 id="m-titulo">Agendar</h2>
+      <button type="button" class="btn btn-claro btn-mini" id="m-cerrar">Cerrar</button>
+    </div>
+
+    <fieldset class="tipos">
+      <legend class="label">¿Qué vas a agendar?</legend>
+      <label class="tipo t-r"><input type="radio" name="tipo" value="cita_r"><span><b>Cita RECOOVARE</b><small>Cliente viene al local a diseñar</small></span></label>
+      <label class="tipo t-r"><input type="radio" name="tipo" value="entrega_r"><span><b>Entrega RECOOVARE</b><small>Entrega o instalación de un pedido</small></span></label>
+      <label class="tipo t-e"><input type="radio" name="tipo" value="essentia"><span><b>ESSENTIA</b><small>Entrega a domicilio o visita al local</small></span></label>
+      <label class="tipo t-o"><input type="radio" name="tipo" value="ocupado"><span><b>Ocupado</b><small>Bloquear un horario</small></span></label>
+    </fieldset>
+
+    <div class="fila">
+      <div class="campo"><label for="m-fecha">Fecha</label><input id="m-fecha" type="date" required></div>
+      <div class="campo"><label for="m-hora">Hora</label><input id="m-hora" type="time" step="300" required></div>
+      <div class="campo"><label for="m-dur">Duración</label>
+        <select id="m-dur"><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">1 hora</option><option value="90">1 h 30 min</option><option value="120">2 horas</option><option value="180">3 horas</option></select>
+      </div>
+    </div>
+
+    <!-- Entrega RECOOVARE: pedido -->
+    <div class="grupo" data-para="entrega_r">
+      <div class="campo"><label for="m-pedido">Pedido</label><select id="m-pedido"></select></div>
+      <div class="pedido-info" id="m-pedido-info"></div>
+      <div class="campo"><label for="m-metodo">Cómo se entrega</label>
+        <select id="m-metodo"><option value="recoge">Recoge en el local</option><option value="envio">Envío a domicilio</option><option value="instalacion">Instalación</option></select>
+      </div>
+    </div>
+
+    <!-- ESSENTIA: modalidad -->
+    <div class="grupo" data-para="essentia">
+      <div class="opciones" role="radiogroup" aria-label="Tipo de cita ESSENTIA">
+        <label><input type="radio" name="modo-e" value="domicilio" checked><span>Entrega a domicilio</span></label>
+        <label><input type="radio" name="modo-e" value="local"><span>Visita al local</span></label>
+      </div>
+    </div>
+
+    <!-- Cita RECOOVARE -->
+    <div class="grupo" data-para="cita_r">
+      <div class="fila">
+        <div class="campo"><label for="m-motivo">Motivo</label>
+          <select id="m-motivo"><option>Diseñar placa</option><option>Diseñar lápida</option><option>Revisar boceto</option><option>Recoger pedido</option><option>Otro</option></select>
+        </div>
+        <div class="campo"><label for="m-asesor">La consiguió</label><select id="m-asesor"></select></div>
+      </div>
+    </div>
+
+    <div class="grupo" data-para="cita_r essentia">
+      <div class="fila">
+        <div class="campo"><label for="m-cliente">Cliente</label><input id="m-cliente" autocomplete="off"></div>
+        <div class="campo"><label for="m-tel">WhatsApp</label><input id="m-tel" type="tel" inputmode="tel" autocomplete="off" placeholder="999 123 4567"></div>
+      </div>
+    </div>
+
+    <div class="grupo" data-para="essentia">
+      <div class="campo"><label for="m-detalle">Qué se entrega</label><input id="m-detalle" autocomplete="off" placeholder="Ej. Lattafa Asad 100 ml + decant 5 ml"></div>
+      <div class="campo"><label for="m-cobrar">Por cobrar al entregar ($)</label><input id="m-cobrar" type="number" min="0" step="1" inputmode="decimal" placeholder="0 si ya pagó"></div>
+    </div>
+
+    <div class="grupo" data-para="essentia-dom entrega_r-dom">
+      <div class="campo"><label for="m-lugar">Dirección o link de ubicación</label><input id="m-lugar" autocomplete="off" placeholder="Calle, colonia o link de Google Maps"></div>
+    </div>
+
+    <div class="grupo" data-para="ocupado">
+      <div class="campo"><label for="m-razon">¿Qué es?</label><input id="m-razon" autocomplete="off" placeholder="Ej. Comprar material, personal"></div>
+    </div>
+
+    <div class="campo"><label for="m-notas">Notas</label><textarea id="m-notas"></textarea></div>
+
+    <div id="m-avisos" class="m-avisos" aria-live="polite"></div>
+
+    <div class="modal-acciones">
+      <button type="button" class="btn btn-rojo" id="m-borrar">Borrar</button>
+      <div class="der"><button type="submit" class="btn btn-principal" id="m-guardar">Guardar</button></div>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="../../datos.js?v=202611141105"></script>
+<script src="../nube.js?v=2"></script>
+<script>RecoovareNube.iniciar(['agenda.js?v=1']);</script>
+</body>
+</html>

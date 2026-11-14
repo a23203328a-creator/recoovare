@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Gastos – ESSENTIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap">
+<link rel="stylesheet" href="../panel.css?v=1">
+<link rel="stylesheet" href="gastos.css?v=1">
+</head>
+<body>
+
+<header class="barra">
+  <div class="barra-in">
+    <h1><small>ESSENTIA</small><span class="marca">Gastos</span></h1>
+    <nav class="barra-links" aria-label="Secciones">
+      <a href="../agenda/">Agenda</a>
+      <a href="../">Pedidos</a>
+      <a href="./" aria-current="page">Gastos ESSENTIA</a>
+    </nav>
+  </div>
+</header>
+
+<main class="contenedor">
+  <div class="cabeza">
+    <div class="mes-nav">
+      <button type="button" class="btn btn-claro btn-flecha" id="mes-ant" aria-label="Mes anterior">‹</button>
+      <h2 id="mes-titulo">—</h2>
+      <button type="button" class="btn btn-claro btn-flecha" id="mes-sig" aria-label="Mes siguiente">›</button>
+    </div>
+    <button type="button" class="btn btn-principal btn-grande" id="btn-nuevo">+ Anotar gasto</button>
+  </div>
+
+  <p class="lead" id="lead"></p>
+
+  <section class="kpis" aria-label="Resumen del mes">
+    <div class="kpi kpi-main"><span>Total gastado</span><strong id="k-total">—</strong><small id="k-n">—</small></div>
+    <div class="kpi"><span>Compra de perfumes</span><strong id="k-perf">—</strong><small>Inventario: lo recuperas al vender</small></div>
+    <div class="kpi"><span>Operación de ESSENTIA</span><strong id="k-op">—</strong><small>Lo que se resta a tu ganancia</small></div>
+    <div class="kpi"><span>Pagado para RECOOVARE</span><strong id="k-rec">—</strong><small>Inversión en el otro negocio</small></div>
+  </section>
+
+  <div class="dos">
+    <section class="panel utilidad" aria-labelledby="u-titulo">
+      <h2 id="u-titulo">Utilidad del mes</h2>
+      <div class="campo">
+        <label for="u-ganancia">Ganancia de Shopify en <span id="u-mes">este mes</span> ($)</label>
+        <input id="u-ganancia" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ventas menos costo por artículo">
+      </div>
+      <div class="cuenta" id="u-cuenta" aria-live="polite"></div>
+      <p class="ayuda">Usa la ganancia que ya descuenta el costo por artículo. Por eso aquí solo se resta la operación: la compra de perfumes ya va dentro de ese costo, y lo de RECOOVARE va aparte.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="c-titulo">
+      <h2 id="c-titulo">¿En qué se va el dinero?</h2>
+      <div class="barras" id="g-cat"></div>
+    </section>
+  </div>
+
+  <div class="dos">
+    <section class="panel" aria-labelledby="s-titulo">
+      <h2 id="s-titulo">Por semana</h2>
+      <div class="barras" id="g-sem"></div>
+    </section>
+    <section class="panel" aria-labelledby="p-titulo">
+      <h2 id="p-titulo">¿Con qué pagaste?</h2>
+      <div class="barras" id="g-pago"></div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="l-titulo">
+    <div class="panel-cab">
+      <h2 id="l-titulo">Gastos del mes</h2>
+      <div class="opciones" role="radiogroup" aria-label="Filtrar por negocio">
+        <label><input type="radio" name="filtro" value="todos" checked><span>Todos</span></label>
+        <label><input type="radio" name="filtro" value="ESSENTIA"><span>ESSENTIA</span></label>
+        <label><input type="radio" name="filtro" value="RECOOVARE"><span>RECOOVARE</span></label>
+      </div>
+    </div>
+    <div class="lista" id="lista"></div>
+    <p class="vacio" id="vacio" hidden>No hay gastos en este mes.</p>
+    <div class="pie-lista">
+      <button type="button" class="btn btn-claro btn-mini" id="csv-mes">Descargar el mes para Excel</button>
+      <button type="button" class="btn btn-claro btn-mini" id="csv-todo">Descargar todo para Excel</button>
+    </div>
+  </section>
+</main>
+
+<!-- ============ ANOTAR / EDITAR ============ -->
+<div class="modal" id="modal" hidden>
+  <form class="modal-caja" id="form" role="dialog" aria-modal="true" aria-labelledby="m-titulo" novalidate>
+    <div class="modal-cab">
+      <h2 id="m-titulo">Anotar gasto</h2>
+      <button type="button" class="btn btn-claro btn-mini" id="m-cerrar">Cerrar</button>
+    </div>
+    <div class="campo"><label for="m-monto">Monto ($)</label><input id="m-monto" class="monto" type="number" min="0" step="0.01" inputmode="decimal" required></div>
+    <div class="campo"><label for="m-concepto">Concepto</label><input id="m-concepto" list="conceptos" autocomplete="off" placeholder="Ej. Mercado Libre, Bolsitas, Gasolina" required><datalist id="conceptos"></datalist></div>
+    <fieldset class="grupo-op"><legend class="label">Categoría</legend><div class="opciones" id="m-cats"></div>
+      <input id="m-cat-otra" hidden placeholder="Nombre de la categoría" aria-label="Nombre de la otra categoría"></fieldset>
+    <fieldset class="grupo-op"><legend class="label">Es de</legend><div class="opciones">
+      <label><input type="radio" name="negocio" value="ESSENTIA" checked><span>ESSENTIA</span></label>
+      <label><input type="radio" name="negocio" value="RECOOVARE"><span>RECOOVARE</span></label>
+    </div></fieldset>
+    <fieldset class="grupo-op"><legend class="label">Pagado con</legend><div class="opciones" id="m-pagos"></div></fieldset>
+    <div class="fila">
+      <div class="campo"><label for="m-fecha">Fecha</label><input id="m-fecha" type="date" required></div>
+      <div class="campo"><label for="m-notas">Notas</label><input id="m-notas" autocomplete="off" placeholder="Opcional"></div>
+    </div>
+    <div class="modal-acciones">
+      <button type="button" class="btn btn-rojo" id="m-borrar">Borrar</button>
+      <div class="der"><button type="submit" class="btn btn-principal">Guardar gasto</button></div>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="../nube.js?v=2"></script>
+<script>RecoovareNube.iniciar(['gastos.js?v=1']);</script>
+</body>
+</html>

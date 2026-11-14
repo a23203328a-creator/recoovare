@@ -1,11 +1,11 @@
 /* =====================================================================
-   Guardado en línea (Cloudflare) para Pedidos y Notas.
+   Guardado en línea (Cloudflare) para Pedidos, Notas, Agenda y Gastos.
    - Al abrir: trae los datos de internet y los pone en este navegador.
    - Al guardar: sube solo lo que cambió (unos segundos después).
    - Sin internet: sigue funcionando aquí y sube los cambios al regresar.
    ===================================================================== */
 (function () {
-  var SYNC = ['recoovare_pedidos', 'recoovare_folio_pedidos', 'recoovare_pedidos_ignorados', 'recoovare_config_pedidos', 'recoovare_pedidos_init', 'recoovare_notas', 'recoovare_folio'];
+  var SYNC = ['recoovare_pedidos', 'recoovare_folio_pedidos', 'recoovare_pedidos_ignorados', 'recoovare_config_pedidos', 'recoovare_pedidos_init', 'recoovare_notas', 'recoovare_folio', 'recoovare_agenda', 'essentia_gastos', 'essentia_ganancias'];
   var KB = 'recoovare_nube_base', KP = 'recoovare_nube_pendiente', KIP = 'recoovare_nube_imgs_pendientes', KIS = 'recoovare_nube_imgs_subidas';
   var API = '/api';
   var origSet = Storage.prototype.setItem;
