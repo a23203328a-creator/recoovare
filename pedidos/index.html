@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="pedidos.css">
+<link rel="stylesheet" href="pedidos.css?v=3">
 </head>
 <body>
 
@@ -20,64 +20,130 @@
     <nav class="barra-acciones" aria-label="Acciones">
       <a class="btn btn-claro" href="../notas/">Notas de venta</a>
       <button type="button" class="btn btn-claro" id="btn-datos">Respaldo y Excel</button>
-      <button type="button" class="btn btn-cafe" id="btn-nuevo">Nuevo pedido</button>
+      <button type="button" class="btn btn-cafe" id="btn-nuevo">+ Nuevo pedido</button>
     </nav>
+  </div>
+  <div class="vistas-in" role="tablist" aria-label="Vistas">
+    <button type="button" role="tab" class="vista-tab" data-vista="pedidos" aria-selected="true">Pedidos</button>
+    <button type="button" role="tab" class="vista-tab" data-vista="reparto" aria-selected="false">Reparto y comisiones</button>
   </div>
 </header>
 
 <main class="contenedor">
-  <section class="kpis" id="kpis" aria-label="Resumen"></section>
+  <!-- ============ VISTA: PEDIDOS ============ -->
+  <div id="vista-pedidos" class="vista">
+    <section class="kpis" id="kpis" aria-label="Pendientes al día de hoy"></section>
+    <p class="nota-kpi">Cifras al día de hoy. Toca una tarjeta para ver esos pedidos.</p>
 
-  <details class="panel asesores" id="asesores">
-    <summary><h2>Asesores de ventas</h2><span class="sub" id="asesores-sub"></span></summary>
-    <div class="tabla-caja"><table class="tabla tabla-chica">
-      <thead><tr><th scope="col">Asesor</th><th scope="col">Su link</th><th scope="col" class="num">Pedidos</th><th scope="col" class="num">Ventas (producto)</th><th scope="col" class="num">Comisión</th><th scope="col" class="num">Pagada</th><th scope="col" class="num">Por pagar</th></tr></thead>
-      <tbody id="asesores-tbody"></tbody>
-    </table></div>
-    <p class="ayuda">Comparte a cada asesor su link. Los pedidos y citas de ese link le llegan a su WhatsApp. Para cambiar asesores o comisiones edita datos.js.</p>
-  </details>
-
-  <section class="panel">
-    <div class="filtros">
-      <div class="campo buscar"><label for="buscar">Buscar</label><input id="buscar" type="search" placeholder="Folio, cliente, producto o teléfono" autocomplete="off"></div>
-      <div class="campo"><label for="f-periodo">Periodo</label>
-        <select id="f-periodo"><option value="todos">Todos</option><option value="este">Este mes</option><option value="pasado">Mes pasado</option></select>
-      </div>
-      <div class="campo"><label for="f-mama">Pago de mi mamá</label>
-        <select id="f-mama"><option value="todos">Todos</option><option value="debe">Me debe</option><option value="pagado">Ya me pagó</option></select>
-      </div>
-      <div class="regla">
-        <span class="label">Mi parte se calcula como</span>
-        <div class="regla-in">
-          <select id="cfg-modo" aria-label="Tipo de cálculo"><option value="porcentaje">% del precio</option><option value="fijo">Monto fijo</option></select>
-          <input id="cfg-valor" type="number" min="0" step="1" aria-label="Valor">
-          <span id="cfg-unidad">%</span>
+    <section class="panel">
+      <div class="filtros">
+        <div class="campo buscar"><label for="buscar">Buscar</label><input id="buscar" type="search" placeholder="Folio, cliente, producto o teléfono" autocomplete="off"></div>
+        <div class="campo"><label for="f-orden">Ordenar por</label>
+          <select id="f-orden"><option value="entrega">Fecha de entrega (próximas primero)</option><option value="recientes">Más recientes</option></select>
         </div>
       </div>
-    </div>
-    <div class="chips" role="group" aria-label="Estado del pedido" id="chips-estado"></div>
-    <p class="regla-txt" id="regla-txt"></p>
+      <div class="chips" role="group" aria-label="Estado del pedido" id="chips-estado"></div>
+      <p class="filtro-activo" id="filtro-activo" hidden></p>
 
-    <div class="tabla-caja">
-      <table class="tabla" id="tabla">
-        <thead>
-          <tr>
-            <th scope="col">Folio</th><th scope="col">Fecha</th><th scope="col">Cliente</th><th scope="col">Producto</th>
-            <th scope="col">Estado del pedido</th><th scope="col">Pago del cliente</th>
-            <th scope="col" class="num">Total</th><th scope="col" class="num">Saldo cliente</th>
-            <th scope="col" class="num">Mi parte</th><th scope="col">¿Me pagó mi mamá?</th><th scope="col" class="num">Me debe</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-    <ul class="tarjetas" id="tarjetas"></ul>
-    <p class="vacio" id="vacio" hidden>No hay pedidos con estos filtros.</p>
-  </section>
-  <p class="ayuda pie">Los pedidos se guardan en este navegador y dispositivo. Descarga un respaldo de vez en cuando en "Respaldo y Excel".</p>
+      <div class="tabla-caja">
+        <table class="tabla" id="tabla">
+          <thead>
+            <tr>
+              <th scope="col">Folio</th><th scope="col">Cliente</th><th scope="col">Producto y medida</th>
+              <th scope="col">Estado</th><th scope="col">Entrega</th><th scope="col">Pago</th>
+              <th scope="col" class="num">Saldo</th><th scope="col"><span class="sr">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <ul class="tarjetas" id="tarjetas"></ul>
+      <p class="vacio" id="vacio" hidden>No hay pedidos con estos filtros.</p>
+    </section>
+  </div>
+
+  <!-- ============ VISTA: REPARTO Y COMISIONES ============ -->
+  <div id="vista-reparto" class="vista" hidden>
+    <section class="panel periodo-panel">
+      <div class="campo"><label for="r-periodo">Periodo</label>
+        <select id="r-periodo"><option value="este">Este mes</option><option value="pasado">Mes pasado</option><option value="anio">Este año</option><option value="todos">Todo el historial</option></select>
+      </div>
+      <p class="ayuda">Ventas, cobrado y mi parte cambian con el periodo. Lo que se debe siempre es de todo el historial.</p>
+    </section>
+    <section class="kpis" id="r-kpis" aria-label="Resumen del reparto"></section>
+
+    <section class="panel">
+      <div class="panel-cab"><h2>Configuración de reparto</h2><button type="button" class="btn btn-claro btn-mini" id="r-cambiar">Cambiar regla</button></div>
+      <p class="regla-txt" id="regla-txt"></p>
+      <div class="regla-form" id="regla-form" hidden>
+        <div class="fila-3">
+          <div class="campo"><label for="cfg-modo">Mi parte se calcula como</label><select id="cfg-modo"><option value="porcentaje">% del precio del producto</option><option value="fijo">Monto fijo por pedido</option></select></div>
+          <div class="campo"><label for="cfg-valor" id="cfg-unidad">Porcentaje (%)</label><input id="cfg-valor" type="number" min="0" step="1"></div>
+        </div>
+        <fieldset class="aplicar">
+          <legend>¿A qué pedidos se aplica?</legend>
+          <label class="check"><input type="radio" name="aplicar" value="nuevos" checked> <span>Solo a pedidos nuevos (los anteriores conservan su regla)</span></label>
+          <label class="check"><input type="radio" name="aplicar" value="todos"> <span>También a todos los pedidos anteriores</span></label>
+        </fieldset>
+        <div class="fila-botones"><button type="button" class="btn btn-claro" id="r-cancelar">Cancelar</button><button type="button" class="btn btn-cafe" id="r-guardar">Guardar regla</button></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-cab"><h2>Mi parte por pedido</h2>
+        <div class="campo campo-linea"><label for="f-mama">Mostrar</label>
+          <select id="f-mama"><option value="todos">Todos</option><option value="debe">Mi mamá me debe</option><option value="pagado">Ya me pagó</option></select>
+        </div>
+      </div>
+      <div class="tabla-caja">
+        <table class="tabla tabla-reparto">
+          <thead><tr><th scope="col">Folio</th><th scope="col">Fecha</th><th scope="col">Cliente</th><th scope="col" class="num">Precio producto</th><th scope="col" class="num">Comisión</th><th scope="col" class="num">Mi parte</th><th scope="col">Regla</th><th scope="col">Pago de mi mamá</th><th scope="col" class="num">Me debe</th></tr></thead>
+          <tbody id="r-tbody"></tbody>
+        </table>
+      </div>
+      <ul class="tarjetas" id="r-tarjetas"></ul>
+      <p class="vacio" id="r-vacio" hidden>No hay pedidos en este periodo.</p>
+    </section>
+
+    <section class="panel" id="asesores">
+      <div class="panel-cab"><h2>Asesores de ventas</h2><span class="sub" id="asesores-sub"></span></div>
+      <div class="tabla-caja"><table class="tabla tabla-chica">
+        <thead><tr><th scope="col">Asesor</th><th scope="col">Su link</th><th scope="col" class="num">Pedidos</th><th scope="col" class="num">Ventas (producto)</th><th scope="col" class="num">Comisión</th><th scope="col" class="num">Pagada</th><th scope="col" class="num">Por pagar</th></tr></thead>
+        <tbody id="asesores-tbody"></tbody>
+      </table></div>
+      <p class="ayuda">Pedidos, ventas y comisiones son del periodo elegido. Comparte a cada asesor su link; para cambiar asesores o comisiones edita datos.js.</p>
+    </section>
+  </div>
+
+  <p class="ayuda pie">Los pedidos se guardan en este navegador y dispositivo. Descarga un respaldo de vez en cuando en “Respaldo y Excel”.</p>
 </main>
 
-<!-- Editor de pedido -->
+<!-- ============ FICHA DEL PEDIDO ============ -->
+<div class="modal" id="modal-ficha" hidden>
+  <div class="modal-caja" role="dialog" aria-modal="true" aria-labelledby="f-titulo">
+    <div class="modal-cabecera">
+      <div><h2 id="f-titulo">Pedido</h2><div class="f-etiquetas" id="f-etiquetas"></div></div>
+      <button type="button" class="btn btn-claro" id="f-cerrar">Cerrar</button>
+    </div>
+    <div class="f-acciones">
+      <button type="button" class="btn btn-cafe" id="f-editar">Editar pedido</button>
+      <button type="button" class="btn btn-claro" id="f-abono-btn">Registrar abono</button>
+      <a class="btn btn-claro" id="f-nota" href="#">Ver nota</a>
+      <a class="btn btn-verde" id="f-wa" href="#" target="_blank" rel="noopener">Abrir WhatsApp</a>
+    </div>
+    <div class="f-abono" id="f-abono" hidden>
+      <div class="campo"><label for="ab-concepto">Concepto</label><select id="ab-concepto"><option>Abono</option><option>Anticipo</option><option>Liquidación</option></select></div>
+      <div class="campo"><label for="ab-monto">Monto ($)</label><input id="ab-monto" type="number" min="0" step="1" inputmode="decimal"></div>
+      <div class="campo"><label for="ab-metodo">Forma de pago</label><select id="ab-metodo"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></div>
+      <div class="campo"><label for="ab-fecha">Fecha</label><input id="ab-fecha" type="date"></div>
+      <button type="button" class="btn btn-cafe" id="ab-guardar">Guardar abono</button>
+      <p class="ayuda" id="ab-ayuda"></p>
+    </div>
+    <div class="ficha" id="ficha"></div>
+  </div>
+</div>
+
+<!-- ============ EDITOR ============ -->
 <div class="modal" id="modal" hidden>
   <form class="modal-caja" id="form" role="dialog" aria-modal="true" aria-labelledby="m-titulo" novalidate>
     <div class="modal-cabecera">
@@ -86,52 +152,56 @@
     </div>
 
     <fieldset class="seccion">
-      <legend>Pedido</legend>
+      <legend>Trabajo y entrega</legend>
       <div class="fila-3">
         <div class="campo"><label for="m-fecha">Fecha del pedido</label><input id="m-fecha" type="date"></div>
-        <div class="campo"><label for="m-estado">Estado del pedido</label><select id="m-estado"></select></div>
+        <div class="campo"><label for="m-estado">Estado del trabajo</label><select id="m-estado"></select></div>
         <div class="campo"><label for="m-entrega">Fecha de entrega</label><input id="m-entrega" type="date"></div>
       </div>
+      <div class="fila-2">
+        <div class="campo"><label for="m-metodo">Entrega</label><select id="m-metodo"><option value="">Sin definir</option><option value="recoge">Recoge en el local</option><option value="envio">Envío a domicilio</option><option value="instalacion">Instalación</option></select></div>
+        <div class="campo"><label for="m-ubicacion">Dirección o ubicación</label><input id="m-ubicacion" type="text" autocomplete="off"></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="seccion">
+      <legend>Cliente y producto</legend>
       <div class="fila-2">
         <div class="campo"><label for="m-cliente">Cliente</label><input id="m-cliente" type="text" autocomplete="off"></div>
         <div class="campo"><label for="m-tel">WhatsApp</label><input id="m-tel" type="tel" inputmode="numeric" autocomplete="off"></div>
       </div>
-      <div class="campo"><label for="m-producto">Producto</label><input id="m-producto" type="text" placeholder="Ej. Lápida 45 × 32 cm" autocomplete="off"></div>
+      <div class="campo"><label for="m-producto">Producto y medida</label><input id="m-producto" type="text" placeholder="Ej. Lápida 45 × 32 cm" autocomplete="off"></div>
       <div class="fila-3">
         <div class="campo"><label for="m-precio">Precio del producto ($)</label><input id="m-precio" type="number" min="0" step="1" inputmode="decimal"></div>
         <div class="campo"><label for="m-extras">Instalación / envío ($)</label><input id="m-extras" type="number" min="0" step="1" inputmode="decimal"></div>
         <div class="campo"><label for="m-extras-det">Detalle de extras</label><input id="m-extras-det" type="text" placeholder="Ej. Instalación con cemento"></div>
       </div>
-      <p class="ayuda">Tu parte se calcula solo con el precio del producto; la instalación y el envío no se reparten.</p>
       <p class="vinculo" id="m-nota"></p>
     </fieldset>
 
     <fieldset class="seccion">
       <legend>Pagos del cliente</legend>
       <ul class="lista" id="m-pagos"></ul>
-      <div class="fila-agregar">
+      <div class="fila-agregar" id="m-pago-form">
         <div class="campo"><label for="pg-monto">Monto ($)</label><input id="pg-monto" type="number" min="0" step="1" inputmode="decimal"></div>
         <div class="campo"><label for="pg-fecha">Fecha</label><input id="pg-fecha" type="date"></div>
         <div class="campo"><label for="pg-metodo">Forma de pago</label><select id="pg-metodo"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></div>
         <div class="campo campo-boton"><button type="button" class="btn btn-claro" id="pg-agregar">Agregar pago</button></div>
       </div>
-      <button type="button" class="btn btn-claro btn-mini" id="pg-liquidar">Registrar que liquidó el saldo</button>
+      <p class="ayuda" id="m-pagos-ayuda"></p>
     </fieldset>
 
-    <fieldset class="seccion">
-      <legend>Intermediario / asesor de ventas (si hubo)</legend>
+    <details class="seccion reparto-sec">
+      <summary>Reparto y comisión (solo para ti)</summary>
       <div class="fila-2">
-        <div class="campo"><label for="m-int-nombre">Nombre</label><input id="m-int-nombre" type="text" list="lista-asesores" autocomplete="off"></div>
-        <div class="campo"><label for="m-int-monto">Pago al intermediario / comisión ($)</label><input id="m-int-monto" type="number" min="0" step="1" inputmode="decimal"></div>
+        <div class="campo"><label for="m-int-nombre">Asesor / intermediario</label><input id="m-int-nombre" type="text" list="lista-asesores" autocomplete="off"></div>
+        <div class="campo"><label for="m-int-monto">Comisión ($)</label><input id="m-int-monto" type="number" min="0" step="1" inputmode="decimal"></div>
       </div>
       <label class="check"><input type="checkbox" id="m-int-pagado"> <span>Ya le pagué su comisión</span></label>
       <p class="ayuda" id="m-int-ayuda"></p>
       <datalist id="lista-asesores"></datalist>
-    </fieldset>
-
-    <fieldset class="seccion">
-      <legend>Costos del pedido</legend>
-      <p class="ayuda">Solo para ver la ganancia; no cambian tu parte.</p>
+      <h3>Costos del pedido</h3>
+      <p class="ayuda">Opcionales. Si los registras se calcula la utilidad estimada; no cambian tu parte.</p>
       <ul class="lista" id="m-costos"></ul>
       <div class="fila-agregar">
         <div class="campo"><label for="cs-concepto">Concepto</label><input id="cs-concepto" type="text" list="lista-costos" placeholder="Ej. Material" autocomplete="off"></div>
@@ -139,10 +209,7 @@
         <div class="campo campo-boton"><button type="button" class="btn btn-claro" id="cs-agregar">Agregar costo</button></div>
       </div>
       <datalist id="lista-costos"><option value="Material"><option value="Envío"><option value="Instalación"><option value="Publicidad"><option value="Transporte"></datalist>
-    </fieldset>
-
-    <fieldset class="seccion">
-      <legend>Mi parte y pago de mi mamá</legend>
+      <h3>Mi parte y pago de mi mamá</h3>
       <div class="fila-3">
         <div class="campo"><span class="label">Mi parte calculada</span><p class="dato" id="m-parte-calc"></p></div>
         <div class="campo"><label for="m-ajuste">Mi parte ajustada (opcional)</label><input id="m-ajuste" type="number" min="0" step="1" inputmode="decimal" placeholder="Vacío = usar la calculada"></div>
@@ -153,15 +220,13 @@
         <div class="campo"><label for="m-mama-fecha">Fecha en que me pagó</label><input id="m-mama-fecha" type="date"></div>
         <div class="campo"><label for="m-mama-monto">Monto recibido (si fue distinto o parcial)</label><input id="m-mama-monto" type="number" min="0" step="1" inputmode="decimal"></div>
       </div>
-    </fieldset>
+    </details>
 
-    <div class="campo"><label for="m-notas">Notas (ej. nombre del intermediario, detalles)</label><textarea id="m-notas"></textarea></div>
-
+    <div class="campo"><label for="m-notas">Notas</label><textarea id="m-notas"></textarea></div>
     <div class="resumen" id="m-resumen"></div>
 
     <div class="modal-acciones">
       <button type="button" class="btn btn-rojo" id="m-borrar">Borrar pedido</button>
-      <a class="btn btn-verde" id="m-wa" href="#" target="_blank" rel="noopener">Recordar saldo por WhatsApp</a>
       <button type="submit" class="btn btn-cafe">Guardar</button>
     </div>
   </form>
@@ -172,16 +237,16 @@
   <div class="modal-caja chica" role="dialog" aria-modal="true" aria-labelledby="d-titulo">
     <div class="modal-cabecera"><h2 id="d-titulo">Respaldo y Excel</h2><button type="button" class="btn btn-claro" id="d-cerrar">Cerrar</button></div>
     <button type="button" class="btn btn-cafe" id="d-excel">Descargar para Excel (.csv)</button>
-    <p class="ayuda">Abre el archivo con Excel o Google Sheets. Trae las mismas columnas de tu hoja "Mi parte" más pagos, costos y ganancia.</p>
+    <p class="ayuda">Abre el archivo con Excel o Google Sheets. Trae estado del trabajo, pago, mi parte, pagos de mi mamá y comisiones.</p>
     <button type="button" class="btn btn-claro" id="d-respaldo">Descargar respaldo completo</button>
-    <p class="ayuda">Guarda pedidos, notas y folios. Sirve para pasarlos a otra computadora o recuperarlos si se borra el navegador.</p>
+    <p class="ayuda">Guarda pedidos, notas, folios e imágenes de bocetos. Sirve para pasarlos a otra computadora o recuperarlos si se borra el navegador.</p>
     <label class="btn btn-claro archivo">Restaurar un respaldo<input type="file" id="d-restaurar" accept=".json,application/json"></label>
     <p class="estado" id="d-estado" role="status"></p>
   </div>
 </div>
 
 <script src="../datos.js"></script>
-<script src="sync.js?v=2"></script>
-<script src="pedidos.js?v=2"></script>
+<script src="sync.js?v=3"></script>
+<script src="pedidos.js?v=3"></script>
 </body>
 </html>

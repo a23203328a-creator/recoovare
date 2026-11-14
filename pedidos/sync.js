@@ -12,6 +12,20 @@
     if (it.clase) return it.clase === 'producto';
     return /^(placa|l[áa]pida|dise[ñn]o propio)/i.test(it.desc || '');
   }
+  var KC = 'recoovare_config_pedidos';
+  function reglaActual() { var c = Object.assign({ modo: 'porcentaje', pct: 50, fijo: 0 }, leer(KC, {})); return { modo: c.modo, pct: num(c.pct), fijo: num(c.fijo) }; }
+  function hist(p, txt) { p.historial = p.historial || []; p.historial.push({ fecha: new Date().toISOString(), txt: txt }); }
+  var ORDEN = ['Pendiente de boceto', 'En revisión', 'Aprobado', 'En producción', 'Listo para entregar', 'Entregado', 'Cancelado'];
+  // Pone al día pedidos de la versión anterior: estados nuevos y la regla de reparto guardada en cada pedido
+  function migrar(lista) {
+    var r = null, cambio = false;
+    lista.forEach(function (p) {
+      if (p.estado === 'Pendiente') { p.estado = 'Pendiente de boceto'; cambio = true; }
+      if (!p.regla) { p.regla = r || (r = reglaActual()); cambio = true; }
+      if (!p.historial) { p.historial = []; cambio = true; }
+    });
+    return cambio;
+  }
   function nuevoFolio() {
     var n = (leer(KF, 0) || 0) + 1; guardar(KF, n);
     return 'RC-' + String(n).padStart(4, '0');
@@ -20,7 +34,8 @@
     return {
       id: 'p' + Date.now() + Math.random().toString(36).slice(2, 6), folio: nuevoFolio(),
       fecha: fechaLocal(), cliente: '', tel: '', producto: '', precioProducto: 0,
-      extras: 0, extrasDetalle: '', entrega: '', estado: 'Pendiente', pagos: [],
+      extras: 0, extrasDetalle: '', entrega: '', estado: 'Pendiente de boceto', pagos: [], historial: [], regla: reglaActual(),
+      metodoEntrega: '', ubicacion: '',
       intermediario: { nombre: '', monto: 0 }, costos: [], ajuste: null,
       mama: { pagado: false, fecha: '', monto: null }, notas: '', notaId: null, notaFolio: null
     };
@@ -64,7 +79,23 @@
     var fechaN = fechaLocal(nota.fecha);
     if (!p) {
       p = pedidoVacio(); p.fecha = fechaN; p.notas = nota.notas || '';
+      hist(p, 'Pedido creado desde la nota ' + nota.folio);
       lista.unshift(p);
+    } else if (!p.notaId) hist(p, 'Se creó la nota ' + nota.folio + ' para este pedido');
+    migrar([p]);
+    // Entrega desde la nota
+    if (nota.envio) {
+      p.metodoEntrega = nota.envio.metodo || '';
+      p.ubicacion = nota.envio.metodo === 'envio' ? (nota.envio.direccion || '') : nota.envio.metodo === 'instalacion' ? (nota.envio.ubicacion || '') : '';
+    }
+    // Boceto: si todos los productos tienen boceto aprobado, el pedido pasa a "Aprobado" (solo avanza, nunca regresa)
+    var conBoceto = (nota.items || []).filter(function (i) { return esProducto(i) && i.boceto; });
+    var prodsN = (nota.items || []).filter(esProducto);
+    var etapa = ORDEN.indexOf(p.estado);
+    if (prodsN.length && conBoceto.length === prodsN.length && conBoceto.every(function (i) { return i.boceto.estado === 'aprobado'; }) && etapa >= 0 && etapa < 2) {
+      p.estado = 'Aprobado'; hist(p, 'Boceto aprobado en la nota ' + nota.folio + ' → Aprobado');
+    } else if (conBoceto.some(function (i) { return i.boceto.estado === 'revision' || (i.boceto.versiones || []).length; }) && p.estado === 'Pendiente de boceto') {
+      p.estado = 'En revisión'; hist(p, 'Boceto enviado a revisión → En revisión');
     }
     p.cliente = (nota.cliente && nota.cliente.nombre) || p.cliente;
     p.tel = (nota.cliente && nota.cliente.tel) || p.tel;
@@ -144,5 +175,5 @@
     };
   })();
   window.RecoovareImg = Img;
-  window.RecoovareSync = { inicializar: inicializar, K: K, KF: KF, KI: KI, leer: leer, guardar: guardar, num: num, nuevoFolio: nuevoFolio, pedidoVacio: pedidoVacio, desdeNota: desdeNota, sincronizarNotas: sincronizarNotas };
+  window.RecoovareSync = { migrar: migrar, hist: hist, ORDEN: ORDEN, reglaActual: reglaActual, inicializar: inicializar, K: K, KF: KF, KI: KI, leer: leer, guardar: guardar, num: num, nuevoFolio: nuevoFolio, pedidoVacio: pedidoVacio, desdeNota: desdeNota, sincronizarNotas: sincronizarNotas };
 })();
