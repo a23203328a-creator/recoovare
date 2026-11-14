@@ -54,7 +54,23 @@
   if (!Array.isArray(ganancias)) ganancias = [];
   function vivos() { return gastos.filter(function (g) { return g && !g.borrado; }); }
   function delMes(m) { return vivos().filter(function (g) { return mesDe(g.fecha) === m; }); }
-  function gananciaDe(m) { var x = ganancias.find(function (g) { return g.mes === m && !g.borrado; }); return x ? x.ganancia : null; }
+  // Semanas de lunes a domingo, cortadas al mes (así la suma de las semanas es el mes)
+  function semanasDe(m) {
+    var p = m.split('-'), ini = new Date(+p[0], +p[1] - 1, 1), fin = new Date(+p[0], +p[1], 0);
+    var semanas = [], d = new Date(ini);
+    while (d <= fin) {
+      var a = new Date(d), b = new Date(d); b.setDate(b.getDate() + (7 - ((b.getDay() + 6) % 7)) - 1); if (b > fin) b = new Date(fin);
+      semanas.push({ a: iso(a), b: iso(b), k: iso(a) === iso(b) ? corta(iso(a)) : a.getDate() + ' al ' + b.getDate() + ' ' + MESES[b.getMonth()].slice(0, 3) });
+      d = new Date(b); d.setDate(d.getDate() + 1);
+    }
+    return semanas;
+  }
+  function gananciaSem(a) { var x = ganancias.find(function (g) { return g.id === 's-' + a && !g.borrado; }); return x ? num(x.ganancia) : null; }
+  function gananciaDe(m) {
+    var hay = false, t = 0;
+    semanasDe(m).forEach(function (s) { var v = gananciaSem(s.a); if (v !== null) { hay = true; t += v; } });
+    return hay ? r2(t) : null;
+  }
 
   var mes = mesDe(hoy());
   var filtro = 'todos';
@@ -84,18 +100,16 @@
     pintarUtilidad(s);
     barras('g-cat', agrupar(lista, function (g) { return g.categoria || 'Sin categoría'; }), s.total);
     barras('g-pago', agrupar(lista, function (g) { return g.pago || 'Sin dato'; }), s.total);
-    pintarSemanas(lista, s.total);
+    pintarTabla(lista);
     pintarLista(lista);
   }
 
   function pintarUtilidad(s) {
-    var g = gananciaDe(mes), inp = $('u-ganancia');
-    if (document.activeElement !== inp) inp.value = g === null ? '' : g;
-    var val = inp.value === '' ? null : num(inp.value);
+    var val = gananciaDe(mes);
     var restas = '<div class="r menos"><span>− Operación de ESSENTIA</span><span>' + dinero(s.op) + '</span></div>' +
       '<div class="r menos"><span>− Gastos de RECOOVARE</span><span>' + dinero(s.rec) + '</span></div>';
     var html;
-    if (val === null) html = restas + '<p class="ayuda">Escribe la ganancia de Shopify del mes para ver tu utilidad.</p>';
+    if (val === null) html = restas + '<p class="ayuda">Anota la ganancia de Shopify de cada semana en la tabla de abajo para ver tu utilidad.</p>';
     else {
       var u = r2(val - s.op - s.rec);
       html = '<div class="r"><span>Ganancia de Shopify</span><span>' + dinero(val) + '</span></div>' + restas +
@@ -117,27 +131,34 @@
         '<small>' + (Math.round(f.monto / (total || 1) * 1000) / 10) + '% del mes · ' + f.n + (f.n === 1 ? ' gasto' : ' gastos') + (f.rec > 0 ? ' · ' + dinero(f.rec) + ' de RECOOVARE' : '') + '</small></div>';
     }).join('') : '<p class="vacio">Sin gastos este mes.</p>';
   }
-  function pintarSemanas(lista, total) {
-    var p = mes.split('-'), ini = new Date(+p[0], +p[1] - 1, 1), fin = new Date(+p[0], +p[1], 0);
-    var semanas = [], d = new Date(ini);
-    while (d <= fin) {
-      var a = new Date(d), b = new Date(d); b.setDate(b.getDate() + (7 - ((b.getDay() + 6) % 7)) - 1); if (b > fin) b = new Date(fin);
-      semanas.push({ a: iso(a), b: iso(b) });
-      d = new Date(b); d.setDate(d.getDate() + 1);
-    }
-    var hasta = mes === mesDe(hoy()) ? hoy() : iso(fin);
-    var primero = lista.reduce(function (x, g) { return !x || g.fecha < x ? g.fecha : x; }, '');
-    var filas = semanas.filter(function (s) { return s.a <= hasta && (!primero || s.b >= primero); }).map(function (s) {
-      var l = lista.filter(function (g) { return g.fecha >= s.a && g.fecha <= s.b; });
-      var da = fechaDe(s.a), db = fechaDe(s.b);
-      return { k: (s.a === s.b ? corta(s.a) : da.getDate() + ' al ' + db.getDate() + ' ' + MESES[db.getMonth()].slice(0, 3)), monto: l.reduce(function (x, g) { return x + num(g.monto); }, 0), n: l.length, rec: l.reduce(function (x, g) { return x + (g.negocio === 'RECOOVARE' ? num(g.monto) : 0); }, 0) };
-    });
-    var max = filas.reduce(function (x, f) { return Math.max(x, f.monto); }, 0) || 1;
-    $('g-sem').innerHTML = filas.length ? filas.map(function (f) {
-      return '<div class="barra-f"><div class="top"><span>' + esc(f.k) + '</span><b>' + dinero(f.monto) + '</b></div>' +
-        '<div class="pista" aria-hidden="true"><div class="llena" style="width:' + (f.monto ? Math.max(1.5, f.monto / max * 100) : 0) + '%"></div></div>' +
-        '<small>' + f.n + (f.n === 1 ? ' gasto' : ' gastos') + '</small></div>';
-    }).join('') : '<p class="vacio">Sin semanas en este mes todavía.</p>';
+  function cuentaSem(lista, sem) {
+    var l = lista.filter(function (g) { return g.fecha >= sem.a && g.fecha <= sem.b; });
+    var r = resumen(l), gan = gananciaSem(sem.a);
+    return { op: r.op, rec: r.rec, gan: gan, u: gan === null ? null : r2(gan - r.op - r.rec) };
+  }
+  function celdaU(u) { return u === null ? '<span class="falta">Falta la ganancia</span>' : '<span class="' + (u >= 0 ? 'pos' : 'neg') + '">' + (u < 0 ? '−' : '') + dinero(Math.abs(u)) + '</span>'; }
+  function semanasVisibles() {
+    var hasta = mes === mesDe(hoy()) ? hoy() : '9999';
+    return semanasDe(mes).filter(function (s) { return s.a <= hasta; });
+  }
+  function pintarTabla(lista) {
+    $('t-sem').innerHTML = semanasVisibles().map(function (sem) {
+      var c = cuentaSem(lista, sem), db = fechaDe(sem.b);
+      return '<tr data-fila="' + sem.a + '"><td class="sem">' + esc(sem.k) + '<small>' + (sem.a <= hoy() && sem.b >= hoy() ? 'Semana en curso' : '') + '</small></td>' +
+        '<td class="num" data-label="Ganancia Shopify"><input type="number" min="0" step="0.01" inputmode="decimal" data-sem="' + sem.a + '" data-fin="' + sem.b + '" value="' + (c.gan === null ? '' : c.gan) + '" placeholder="$0.00" aria-label="Ganancia de Shopify del ' + esc(sem.k) + '"></td>' +
+        '<td class="num menos" data-label="− Operación ESSENTIA">' + dinero(c.op) + '</td>' +
+        '<td class="num menos" data-label="− Gastos RECOOVARE">' + dinero(c.rec) + '</td>' +
+        '<td class="num" data-label="Utilidad" data-u="' + sem.a + '">' + celdaU(c.u) + '</td></tr>';
+    }).join('');
+    pintarTotal(lista);
+  }
+  function pintarTotal(lista) {
+    var s = resumen(lista), g = gananciaDe(mes), u = g === null ? null : r2(g - s.op - s.rec);
+    $('t-total').innerHTML = '<tr><td class="sem">Total del mes</td>' +
+      '<td class="num" data-label="Ganancia Shopify">' + (g === null ? '—' : dinero(g)) + '</td>' +
+      '<td class="num menos" data-label="− Operación ESSENTIA">' + dinero(s.op) + '</td>' +
+      '<td class="num menos" data-label="− Gastos RECOOVARE">' + dinero(s.rec) + '</td>' +
+      '<td class="num" data-label="Utilidad">' + celdaU(u) + '</td></tr>';
   }
 
   function pintarLista(lista) {
@@ -168,18 +189,19 @@
     abrir(gastos.find(function (g) { return g.id === b.getAttribute('data-id'); }));
   });
 
-  var tGan = null;
-  $('u-ganancia').addEventListener('input', function () {
-    var v = this.value, m = mes;
-    pintarUtilidad(resumen(delMes(mes)));
-    clearTimeout(tGan);
-    tGan = setTimeout(function () {
-      var x = ganancias.find(function (g) { return g.mes === m; });
-      if (!x) { x = { id: 'm-' + m, mes: m }; ganancias.push(x); }
-      if (v === '') x.borrado = true; else { x.ganancia = r2(num(v)); delete x.borrado; }
-      x.editado = new Date().toISOString();
-      guardar(KG, ganancias);
-    }, 600);
+  var tGan = {};
+  $('t-sem').addEventListener('input', function (ev) {
+    var inp = ev.target.closest('[data-sem]'); if (!inp) return;
+    var a = inp.getAttribute('data-sem'), b = inp.getAttribute('data-fin'), v = inp.value, m = mes;
+    var x = ganancias.find(function (g) { return g.id === 's-' + a; });
+    if (!x) { x = { id: 's-' + a, semana: a, fin: b, mes: m }; ganancias.push(x); }
+    if (v === '') x.borrado = true; else { x.ganancia = r2(num(v)); delete x.borrado; }
+    x.editado = new Date().toISOString();
+    var lista = delMes(mes), c = cuentaSem(lista, { a: a, b: b });
+    var celda = document.querySelector('[data-u="' + a + '"]'); if (celda) celda.innerHTML = celdaU(c.u);
+    pintarTotal(lista); pintarUtilidad(resumen(lista));
+    clearTimeout(tGan[a]);
+    tGan[a] = setTimeout(function () { guardar(KG, ganancias); }, 600);
   });
 
   /* ---------- formulario ---------- */

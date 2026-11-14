@@ -58,3 +58,29 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 3px rgba(37,99,235
 .monto { font-size: 26px; font-weight: 800; min-height: 56px; }
 .grupo-op { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .grupo-op legend { margin-bottom: 8px; padding: 0; }
+
+/* utilidad por semana */
+.tabla-caja { overflow-x: auto; }
+.tabla-u { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tabla-u th { text-align: left; font-size: 12px; font-weight: 700; color: var(--suave); padding: 8px 10px; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+.tabla-u td { padding: 8px 10px; border-bottom: 1px solid var(--borde); font-size: 15px; white-space: nowrap; }
+.tabla-u .num { text-align: right; }
+.tabla-u td.sem { font-weight: 700; }
+.tabla-u td.sem small { display: block; font-weight: 400; color: var(--suave); font-size: 12px; }
+.tabla-u input { max-width: 150px; text-align: right; margin-left: auto; display: block; min-height: 40px; padding: 6px 10px; }
+.tabla-u .menos { color: var(--alerta); }
+.tabla-u .pos { color: var(--ok); font-weight: 800; }
+.tabla-u .neg { color: var(--alerta); font-weight: 800; }
+.tabla-u .falta { color: var(--suave); font-weight: 400; font-size: 13px; }
+.tabla-u tfoot td { border-bottom: 0; border-top: 2px solid var(--tinta); font-weight: 800; }
+@media (max-width: 640px) {
+  .tabla-u thead { display: none; }
+  .tabla-u, .tabla-u tbody, .tabla-u tfoot, .tabla-u tr, .tabla-u td { display: block; width: 100%; }
+  .tabla-u tr { border: 1px solid var(--borde); border-radius: 12px; padding: 8px 12px; margin-bottom: 10px; }
+  .tabla-u tfoot tr { border: 2px solid var(--tinta); }
+  .tabla-u td { display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 0; padding: 5px 0; }
+  .tabla-u tfoot td { border: 0; }
+  .tabla-u td.num::before { content: attr(data-label); font-size: 13px; font-weight: 600; color: var(--suave); text-align: left; }
+  .tabla-u td.sem { border-bottom: 1px solid var(--borde); padding-bottom: 8px; margin-bottom: 2px; display: block; }
+  .tabla-u input { margin-left: 0; }
+}

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap">
 <link rel="stylesheet" href="../panel.css?v=1">
-<link rel="stylesheet" href="gastos.css?v=2">
+<link rel="stylesheet" href="gastos.css?v=3">
 </head>
 <body>
 
@@ -46,10 +46,7 @@
   <div class="dos">
     <section class="panel utilidad" aria-labelledby="u-titulo">
       <h2 id="u-titulo">Utilidad del mes</h2>
-      <div class="campo">
-        <label for="u-ganancia">Ganancia de Shopify en <span id="u-mes">este mes</span> ($)</label>
-        <input id="u-ganancia" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ventas menos costo por artículo">
-      </div>
+      <p class="ayuda">La ganancia de Shopify de <span id="u-mes">este mes</span> es la suma de las semanas que anotes en la tabla «Utilidad por semana».</p>
       <div class="cuenta" id="u-cuenta" aria-live="polite"></div>
       <p class="ayuda">Usa la ganancia que ya descuenta el costo por artículo. Por eso aquí se restan la operación de ESSENTIA y los gastos de RECOOVARE (que pagas con dinero de ESSENTIA), pero no la compra de perfumes: esa ya va dentro de ese costo.</p>
     </section>
@@ -60,11 +57,19 @@
     </section>
   </div>
 
+  <section class="panel" id="utilidad-semanal" aria-labelledby="s-titulo">
+    <h2 id="s-titulo">Utilidad por semana</h2>
+    <p class="ayuda">Anota la ganancia de Shopify de cada semana, con las fechas exactas de la fila (ventas menos costo por artículo). A cada semana se le restan sus gastos de operación de ESSENTIA y de RECOOVARE.</p>
+    <div class="tabla-caja">
+      <table class="tabla-u">
+        <thead><tr><th scope="col">Semana</th><th scope="col" class="num">Ganancia Shopify</th><th scope="col" class="num">Operación ESSENTIA</th><th scope="col" class="num">Gastos RECOOVARE</th><th scope="col" class="num">Utilidad</th></tr></thead>
+        <tbody id="t-sem"></tbody>
+        <tfoot id="t-total"></tfoot>
+      </table>
+    </div>
+  </section>
+
   <div class="dos">
-    <section class="panel" aria-labelledby="s-titulo">
-      <h2 id="s-titulo">Por semana</h2>
-      <div class="barras" id="g-sem"></div>
-    </section>
     <section class="panel" aria-labelledby="p-titulo">
       <h2 id="p-titulo">¿Con qué pagaste?</h2>
       <div class="barras" id="g-pago"></div>
@@ -119,6 +124,6 @@
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script src="../nube.js?v=2"></script>
-<script>RecoovareNube.iniciar(['gastos.js?v=3']);</script>
+<script>RecoovareNube.iniciar(['gastos.js?v=4']);</script>
 </body>
 </html>

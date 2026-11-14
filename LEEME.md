@@ -183,7 +183,8 @@ Entra a **https://recoovare.pages.dev/pedidos/gastos/** (privada). Reemplaza la 
 
 - "+ Anotar gasto": monto, concepto, categoría, de qué negocio es (ESSENTIA o RECOOVARE), con qué pagaste y la fecha. Si escribes un concepto que ya usaste, propone la misma categoría y forma de pago.
 - Arriba ves el mes: total, compra de perfumes (inventario), operación de ESSENTIA y lo que pagaste para RECOOVARE.
-- **Utilidad del mes**: escribe la ganancia de Shopify (que ya descuenta el costo por artículo) y se le restan la operación de ESSENTIA y los gastos de RECOOVARE. La compra de perfumes no se resta otra vez.
+- **Utilidad por semana**: en la tabla anotas la ganancia de Shopify de cada semana (lunes a domingo, con las fechas de la fila; ventas menos costo por artículo). A cada semana se le restan su operación de ESSENTIA y sus gastos de RECOOVARE. La compra de perfumes no se resta otra vez.
+- **Utilidad del mes**: suma las semanas y resta los gastos de todo el mes.
 - Los costos que pones en cada pedido de RECOOVARE no se cuentan aquí; se quedan solo en Pedidos.
 - Toca un gasto para editarlo o borrarlo. Abajo puedes descargar el mes o todo para Excel.
 - Ya trae cargados los 11 gastos del 9 al 12 de noviembre de 2026 que tenías en el Excel.
