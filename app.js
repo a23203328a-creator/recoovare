@@ -151,6 +151,7 @@
     document.getElementById('footer-links').innerHTML = html;
   })();
 
+  document.querySelectorAll('.js-anio').forEach(function (el) { el.textContent = new Date().getFullYear(); });
   /* ---------- pestañas y categorías ---------- */
   function pintarPestanas() {
     document.getElementById('tabs').innerHTML = Object.keys(D.tipos).map(function (k) {
