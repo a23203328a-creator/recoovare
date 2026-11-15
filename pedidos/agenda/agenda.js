@@ -170,18 +170,18 @@
   }
 
   function telDe(e) { if (e.tipo === 'entrega_r') { var p = pedidoPorId(e.pedidoId); return p ? p.tel : ''; } return e.tel || ''; }
+  // Entregas a domicilio: avisar que vas en camino. Citas y visitas al local: confirmar.
+  function vaEnCamino(e) { return lugarDe(e).indexOf('dom:') === 0; }
   function mensajeWA(e) {
     var dia = largo(e.fecha), h = aHora(aMin(e.hora)), nom = quien(e).split(' ')[0];
-    if (e.tipo === 'cita_r') return 'Hola ' + nom + ', te confirmo tu cita en RECOOVARE el ' + dia + ' a las ' + h + ' para ' + String(e.motivo || 'tu diseño').toLowerCase() + '.' + (CITA.direccion ? '\nDirección: ' + CITA.direccion : '') + (CITA.mapa ? '\n' + CITA.mapa : '') + '\n¡Te esperamos!';
+    if (e.tipo === 'essentia' && e.modo !== 'local') return 'Hola ' + nom + ', ya estoy en camino con tu pedido de ESSENTIA' + (e.detalle ? ' (' + e.detalle + ')' : '') + '.' + (num(e.cobrar) > 0 ? '\nTotal a pagar: ' + dinero(e.cobrar) + '.' : '') + '\n¡Nos vemos en un momento!';
     if (e.tipo === 'entrega_r') {
       var p = pedidoPorId(e.pedidoId), c = p ? cuentas(p) : { saldo: 0 };
-      var que = e.metodo === 'instalacion' ? 'la instalación de tu pedido' : e.metodo === 'recoge' ? 'que pases por tu pedido' : 'la entrega de tu pedido';
-      return 'Hola ' + nom + ', te confirmo ' + que + (p ? ' ' + p.folio : '') + ' el ' + dia + ' a las ' + h + '.' + (c.saldo > 0 ? '\nSaldo pendiente: ' + dinero(c.saldo) + '.' : '') + '\n¡Gracias!';
+      if (e.metodo === 'recoge') return 'Hola ' + nom + ', te confirmo que puedes pasar por tu pedido' + (p ? ' ' + p.folio : '') + ' el ' + dia + ' a las ' + h + '.' + (CITA.direccion ? '\nDirección: ' + CITA.direccion : '') + (c.saldo > 0 ? '\nSaldo pendiente: ' + dinero(c.saldo) + '.' : '') + '\n¡Gracias!';
+      return 'Hola ' + nom + ', ya estoy en camino ' + (e.metodo === 'instalacion' ? 'para la instalación de tu pedido' : 'con tu pedido') + (p ? ' ' + p.folio : '') + '.' + (c.saldo > 0 ? '\nSaldo pendiente: ' + dinero(c.saldo) + '.' : '') + '\n¡Nos vemos en un momento!';
     }
-    if (e.tipo === 'essentia') {
-      if (e.modo === 'local') return 'Hola ' + nom + ', te confirmo tu visita al local de ESSENTIA el ' + dia + ' a las ' + h + '. ¡Te espero!';
-      return 'Hola ' + nom + ', te confirmo tu entrega de ESSENTIA el ' + dia + ' a las ' + h + (e.lugar && !/^https?:/i.test(e.lugar) ? ' en ' + e.lugar : '') + '.' + (num(e.cobrar) > 0 ? '\nTotal a pagar: ' + dinero(e.cobrar) + '.' : '') + '\n¡Gracias por tu compra!';
-    }
+    if (e.tipo === 'cita_r') return 'Hola ' + nom + ', te confirmo tu cita en RECOOVARE el ' + dia + ' a las ' + h + ' para ' + String(e.motivo || 'tu diseño').toLowerCase() + '.' + (CITA.direccion ? '\nDirección: ' + CITA.direccion : '') + (CITA.mapa ? '\n' + CITA.mapa : '') + '\n¡Te esperamos!';
+    if (e.tipo === 'essentia') return 'Hola ' + nom + ', te confirmo tu visita al local de ESSENTIA el ' + dia + ' a las ' + h + '. ¡Te espero!';
     return '';
   }
 
@@ -204,7 +204,7 @@
         '<div class="ev-datos">' + lineaDatos(e) + '</div>' +
         ch.map(function (c) { return '<div class="ev-choque">⚠ ' + esc(textoChoque(c)) + '</div>'; }).join('') +
         '<div class="ev-acciones">' +
-          (tel.length >= 12 && e.tipo !== 'ocupado' ? '<a class="btn btn-verde btn-mini" target="_blank" rel="noopener" href="https://wa.me/' + tel + '?text=' + encodeURIComponent(mensajeWA(e)) + '">Confirmar por WhatsApp</a>' : '') +
+          (tel.length >= 12 && e.tipo !== 'ocupado' ? '<a class="btn btn-verde btn-mini" target="_blank" rel="noopener" href="https://wa.me/' + tel + '?text=' + encodeURIComponent(mensajeWA(e)) + '">' + (vaEnCamino(e) ? 'Ya estoy en camino' : 'Confirmar por WhatsApp') + '</a>' : '') +
           (e.tipo !== 'ocupado' ? '<button type="button" class="btn btn-claro btn-mini" data-hecho="' + esc(e.id) + '">' + (e.hecho ? 'Deshacer' : 'Marcar hecho') + '</button>' : '') +
           '<button type="button" class="btn btn-claro btn-mini" data-editar="' + esc(e.id) + '">Editar</button>' +
         '</div></li>';
