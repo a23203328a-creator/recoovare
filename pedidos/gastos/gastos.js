@@ -102,6 +102,7 @@
     barras('g-pago', agrupar(lista, function (g) { return g.pago || 'Sin dato'; }), s.total);
     pintarTabla(lista);
     pintarLista(lista);
+    if (window.pintarReparto) window.pintarReparto();
   }
 
   function pintarUtilidad(s) {
@@ -198,7 +199,7 @@
     var celda = document.querySelector('[data-u="' + a + '"]'); if (celda) celda.innerHTML = celdaU(c.u);
     pintarTotal(lista); pintarUtilidad(resumen(lista));
     clearTimeout(tGan[a]);
-    tGan[a] = setTimeout(function () { guardar(KG, ganancias); }, 600);
+    tGan[a] = setTimeout(function () { guardar(KG, ganancias); if (window.pintarReparto) window.pintarReparto(); }, 600);
   });
 
   /* ---------- formulario ---------- */
@@ -297,5 +298,14 @@
   var tt = null;
   function aviso(t) { var x = $('toast'); x.textContent = t; x.hidden = false; clearTimeout(tt); tt = setTimeout(function () { x.hidden = true; }, 2600); }
 
+  // Lo que usa el reparto de utilidad (reparto.js)
+  window.EGastos = {
+    mes: function () { return mes; },
+    irAMes: function (m) { mes = m; pintar(); },
+    semanasDe: semanasDe,
+    cuentaSem: function (sem) { return cuentaSem(delMes(mesDe(sem.a)), sem); },
+    gastosSemana: function (sem) { return vivos().filter(function (g) { return g.fecha >= sem.a && g.fecha <= sem.b; }); },
+    nombreMes: nombreMes, dinero: dinero, r2: r2, num: num, esc: esc, hoy: hoy, mesDe: mesDe, corta: corta, aviso: aviso
+  };
   pintar();
 })();

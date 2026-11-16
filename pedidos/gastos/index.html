@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap">
 <link rel="stylesheet" href="../panel.css?v=1">
-<link rel="stylesheet" href="gastos.css?v=3">
+<link rel="stylesheet" href="gastos.css?v=5">
 </head>
 <body>
 
@@ -69,6 +69,27 @@
     </div>
   </section>
 
+  <section class="panel" id="reparto" aria-labelledby="r-titulo">
+    <h2 id="r-titulo">Reparto de utilidad semanal</h2>
+    <p class="ayuda">Reparte la utilidad que te quedó después de los gastos entre tu salario, el ahorro y el colchón del negocio. Esto no es un gasto: no se vuelve a restar.</p>
+    <div class="r-top" id="r-top"></div>
+    <div class="campo"><label for="r-semana">Semana a repartir</label><select id="r-semana"></select></div>
+    <div class="r-cuerpo" id="r-cuerpo"></div>
+  </section>
+
+  <div class="dos">
+    <section class="panel" id="reservas" aria-labelledby="res-titulo">
+      <h2 id="res-titulo">Ahorro y colchón del negocio</h2>
+      <p class="ayuda">Saldo = lo que ya separaste menos lo que has sacado.</p>
+      <div class="res-lista" id="res-cuerpo"></div>
+    </section>
+    <section class="panel" id="historial" aria-labelledby="h-titulo">
+      <h2 id="h-titulo">Historial de repartos</h2>
+      <div id="h-mes"></div>
+      <div class="h-lista" id="h-lista"></div>
+    </section>
+  </div>
+
   <div class="dos">
     <section class="panel" aria-labelledby="p-titulo">
       <h2 id="p-titulo">¿Con qué pagaste?</h2>
@@ -121,9 +142,26 @@
   </form>
 </div>
 
+<!-- ============ PAGO / SEPARACIÓN / SALIDA ============ -->
+<div class="modal" id="modal-mov" hidden>
+  <form class="modal-caja" id="form-mov" role="dialog" aria-modal="true" aria-labelledby="mv-titulo" novalidate>
+    <div class="modal-cab">
+      <h2 id="mv-titulo">—</h2>
+      <button type="button" class="btn btn-claro btn-mini" id="mv-cerrar">Cerrar</button>
+    </div>
+    <p class="ayuda" id="mv-info"></p>
+    <div class="campo"><label for="mv-monto">Monto ($)</label><input id="mv-monto" class="monto" type="number" min="0" step="0.01" inputmode="decimal"></div>
+    <div class="fila">
+      <div class="campo"><label for="mv-fecha">Fecha</label><input id="mv-fecha" type="date"></div>
+      <div class="campo"><label for="mv-nota">Nota</label><input id="mv-nota" autocomplete="off" placeholder="Opcional"></div>
+    </div>
+    <div class="modal-acciones"><span></span><div class="der"><button type="submit" class="btn btn-principal">Guardar</button></div></div>
+  </form>
+</div>
+
 <div class="toast" id="toast" role="status" hidden></div>
 
-<script src="../nube.js?v=2"></script>
-<script>RecoovareNube.iniciar(['gastos.js?v=5']);</script>
+<script src="../nube.js?v=3"></script>
+<script>RecoovareNube.iniciar(['gastos.js?v=6', 'reparto.js?v=1']);</script>
 </body>
 </html>

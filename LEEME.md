@@ -185,6 +185,11 @@ Entra a **https://recoovare.pages.dev/pedidos/gastos/** (privada). Reemplaza la 
 - Arriba ves el mes: total, compra de perfumes (inventario), operación de ESSENTIA y lo que pagaste para RECOOVARE.
 - **Utilidad por semana**: en la tabla anotas la ganancia de Shopify de cada semana (lunes a domingo, con las fechas de la fila; ventas menos costo por artículo). A cada semana se le restan su operación de ESSENTIA y sus gastos de RECOOVARE. La compra de perfumes no se resta otra vez.
 - **Utilidad del mes**: suma las semanas y resta los gastos de todo el mes.
+- **Reparto de utilidad semanal**: eliges una semana y se toma su utilidad neta. Pones cuánto dinero hay de verdad disponible y cuánto va a **Mi salario**, **Ahorro del negocio** y **Colchón del negocio** (cada uno en % o en monto fijo). No deja asignar más de lo disponible ni de la utilidad. Con "Confirmar reparto" se guarda (uno por semana); si después cambias los porcentajes, los repartos anteriores no cambian. Si falta la ganancia o hubo pérdida, no se puede repartir.
+- Después registras lo que de verdad te pagaste o separaste (puede ser en partes, con fecha y nota). Te dice cuánto falta pagarte y cuánto falta separar.
+- **Ahorro y colchón**: saldo acumulado (separado menos salidas). "Registrar salida" para cuando uses ese dinero.
+- **Historial de repartos**: todas las semanas repartidas y el resumen del mes.
+- El reparto no es un gasto: no se resta otra vez. Si anotas tu salario como gasto, te avisa para que no lo cuentes dos veces.
 - Los costos que pones en cada pedido de RECOOVARE no se cuentan aquí; se quedan solo en Pedidos.
 - Toca un gasto para editarlo o borrarlo. Abajo puedes descargar el mes o todo para Excel.
 - Ya trae cargados los 11 gastos del 9 al 12 de noviembre de 2026 que tenías en el Excel.
