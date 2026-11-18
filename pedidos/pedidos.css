@@ -218,3 +218,6 @@ button.kpi[aria-pressed="true"] { border-color: var(--cafe); box-shadow: 0 0 0 3
 .reparto-sec summary { cursor: pointer; font-weight: 800; color: var(--cafe); font-size: 16px; }
 .reparto-sec[open] { gap: 10px; }
 .ayuda { font-size: 14px; }
+
+.btn-nueva { background: #B45309; color: #fff; border-color: #B45309; }
+.btn-nueva:hover { background: #92400E; border-color: #92400E; }

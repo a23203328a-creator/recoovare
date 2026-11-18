@@ -807,4 +807,6 @@
   sugerirPago();
   pintar();
   if (window.matchMedia && window.matchMedia('(max-width: 1000px)').matches) $('caja-vista').open = false;
+  // ?nueva=1 (botón "+ Nueva nota" de Pedidos): empieza una nota en blanco
+  if (params.get('nueva')) { history.replaceState(null, '', location.pathname); $('btn-nueva').click(); }
 })();

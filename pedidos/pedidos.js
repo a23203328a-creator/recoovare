@@ -428,7 +428,7 @@
     pedidos = pedidos.filter(function (x) { return x.id !== actual.id; });
     guardarTodo(); cerrar(); pintar();
   });
-  $('btn-nuevo').addEventListener('click', function () { abrir(null); });
+  if ($('btn-nuevo')) $('btn-nuevo').addEventListener('click', function () { abrir(null); });
 
   /* ---------- vista: reparto y comisiones ---------- */
   function enPeriodo(fecha) {
