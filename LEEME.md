@@ -196,6 +196,8 @@ Entra a **https://recoovare.pages.dev/pedidos/gastos/** (privada). Reemplaza la 
 - El reparto no es un gasto: no se resta otra vez. Si anotas tu salario como gasto, te avisa para que no lo cuentes dos veces.
 - Los costos que pones en cada pedido de RECOOVARE no se cuentan aquí; se quedan solo en Pedidos.
 - Toca un gasto para editarlo o borrarlo. Abajo puedes descargar el mes o todo para Excel.
+- **Periodo**: arriba eliges Un mes (con flechas), Mes pasado, Últimos 3 meses, Este año o Rango de fechas. Cambian el resumen, las categorías, las formas de pago, la lista y la descarga ("Descargar este periodo"). Con varios meses verás **Utilidad por mes** (sale de las semanas que ya anotas); la tabla semanal y el reparto se ven en "Un mes".
+- **Buscar y filtrar**: escribe en el buscador (concepto o nota) o toca una categoría en "¿En qué se va el dinero?" para ver solo esos gastos y su total.
 - Ya trae cargados los 11 gastos del 9 al 12 de noviembre de 2026 que tenías en el Excel.
 
 ---

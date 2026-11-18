@@ -73,7 +73,24 @@
   }
 
   var mes = mesDe(hoy());
-  var filtro = 'todos';
+  var filtro = 'todos', catFiltro = '', busqueda = '';
+  // Periodo: 'mes' (con flechas), '3m', 'anio' o 'rango'. "Mes pasado" es un atajo de 'mes'.
+  var per = 'mes', rDesde = '', rHasta = '';
+  function finMes(m) { var p = m.split('-'); return iso(new Date(+p[0], +p[1], 0)); }
+  function rangoActual() {
+    var h = hoy();
+    if (per === '3m') return { a: moverMes(mesDe(h), -2) + '-01', b: h, t: 'los últimos 3 meses', corto: 'Últimos 3 meses' };
+    if (per === 'anio') return { a: h.slice(0, 4) + '-01-01', b: h, t: h.slice(0, 4), corto: 'Año ' + h.slice(0, 4) };
+    if (per === 'rango') {
+      var a = rDesde || mes + '-01', b = rHasta || h; if (b < a) { var x = a; a = b; b = x; }
+      return { a: a, b: b, t: 'del ' + largoF(a) + ' al ' + largoF(b), corto: corta(a) + ' – ' + corta(b) };
+    }
+    return { a: mes + '-01', b: finMes(mes), t: nombreMes(mes), corto: nombreMes(mes) };
+  }
+  function largoF(s) { var d = fechaDe(s); return d.getDate() + ' de ' + MESES[d.getMonth()] + (s.slice(0, 4) !== hoy().slice(0, 4) ? ' de ' + s.slice(0, 4) : ''); }
+  function delPeriodo() { var r = rangoActual(); return vivos().filter(function (g) { return g.fecha >= r.a && g.fecha <= r.b; }); }
+  function mesesDe(r) { var l = [], m = mesDe(r.a), fin = mesDe(r.b); while (m <= fin) { l.push(m); m = moverMes(m, 1); } return l; }
+  function sinAcentos(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
 
   function resumen(lista) {
     var total = 0, perf = 0, rec = 0;
@@ -86,23 +103,69 @@
 
   /* ---------- pintar ---------- */
   function pintar() {
-    var lista = delMes(mes), s = resumen(lista);
+    var r = rangoActual(), unMes = per === 'mes';
+    var lista = unMes ? delMes(mes) : delPeriodo(), s = resumen(lista);
+    var pasado = moverMes(mesDe(hoy()), -1);
+    document.querySelectorAll('[data-per]').forEach(function (b) {
+      var k = b.getAttribute('data-per');
+      b.setAttribute('aria-pressed', String(k === 'pasado' ? (unMes && mes === pasado) : k === 'mes' ? (unMes && mes !== pasado) : per === k));
+    });
+    document.querySelector('.mes-nav').hidden = !unMes;
+    $('rango').hidden = per !== 'rango';
+    if (per === 'rango') { $('r-desde').value = r.a; $('r-hasta').value = r.b; }
     $('mes-titulo').textContent = nombreMes(mes);
-    $('u-mes').textContent = nombreMes(mes);
+    $('u-mes').parentNode.innerHTML = unMes ? 'La ganancia de Shopify de <span id="u-mes">' + esc(nombreMes(mes)) + '</span> es la suma de las semanas que anotes en la tabla «Utilidad por semana».'
+      : 'Suma de la ganancia de Shopify de cada mes de <span id="u-mes">' + esc(r.t) + '</span>, menos sus gastos. Abajo la ves mes por mes.';
     $('mes-sig').disabled = mes >= mesDe(hoy());
     $('k-total').textContent = dinero(s.total);
     $('k-n').textContent = s.n + (s.n === 1 ? ' gasto anotado' : ' gastos anotados');
     $('k-perf').textContent = dinero(s.perf);
     $('k-op').textContent = dinero(s.op);
     $('k-rec').textContent = dinero(s.rec);
-    if (!s.n) $('lead').textContent = 'Todavía no hay gastos anotados en ' + nombreMes(mes) + '.';
-    else $('lead').innerHTML = 'En ' + esc(nombreMes(mes)) + ' llevas <b>' + dinero(s.total) + '</b> en gastos. El <b>' + Math.round(s.perf / (s.total || 1) * 100) + '%</b> fue compra de perfumes. A tu ganancia se le restan <b>' + dinero(r2(s.op + s.rec)) + '</b>: ' + dinero(s.op) + ' de operación de ESSENTIA y ' + dinero(s.rec) + ' de RECOOVARE.';
-    pintarUtilidad(s);
-    barras('g-cat', agrupar(lista, function (g) { return g.categoria || 'Sin categoría'; }), s.total);
+    var cuando = unMes ? 'En ' + nombreMes(mes) : per === 'rango' ? 'Del ' + largoF(r.a) + ' al ' + largoF(r.b) : 'En ' + r.t;
+    if (!s.n) $('lead').textContent = 'Todavía no hay gastos anotados ' + (unMes ? 'en ' + nombreMes(mes) : per === 'rango' ? r.t : 'en ' + r.t) + '.';
+    else $('lead').innerHTML = esc(cuando) + ' llevas <b>' + dinero(s.total) + '</b> en gastos. El <b>' + Math.round(s.perf / (s.total || 1) * 100) + '%</b> fue compra de perfumes. A tu ganancia se le restan <b>' + dinero(r2(s.op + s.rec)) + '</b>: ' + dinero(s.op) + ' de operación de ESSENTIA y ' + dinero(s.rec) + ' de RECOOVARE.';
+    // Un mes: utilidad del mes, semanas y reparto. Varios meses: utilidad por mes.
+    $('u-titulo').textContent = unMes ? 'Utilidad del mes' : 'Utilidad del periodo';
+    $('utilidad-semanal').hidden = !unMes; $('reparto').hidden = !unMes; $('historial').hidden = !unMes;
+    $('utilidad-mensual').hidden = unMes;
+    if (unMes) { pintarUtilidad(s); pintarTabla(lista); } else pintarMeses(r);
+    palabra = unMes ? 'del mes' : 'del periodo';
+    barras('g-cat', agrupar(lista, function (g) { return g.categoria || 'Sin categoría'; }), s.total, true);
     barras('g-pago', agrupar(lista, function (g) { return g.pago || 'Sin dato'; }), s.total);
-    pintarTabla(lista);
+    $('l-titulo').textContent = unMes ? 'Gastos del mes' : 'Gastos del periodo';
     pintarLista(lista);
-    if (window.pintarReparto) window.pintarReparto();
+    if (unMes && window.pintarReparto) window.pintarReparto();
+  }
+  var palabra = 'del mes';
+
+  // Varios meses: cada mes completo (sus semanas y sus gastos)
+  function pintarMeses(r) {
+    var tg = 0, hayG = false, top = 0, trec = 0, html = '', faltan = [];
+    mesesDe(r).forEach(function (m) {
+      var s = resumen(delMes(m)), g = gananciaDe(m), u = g === null ? null : r2(g - s.op - s.rec);
+      if (g === null && !s.n && m !== mesDe(hoy())) return; // meses sin nada anotado no se muestran
+      if (g !== null) { hayG = true; tg += g; }
+      top += s.op; trec += s.rec;
+      if (g === null && delMes(m).length) faltan.push(nombreMes(m).split(' ')[0]);
+      html += '<tr><td class="sem"><span style="text-transform:capitalize">' + esc(nombreMes(m)) + '</span>' + (m === mesDe(hoy()) ? '<small>Mes en curso</small>' : '') + '</td>' +
+        '<td class="num" data-label="Ganancia Shopify">' + (g === null ? '<span class="falta">Sin anotar</span>' : dinero(g)) + '</td>' +
+        '<td class="num menos" data-label="− Operación ESSENTIA">' + dinero(s.op) + '</td>' +
+        '<td class="num menos" data-label="− Gastos RECOOVARE">' + dinero(s.rec) + '</td>' +
+        '<td class="num" data-label="Utilidad">' + celdaU(u) + '</td></tr>';
+    });
+    $('tm-meses').innerHTML = html;
+    tg = r2(tg); top = r2(top); trec = r2(trec);
+    var ut = hayG ? r2(tg - top - trec) : null;
+    $('tm-total').innerHTML = '<tr><td class="sem">Total</td><td class="num" data-label="Ganancia Shopify">' + (hayG ? dinero(tg) : '—') + '</td>' +
+      '<td class="num menos" data-label="− Operación ESSENTIA">' + dinero(top) + '</td><td class="num menos" data-label="− Gastos RECOOVARE">' + dinero(trec) + '</td>' +
+      '<td class="num" data-label="Utilidad">' + celdaU(ut) + '</td></tr>';
+    var restas = '<div class="r menos"><span>− Operación de ESSENTIA</span><span>' + dinero(top) + '</span></div><div class="r menos"><span>− Gastos de RECOOVARE</span><span>' + dinero(trec) + '</span></div>';
+    $('u-cuenta').innerHTML = !hayG ? restas + '<p class="ayuda">Anota la ganancia de Shopify de cada semana para ver tu utilidad.</p>' :
+      '<div class="r"><span>Ganancia de Shopify</span><span>' + dinero(tg) + '</span></div>' + restas +
+      '<div class="r total ' + (ut >= 0 ? 'pos' : 'neg') + '"><span>Utilidad</span><span>' + (ut < 0 ? '−' : '') + dinero(Math.abs(ut)) + '</span></div>' +
+      (faltan.length ? '<p class="ayuda" style="color:var(--aviso)">Falta anotar la ganancia de Shopify de ' + esc(faltan.join(', ')) + '; sus gastos sí se restan.</p>' : '') +
+      (per === 'rango' && (r.a.slice(8) !== '01' || r.b !== finMes(mesDe(r.b))) ? '<p class="ayuda">La utilidad cuenta los meses completos de este rango.</p>' : '');
   }
 
   function pintarUtilidad(s) {
@@ -124,13 +187,14 @@
     lista.forEach(function (g) { var k = clave(g); m[k] = m[k] || { k: k, monto: 0, n: 0, rec: 0 }; m[k].monto += num(g.monto); m[k].n++; if (g.negocio === 'RECOOVARE') m[k].rec += num(g.monto); });
     return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return b.monto - a.monto; });
   }
-  function barras(id, filas, total) {
+  function barras(id, filas, total, filtrable) {
     var max = filas.reduce(function (x, f) { return Math.max(x, f.monto); }, 0) || 1;
     $(id).innerHTML = filas.length ? filas.map(function (f) {
-      return '<div class="barra-f"><div class="top"><span>' + esc(f.k) + '</span><b>' + dinero(f.monto) + '</b></div>' +
+      var tag = filtrable ? 'button type="button" data-cat="' + esc(f.k) + '" aria-pressed="' + (catFiltro === f.k) + '" title="Ver solo estos gastos"' : 'div';
+      return '<' + tag + ' class="barra-f' + (filtrable ? ' filtrable' : '') + '"><div class="top"><span>' + esc(f.k) + '</span><b>' + dinero(f.monto) + '</b></div>' +
         '<div class="pista" aria-hidden="true"><div class="llena" style="width:' + Math.max(1.5, f.monto / max * 100) + '%"></div></div>' +
-        '<small>' + (Math.round(f.monto / (total || 1) * 1000) / 10) + '% del mes · ' + f.n + (f.n === 1 ? ' gasto' : ' gastos') + (f.rec > 0 ? ' · ' + dinero(f.rec) + ' de RECOOVARE' : '') + '</small></div>';
-    }).join('') : '<p class="vacio">Sin gastos este mes.</p>';
+        '<small>' + (Math.round(f.monto / (total || 1) * 1000) / 10) + '% ' + palabra + ' · ' + f.n + (f.n === 1 ? ' gasto' : ' gastos') + (f.rec > 0 ? ' · ' + dinero(f.rec) + ' de RECOOVARE' : '') + '</small></' + (filtrable ? 'button' : 'div') + '>';
+    }).join('') : '<p class="vacio">Sin gastos ' + (palabra === 'del mes' ? 'este mes' : 'en este periodo') + '.</p>';
   }
   function cuentaSem(lista, sem) {
     var l = lista.filter(function (g) { return g.fecha >= sem.a && g.fecha <= sem.b; });
@@ -160,9 +224,19 @@
   }
 
   function pintarLista(lista) {
-    var l = lista.filter(function (g) { return filtro === 'todos' || (g.negocio || 'ESSENTIA') === filtro; })
+    var q = sinAcentos(busqueda.trim());
+    var fc = $('filtro-cat');
+    fc.hidden = !catFiltro;
+    if (catFiltro) fc.innerHTML = '<span>Categoría: <b>' + esc(catFiltro) + '</b></span><button type="button" class="btn btn-claro btn-mini" data-quitar-cat>Ver todas</button>';
+    var l = lista.filter(function (g) {
+      if (filtro !== 'todos' && (g.negocio || 'ESSENTIA') !== filtro) return false;
+      if (catFiltro && (g.categoria || 'Sin categoría') !== catFiltro) return false;
+      return !q || sinAcentos([g.concepto, g.notas, g.categoria, g.pago].join(' ')).indexOf(q) >= 0;
+    })
       .sort(function (a, b) { return a.fecha === b.fecha ? (a.creado < b.creado ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); });
     $('vacio').hidden = l.length > 0;
+    $('vacio').textContent = lista.length && (q || catFiltro || filtro !== 'todos') ? 'Ningún gasto coincide con tu búsqueda o filtro.' : per === 'mes' ? 'No hay gastos en este mes.' : 'No hay gastos en este periodo.';
+    if (l.length && (q || catFiltro)) { var tot = l.reduce(function (x, g) { return x + num(g.monto); }, 0); fc.hidden = false; fc.innerHTML = (catFiltro ? '<span>Categoría: <b>' + esc(catFiltro) + '</b></span>' : '<span>Búsqueda</span>') + '<span>' + l.length + (l.length === 1 ? ' gasto' : ' gastos') + ' · <b>' + dinero(tot) + '</b></span>' + (catFiltro ? '<button type="button" class="btn btn-claro btn-mini" data-quitar-cat>Ver todas</button>' : ''); }
     var dias = {}, orden = [];
     l.forEach(function (g) { if (!dias[g.fecha]) { dias[g.fecha] = []; orden.push(g.fecha); } dias[g.fecha].push(g); });
     $('lista').innerHTML = orden.map(function (f) {
@@ -180,6 +254,24 @@
 
   /* ---------- navegación ---------- */
   $('mes-ant').addEventListener('click', function () { mes = moverMes(mes, -1); pintar(); });
+  document.querySelector('.seg-p').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-per]'); if (!b) return;
+    var k = b.getAttribute('data-per');
+    if (k === 'pasado') { per = 'mes'; mes = moverMes(mesDe(hoy()), -1); }
+    else if (k === 'mes') { per = 'mes'; mes = mesDe(hoy()); }
+    else { if (k === 'rango' && per !== 'rango') { var r = rangoActual(); rDesde = r.a; rHasta = r.b > hoy() ? hoy() : r.b; } per = k; }
+    catFiltro = ''; pintar();
+  });
+  $('r-desde').addEventListener('change', function () { rDesde = this.value; pintar(); });
+  $('r-hasta').addEventListener('change', function () { rHasta = this.value; pintar(); });
+  $('g-cat').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-cat]'); if (!b) return;
+    var c = b.getAttribute('data-cat'); catFiltro = catFiltro === c ? '' : c; pintar();
+    if (catFiltro) document.getElementById('l-titulo').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  $('filtro-cat').addEventListener('click', function (ev) { if (ev.target.closest('[data-quitar-cat]')) { catFiltro = ''; pintar(); } });
+  var tBus = null;
+  $('buscar').addEventListener('input', function () { var v = this.value; clearTimeout(tBus); tBus = setTimeout(function () { busqueda = v; pintarLista(per === 'mes' ? delMes(mes) : delPeriodo()); }, 120); });
   $('mes-sig').addEventListener('click', function () { if (mes < mesDe(hoy())) { mes = moverMes(mes, 1); pintar(); } });
   document.querySelectorAll('input[name="filtro"]').forEach(function (r) { r.addEventListener('change', function () { filtro = this.value; pintar(); }); });
   $('lista').addEventListener('click', function (ev) {
@@ -272,7 +364,7 @@
     if (!actual) gastos.push(g);
     if (!guardar(K, gastos)) { alert('No se pudo guardar en este navegador.'); return; }
     var editando = !!actual;
-    mes = mesDe(fecha);
+    if (per === 'mes') mes = mesDe(fecha);
     cerrar(); pintar(); aviso(editando ? 'Gasto actualizado' : 'Gasto anotado: ' + dinero(g.monto));
   });
   $('m-borrar').addEventListener('click', function () {
@@ -292,7 +384,10 @@
     var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nombre; document.body.appendChild(a); a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
-  $('csv-mes').addEventListener('click', function () { csv(delMes(mes), 'gastos-essentia-' + mes + '.csv'); });
+  $('csv-mes').addEventListener('click', function () {
+    if (per === 'mes') { csv(delMes(mes), 'gastos-essentia-' + mes + '.csv'); return; }
+    var r = rangoActual(); csv(delPeriodo(), 'gastos-essentia-' + r.a + '-al-' + r.b + '.csv');
+  });
   $('csv-todo').addEventListener('click', function () { csv(vivos(), 'gastos-essentia-todo.csv'); });
 
   var tt = null;

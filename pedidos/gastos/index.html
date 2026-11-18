@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap">
 <link rel="stylesheet" href="../panel.css?v=1">
-<link rel="stylesheet" href="gastos.css?v=5">
+<link rel="stylesheet" href="gastos.css?v=6">
 </head>
 <body>
 
@@ -26,10 +26,23 @@
 
 <main class="contenedor">
   <div class="cabeza">
-    <div class="mes-nav">
-      <button type="button" class="btn btn-claro btn-flecha" id="mes-ant" aria-label="Mes anterior">‹</button>
-      <h2 id="mes-titulo">—</h2>
-      <button type="button" class="btn btn-claro btn-flecha" id="mes-sig" aria-label="Mes siguiente">›</button>
+    <div class="periodo">
+      <div class="seg-p" role="group" aria-label="Periodo">
+        <button type="button" data-per="mes" aria-pressed="true">Un mes</button>
+        <button type="button" data-per="pasado" aria-pressed="false">Mes pasado</button>
+        <button type="button" data-per="3m" aria-pressed="false">Últimos 3 meses</button>
+        <button type="button" data-per="anio" aria-pressed="false">Este año</button>
+        <button type="button" data-per="rango" aria-pressed="false">Rango</button>
+      </div>
+      <div class="mes-nav">
+        <button type="button" class="btn btn-claro btn-flecha" id="mes-ant" aria-label="Mes anterior">‹</button>
+        <h2 id="mes-titulo">—</h2>
+        <button type="button" class="btn btn-claro btn-flecha" id="mes-sig" aria-label="Mes siguiente">›</button>
+      </div>
+      <div class="rango" id="rango" hidden>
+        <div class="campo"><label for="r-desde">Desde</label><input id="r-desde" type="date"></div>
+        <div class="campo"><label for="r-hasta">Hasta</label><input id="r-hasta" type="date"></div>
+      </div>
     </div>
     <button type="button" class="btn btn-principal btn-grande" id="btn-nuevo">+ Anotar gasto</button>
   </div>
@@ -56,6 +69,18 @@
       <div class="barras" id="g-cat"></div>
     </section>
   </div>
+
+  <section class="panel" id="utilidad-mensual" aria-labelledby="um-titulo" hidden>
+    <h2 id="um-titulo">Utilidad por mes</h2>
+    <p class="ayuda">Sale de la ganancia de Shopify que anotas cada semana. Cada mes se cuenta completo. El reparto se hace por semana: elige «Un mes» para verlo.</p>
+    <div class="tabla-caja">
+      <table class="tabla-u">
+        <thead><tr><th scope="col">Mes</th><th scope="col" class="num">Ganancia Shopify</th><th scope="col" class="num">Operación ESSENTIA</th><th scope="col" class="num">Gastos RECOOVARE</th><th scope="col" class="num">Utilidad</th></tr></thead>
+        <tbody id="tm-meses"></tbody>
+        <tfoot id="tm-total"></tfoot>
+      </table>
+    </div>
+  </section>
 
   <section class="panel" id="utilidad-semanal" aria-labelledby="s-titulo">
     <h2 id="s-titulo">Utilidad por semana</h2>
@@ -100,16 +125,18 @@
   <section class="panel" aria-labelledby="l-titulo">
     <div class="panel-cab">
       <h2 id="l-titulo">Gastos del mes</h2>
+      <input type="search" id="buscar" class="buscar" placeholder="Buscar concepto o nota" aria-label="Buscar en los gastos" autocomplete="off">
       <div class="opciones" role="radiogroup" aria-label="Filtrar por negocio">
         <label><input type="radio" name="filtro" value="todos" checked><span>Todos</span></label>
         <label><input type="radio" name="filtro" value="ESSENTIA"><span>ESSENTIA</span></label>
         <label><input type="radio" name="filtro" value="RECOOVARE"><span>RECOOVARE</span></label>
       </div>
     </div>
+    <div class="filtro-cat" id="filtro-cat" hidden></div>
     <div class="lista" id="lista"></div>
     <p class="vacio" id="vacio" hidden>No hay gastos en este mes.</p>
     <div class="pie-lista">
-      <button type="button" class="btn btn-claro btn-mini" id="csv-mes">Descargar el mes para Excel</button>
+      <button type="button" class="btn btn-claro btn-mini" id="csv-mes">Descargar este periodo para Excel</button>
       <button type="button" class="btn btn-claro btn-mini" id="csv-todo">Descargar todo para Excel</button>
     </div>
   </section>
@@ -163,6 +190,6 @@
 
 <script src="../../admin/menu.js?v=2"></script>
 <script src="../nube.js?v=4"></script>
-<script>RecoovareNube.iniciar(['gastos.js?v=6', 'reparto.js?v=1']);</script>
+<script>RecoovareNube.iniciar(['gastos.js?v=7', 'reparto.js?v=1']);</script>
 </body>
 </html>
