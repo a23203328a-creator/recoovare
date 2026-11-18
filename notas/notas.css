@@ -60,6 +60,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--cafe); outline: 
 .btn-claro { background: #fff; color: var(--cafe); border-color: var(--cafe); }
 .btn-claro:hover { background: var(--fondo); }
 .btn-verde { background: var(--verde); color: #fff; }
+.btn-nueva { background: var(--ambar); color: #fff; border-color: var(--ambar); }
+.btn-nueva:hover { background: #92400E; border-color: #92400E; }
 .btn-verde:hover { background: var(--verde-oscuro); }
 .btn-mini { min-height: 36px; padding: 5px 12px; font-size: 14px; }
 .btn-texto { font: inherit; font-size: 14px; font-weight: 800; border: 0; background: none; color: var(--cafe); cursor: pointer; padding: 6px 8px; min-height: 36px; border-radius: 8px; }
