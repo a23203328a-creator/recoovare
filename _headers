@@ -6,3 +6,13 @@
   Cache-Control: no-cache
 /*.css
   Cache-Control: no-cache
+/admin/*
+  Cache-Control: no-cache
+/pedidos/*
+  Cache-Control: no-cache
+/notas/*
+  Cache-Control: no-cache
+/mensajes/*
+  Cache-Control: no-cache
+/guia/*
+  Cache-Control: no-cache
