@@ -207,6 +207,7 @@ Entra a **https://recoovare.pages.dev/pedidos/gastos/** (privada). Reemplaza la 
 Entra a **https://recoovare.pages.dev/admin/** (privado, mismo inicio de sesión que Pedidos). Es tu página de inicio para los dos negocios.
 
 - Arriba: pedidos activos, bocetos pendientes (por hacer y por aprobar), entregas de los próximos 7 días, lo que tienes hoy y lo que falta cobrar. Todo sale de tus datos reales; toca una tarjeta para ir a ese apartado.
+- **Buscador** arriba del panel: escribe un nombre, teléfono, folio (RC-0014, R-0010) o concepto y te muestra lo que coincide en Pedidos, Notas de venta, Agenda, Apuntes y Gastos. Toca un resultado para abrirlo (Enter abre el primero; en la computadora, la tecla / pone el cursor en el buscador).
 - "Hoy y próximas actividades" (agenda de ESSENTIA y RECOOVARE) y "Pedidos que requieren atención".
 - Menú en todas las páginas privadas: a la izquierda en la computadora y abajo en el celular (en "Más" están Gastos, Apuntes y Catálogo).
 - **Apuntes** (/admin/apuntes/): anotaciones sin fecha. Crear, editar, marcar como importante (★), buscar y borrar (pide confirmación). Se guardan en línea.

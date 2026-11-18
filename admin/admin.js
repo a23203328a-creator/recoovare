@@ -85,7 +85,7 @@
     kpi('../pedidos/agenda/', 'Entregas en 7 días', nEntregas,
       acordadasSinAgendar.length ? acordadasSinAgendar.length + ' sin hora en la agenda' : 'Entregas e instalaciones') +
     kpi('../pedidos/agenda/#' + HOY, 'Para hoy', deHoy.length,
-      deHoy.length ? (pendHoy ? pendHoy + ' pendientes' : 'Todo hecho') : 'Agenda libre', pendHoy ? 'azul' : '') +
+      deHoy.length ? (pendHoy ? pendHoy + (pendHoy === 1 ? ' por hacer' : ' por hacer') : 'Todo hecho') : 'Agenda libre', pendHoy ? 'azul' : '') +
     kpi('../pedidos/', 'Por cobrar', dinero(porCobrar), conSaldo.length + (conSaldo.length === 1 ? ' pedido con saldo' : ' pedidos con saldo'), porCobrar > 0 ? 'rojo' : '');
 
   if (atrasados.length) {
@@ -142,4 +142,83 @@
   if (vivos.length) $('apuntes-sub').textContent = vivos.length + (vivos.length === 1 ? ' apunte' : ' apuntes') + (imp ? ' · ' + imp + (imp === 1 ? ' importante' : ' importantes') : '');
 
   $('cargando').hidden = true; $('kpis').hidden = false; $('cuerpo').hidden = false;
+
+  /* ---------- buscador general ---------- */
+  function norm(t) { return String(t == null ? '' : t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+  function digitos(t) { return String(t || '').replace(/\D/g, ''); }
+  var notas = leer('recoovare_notas', []); if (!Array.isArray(notas)) notas = [];
+  var gastos = leer('essentia_gastos', []); if (!Array.isArray(gastos)) gastos = [];
+  var agendaTodo = leer('recoovare_agenda', []); if (!Array.isArray(agendaTodo)) agendaTodo = [];
+  function totalNota(n) { return (n.items || []).reduce(function (s, i) { return s + num(i.cant) * num(i.precio); }, 0); }
+  var GRUPOS = [];
+  function grupo(clave, titulo, items) { GRUPOS.push({ k: clave, t: titulo, items: items }); }
+  grupo('pedidos', 'Pedidos', pedidos.map(function (p) {
+    return { txt: [p.folio, p.notaFolio, p.cliente, p.producto, p.notas, p.ubicacion, p.intermediario && p.intermediario.nombre].join(' '), tel: p.tel, folio: [p.folio, p.notaFolio],
+      orden: p.fecha || '', href: '../pedidos/?abrir=' + encodeURIComponent(p.id),
+      tit: (p.folio || '') + ' · ' + (p.cliente || 'Sin nombre'), sub: [p.producto, p.estado, p.entrega ? 'Entrega ' + corta(p.entrega) : '', saldo(p) > 0 ? 'Debe ' + dinero(saldo(p)) : ''].filter(Boolean).join(' · '),
+      tag: p.estado === 'Cancelado' ? 'Cancelado' : p.estado === 'Entregado' ? 'Entregado' : '' };
+  }));
+  grupo('notas', 'Notas de venta', notas.filter(function (n) { return n && n.folio; }).map(function (n) {
+    var c = n.cliente || {};
+    return { txt: [n.folio, c.nombre, (n.items || []).map(function (i) { return i.desc + ' ' + (i.detalle || ''); }).join(' '), n.notas, n.envio && n.envio.direccion].join(' '), tel: c.tel, folio: [n.folio],
+      orden: n.fecha || '', href: '../notas/?abrir=' + encodeURIComponent(n.id),
+      tit: n.folio + ' · ' + (c.nombre || 'Sin nombre'), sub: [(n.items || []).map(function (i) { return i.desc; }).join(', '), 'Total ' + dinero(totalNota(n)), n.fecha ? corta(String(n.fecha).slice(0, 10)) : ''].filter(Boolean).join(' · ') };
+  }));
+  grupo('agenda', 'Agenda', agendaTodo.filter(function (e) { return e && !e.borrado && e.fecha; }).map(function (e) {
+    var et = etiqueta(e), q = quien(e);
+    return { txt: [et.t, q, e.cliente, e.asunto, e.razon, e.detalle, e.lugar, e.notas, e.motivo].join(' '), tel: e.tel, folio: [],
+      orden: e.fecha + ' ' + (e.hora || ''), href: '../pedidos/agenda/#' + e.fecha,
+      tit: et.t + (q ? ' · ' + q : ''), sub: [corta(e.fecha) + (e.hora ? ' ' + String(e.hora).slice(0, 5) : ''), et.n === 'e' ? 'ESSENTIA' : et.n === 'r' ? 'RECOOVARE' : '', e.hecho ? 'Hecho' : ''].filter(Boolean).join(' · ') };
+  }));
+  grupo('apuntes', 'Apuntes', apuntes.filter(function (a) { return a && !a.borrado; }).map(function (a) {
+    return { txt: [a.titulo, a.texto].join(' '), tel: a.texto, folio: [], orden: a.editado || a.creado || '', href: 'apuntes/?abrir=' + encodeURIComponent(a.id),
+      tit: (a.importante ? '★ ' : '') + (a.titulo || 'Sin título'), sub: String(a.texto || '').replace(/\s+/g, ' ').slice(0, 90) };
+  }));
+  grupo('gastos', 'Gastos ESSENTIA', gastos.filter(function (g) { return g && !g.borrado; }).map(function (g) {
+    return { txt: [g.concepto, g.categoria, g.notas, g.pago, g.negocio].join(' '), tel: '', folio: [], orden: g.fecha || '', href: '../pedidos/gastos/?abrir=' + encodeURIComponent(g.id),
+      tit: (g.concepto || 'Gasto') + ' · ' + dinero(g.monto), sub: [g.fecha ? corta(g.fecha) : '', g.categoria, g.negocio === 'RECOOVARE' ? 'RECOOVARE' : ''].filter(Boolean).join(' · ') };
+  }));
+  GRUPOS.forEach(function (g) { g.items.forEach(function (it) { it.n = norm(it.txt); it.d = digitos(it.tel); it.f = (it.folio || []).filter(Boolean).map(norm); }); });
+
+  function buscar(q) {
+    var nq = norm(q).trim(), palabras = nq.split(/\s+/).filter(Boolean), dq = digitos(q);
+    var soloNum = dq.length >= 3 && dq.length === q.replace(/[\s\-()+]/g, '').length;
+    return GRUPOS.map(function (g) {
+      var l = g.items.map(function (it) {
+        var exacto = it.f.indexOf(nq) >= 0 ? 3 : it.f.some(function (f) { return f.indexOf(nq) >= 0; }) ? 2 : 0;
+        var porTel = dq.length >= 3 && it.d.indexOf(dq) >= 0;
+        var porTxt = palabras.every(function (w) { return it.n.indexOf(w) >= 0; });
+        if (!(exacto || porTel || (!soloNum && porTxt) || (soloNum && porTxt))) return null;
+        return { it: it, p: exacto + (porTel ? 1 : 0) };
+      }).filter(Boolean).sort(function (a, b) { return b.p - a.p || String(b.it.orden).localeCompare(String(a.it.orden)); });
+      return { g: g, l: l };
+    }).filter(function (x) { return x.l.length; });
+  }
+  var abiertos = {};
+  function pintarRes() {
+    var q = $('buscar').value, box = $('resultados');
+    if (q.trim().length < 2) { box.hidden = true; box.innerHTML = ''; return; }
+    var res = buscar(q), total = res.reduce(function (s, x) { return s + x.l.length; }, 0);
+    box.hidden = false;
+    if (!total) { box.innerHTML = '<p class="ad-vacio">Nada coincide con «' + esc(q.trim()) + '». Prueba con otra parte del nombre o el teléfono.</p>'; return; }
+    box.innerHTML = '<p class="ad-res-cab">' + total + (total === 1 ? ' resultado' : ' resultados') + ' para «' + esc(q.trim()) + '»</p>' +
+      '<div class="ad-res-grid">' + res.map(function (x) {
+        var max = abiertos[x.g.k] ? 50 : 5;
+        return '<section class="ad-res-g"><h3>' + esc(x.g.t) + ' <span>' + x.l.length + '</span></h3><ul>' +
+          x.l.slice(0, max).map(function (r) {
+            return '<li><a href="' + r.it.href + '"><b>' + esc(r.it.tit) + '</b>' + (r.it.tag ? ' <span class="ad-res-tag">' + esc(r.it.tag) + '</span>' : '') + (r.it.sub ? '<small>' + esc(r.it.sub) + '</small>' : '') + '</a></li>';
+          }).join('') + '</ul>' +
+          (x.l.length > max ? '<button type="button" class="btn btn-claro btn-mini" data-mas="' + x.g.k + '">Ver ' + (x.l.length - max) + ' más</button>' : '') + '</section>';
+      }).join('') + '</div>';
+  }
+  var tB = null;
+  $('buscar').addEventListener('input', function () { abiertos = {}; clearTimeout(tB); tB = setTimeout(pintarRes, 120); });
+  $('buscar').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { var a = $('resultados').querySelector('a'); if (a) { e.preventDefault(); location.href = a.href; } }
+    if (e.key === 'Escape') { this.value = ''; pintarRes(); }
+  });
+  $('resultados').addEventListener('click', function (e) { var b = e.target.closest('[data-mas]'); if (b) { abiertos[b.getAttribute('data-mas')] = true; pintarRes(); } });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== $('buscar') && !/input|textarea|select/i.test((document.activeElement || {}).tagName || '')) { e.preventDefault(); $('buscar').focus(); }
+  });
 })();

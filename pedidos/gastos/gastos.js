@@ -403,4 +403,6 @@
     nombreMes: nombreMes, dinero: dinero, r2: r2, num: num, esc: esc, hoy: hoy, mesDe: mesDe, corta: corta, aviso: aviso
   };
   pintar();
+  var abrirG = new URLSearchParams(location.search).get('abrir');
+  if (abrirG) { history.replaceState(null, '', location.pathname); var gx = vivos().find(function (x) { return x.id === abrirG; }); if (gx) { mes = mesDe(gx.fecha); pintar(); abrir(gx); } }
 })();

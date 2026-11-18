@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="../pedidos/panel.css?v=1">
-<link rel="stylesheet" href="admin.css?v=2">
+<link rel="stylesheet" href="admin.css?v=3">
 </head>
 <body>
 
@@ -21,6 +21,14 @@
 </header>
 
 <main class="contenedor">
+  <div class="ad-buscar" role="search">
+    <label class="sr" for="buscar">Buscar en todo el panel</label>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input type="search" id="buscar" placeholder="Buscar cliente, teléfono, folio o concepto" autocomplete="off" enterkeyhint="search">
+    <kbd class="ad-atajo" aria-hidden="true">/</kbd>
+  </div>
+  <section class="ad-res" id="resultados" aria-live="polite" hidden></section>
+
   <p class="cargando" id="cargando">Cargando tus datos…</p>
 
   <section class="ad-kpis" id="kpis" aria-label="Resumen" hidden></section>
@@ -78,6 +86,6 @@
 
 <script src="menu.js?v=2"></script>
 <script src="../pedidos/nube.js?v=4"></script>
-<script>RecoovareNube.iniciar(['admin.js?v=2']);</script>
+<script>RecoovareNube.iniciar(['admin.js?v=3']);</script>
 </body>
 </html>

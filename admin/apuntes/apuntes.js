@@ -90,4 +90,6 @@
     abrir(apuntes.find(function (x) { return x.id === c.dataset.id; }));
   });
   pintar();
+  var abrirId = new URLSearchParams(location.search).get('abrir');
+  if (abrirId) { history.replaceState(null, '', location.pathname); var ap = apuntes.find(function (x) { return x.id === abrirId && !x.borrado; }); if (ap) abrir(ap); }
 })();
