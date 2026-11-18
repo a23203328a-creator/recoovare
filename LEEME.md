@@ -174,6 +174,10 @@ Entra a **https://recoovare.pages.dev/pedidos/agenda/** (privada, con el mismo i
 - **Horarios libres para citas**: con el horario de citas de `datos.js` (sección `cita`) te dice qué huecos tienes ese día. "Copiar" o "Mandar por WhatsApp" para pasárselo a tus asesoras.
 - **Pedidos sin fecha en la agenda**: los pedidos activos que aún no tienen entrega agendada. Al agendar uno, su fecha de entrega, forma de entrega y ubicación se actualizan en Pedidos. Al marcar la entrega como hecha te pregunta si también lo marcas como Entregado.
 - "Confirmar por WhatsApp" abre el chat del cliente con el mensaje de confirmación ya escrito.
+- **Semana o Mes**: arriba eliges cómo ver el calendario. Los botones **Ambos · RECOOVARE · ESSENTIA** filtran lo que ves (los bloques de "Ocupado" se ven siempre). Se recuerda tu elección.
+- **Más tipos**: Reunión, Pago o cobro (solo recordatorio: no se anota en Gastos ni en Pedidos), Pendiente y Recordatorio. Cada uno lleva su negocio. Pago, pendiente y recordatorio pueden ir "sin hora" y no cuentan para los choques.
+- **Pendientes sin hacer** se pasan solos al día de hoy con la marca "Atrasado · era del…" hasta que los marques como hechos.
+- **La fecha de entrega queda igual en todos lados**: si la cambias en Pedidos, en la nota o en la agenda, se actualiza en los tres. Cada pedido tiene una sola entrega en la agenda (se mueve, no se duplica). Si cancelas o borras el pedido, su entrega se quita de la agenda.
 
 ---
 

@@ -28,6 +28,8 @@
 .ad-txt b { font-weight: 700; }
 .ad-txt small { display: block; color: var(--suave); font-size: 12.5px; }
 .ad-ok { font-size: 12px; font-weight: 800; color: var(--ok); }
+.ad-atr { font-size: 11.5px; font-weight: 800; color: var(--alerta); background: var(--alerta-c); padding: 2px 8px; border-radius: 999px; flex: none; }
+.ad-hora small { font-size: 11.5px; color: var(--suave); font-weight: 700; }
 .ad-vacio { color: var(--suave); padding: 10px 0; font-size: 14.5px; }
 .ad-pie { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding: 10px 12px; background: var(--aviso-c); color: var(--aviso); border-radius: 10px; font-size: 14px; font-weight: 700; }
 .ad-mot { font-size: 11.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; flex: none; min-width: 112px; text-align: center; }

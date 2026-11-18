@@ -5,7 +5,7 @@
    - Avisa si algo choca, contando el tiempo para trasladarte.
    ===================================================================== */
 (function () {
-  var K = 'recoovare_agenda', KP = 'recoovare_pedidos', KMARGEN = 'agenda_margen';
+  var K = 'recoovare_agenda', KP = 'recoovare_pedidos', KN = 'recoovare_notas', KMARGEN = 'agenda_margen', KFILTRO = 'agenda_filtro', KVISTA = 'agenda_vista';
   var D = window.CATALOGO || {};
   var CITA = D.cita || {};
   var HORARIO_ESSENTIA = '10:00-19:30';
@@ -14,7 +14,10 @@
   var DIAS_C = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
   var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   var METODOS = { recoge: 'Recoge en el local', envio: 'Envío a domicilio', instalacion: 'Instalación' };
-  var DUR_DEF = { cita_r: 45, entrega_r: 30, essentia: 30, ocupado: 60 };
+  var DUR_DEF = { cita_r: 45, entrega_r: 30, essentia: 30, ocupado: 60, reunion: 60, pago: 15, pendiente: 30, recordatorio: 15 };
+  // Pago, pendiente y recordatorio no ocupan tiempo: no cuentan para choques ni horarios libres
+  var SIN_TIEMPO = ['pago', 'pendiente', 'recordatorio'];
+  var NEG = { r: 'RECOOVARE', e: 'ESSENTIA' };
 
   var $ = function (id) { return document.getElementById(id); };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -42,7 +45,23 @@
   if (!Array.isArray(eventos)) eventos = [];
   function pedidos() { var p = leer(KP, []); return Array.isArray(p) ? p : []; }
   function vivos() { return eventos.filter(function (e) { return e && !e.borrado; }); }
-  function delDia(f) { return vivos().filter(function (e) { return e.fecha === f; }).sort(function (a, b) { return aMin(a.hora) - aMin(b.hora); }); }
+  // Pendiente sin hacer de un día pasado: se pasa a hoy marcado como atrasado
+  function arrastrado(e) { return e.tipo === 'pendiente' && !e.hecho && e.fecha < hoy(); }
+  function ordenar(l) { return l.sort(function (a, b) { return (a.hora ? 1 : 0) - (b.hora ? 1 : 0) || aMin(a.hora) - aMin(b.hora); }); }
+  function delDiaTodos(f) {
+    var h = hoy();
+    return ordenar(vivos().filter(function (e) { return f === h ? (e.fecha === f || arrastrado(e)) : (e.fecha === f && !arrastrado(e)); }));
+  }
+  function negocioDe(e) {
+    if (e.tipo === 'cita_r' || e.tipo === 'entrega_r') return 'r';
+    if (e.tipo === 'essentia') return 'e';
+    if (e.tipo === 'ocupado') return 'o';
+    return e.negocio === 'e' ? 'e' : 'r';
+  }
+  var filtroNeg = localStorage.getItem(KFILTRO) || 'ambos';
+  function pasaFiltro(e) { var n = negocioDe(e); return filtroNeg === 'ambos' || n === 'o' || n === filtroNeg; }
+  function delDia(f) { return delDiaTodos(f).filter(pasaFiltro); }
+  function ocupa(e) { return SIN_TIEMPO.indexOf(e.tipo) < 0 && !!e.hora; }
   function guardarEventos() { if (!guardar(K, eventos)) alert('No se pudo guardar en este navegador.'); }
   var margen = (function () { var m = localStorage.getItem(KMARGEN); return m === null ? 30 : num(m); })();
 
@@ -59,7 +78,8 @@
   /* ---------- lugar, horario y choques ---------- */
   function lugarDe(e) {
     if (e.tipo === 'cita_r') return 'local_r';
-    if (e.tipo === 'ocupado') return 'otro';
+    if (e.tipo === 'ocupado' || SIN_TIEMPO.indexOf(e.tipo) >= 0) return 'otro';
+    if (e.tipo === 'reunion' && !String(e.lugar || '').trim()) return 'otro';
     if (e.tipo === 'essentia' && e.modo === 'local') return 'local_e';
     if (e.tipo === 'entrega_r' && e.metodo === 'recoge') return 'local_r';
     var l = String(e.lugar || '').trim().toLowerCase();
@@ -77,18 +97,22 @@
     if (e.tipo === 'cita_r') return { t: 'Cita RECOOVARE', c: 'tag-r', b: 'r' };
     if (e.tipo === 'entrega_r') return { t: e.metodo === 'instalacion' ? 'Instalación RECOOVARE' : 'Entrega RECOOVARE', c: 'tag-r', b: 'r' };
     if (e.tipo === 'essentia') return { t: e.modo === 'local' ? 'ESSENTIA · Visita al local' : 'ESSENTIA · Entrega', c: 'tag-e', b: 'e' };
-    return { t: 'Ocupado', c: 'tag-o', b: 'o' };
+    if (e.tipo === 'ocupado') return { t: 'Ocupado', c: 'tag-o', b: 'o' };
+    var n = negocioDe(e), base = { reunion: 'Reunión', pendiente: 'Pendiente', recordatorio: 'Recordatorio', pago: e.dir === 'cobrar' ? 'Cobro' : 'Pago' }[e.tipo] || 'Evento';
+    return { t: base + ' ' + NEG[n], c: n === 'e' ? 'tag-e' : 'tag-r', b: n };
   }
   function quien(e) {
     if (e.tipo === 'ocupado') return e.razon || 'Ocupado';
+    if (SIN_TIEMPO.indexOf(e.tipo) >= 0 || e.tipo === 'reunion') return e.asunto || etiqueta(e).t;
     if (e.tipo === 'entrega_r') { var p = pedidoPorId(e.pedidoId); return p ? (p.cliente || 'Sin nombre') : (e.cliente || 'Pedido borrado'); }
     return e.cliente || 'Sin nombre';
   }
   // Devuelve con qué choca un evento (mismo día). directo = se enciman; si no, falta tiempo para trasladarse.
   function choquesDe(e, lista) {
     var s1 = aMin(e.hora), f1 = s1 + num(e.dur || 30), l1 = lugarDe(e), res = [];
-    (lista || delDia(e.fecha)).forEach(function (o) {
-      if (o.id === e.id || o.borrado || o.fecha !== e.fecha) return;
+    if (!ocupa(e)) return res;
+    (lista || delDiaTodos(e.fecha)).forEach(function (o) {
+      if (o.id === e.id || o.borrado || o.fecha !== e.fecha || !ocupa(o)) return;
       var s2 = aMin(o.hora), f2 = s2 + num(o.dur || 30);
       var directo = s1 < f2 && s2 < f1;
       var m = pideMargen(l1, lugarDe(o)) ? margen : 0;
@@ -116,7 +140,7 @@
     var ini = r[0], fin = r[1];
     if (fecha === hoy()) { var d = new Date(); ini = Math.max(ini, Math.ceil((d.getHours() * 60 + d.getMinutes()) / 30) * 30); }
     if (fecha < hoy()) return [];
-    var ocup = delDia(fecha).map(function (o) {
+    var ocup = delDiaTodos(fecha).filter(ocupa).map(function (o) {
       var m = pideMargen('local_r', lugarDe(o)) ? margen : 0, s = aMin(o.hora);
       return [s - m, s + num(o.dur || 30) + m];
     }).sort(function (a, b) { return a[0] - b[0]; });
@@ -132,7 +156,15 @@
 
   function pintar() { pintarSemana(); pintarDia(); pintarLibres(); pintarPendientes(); try { history.replaceState(null, '', '#' + sel); } catch (e) {} }
 
+  var vista = localStorage.getItem(KVISTA) === 'mes' ? 'mes' : 'semana';
+  function puntos(ev) { return ev.slice(0, 5).map(function (e) { return '<i class="pt pt-' + (e.tipo === 'ocupado' ? 'o' : negocioDe(e)) + '"></i>'; }).join(''); }
   function pintarSemana() {
+    document.querySelectorAll('[data-vista]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-vista') === vista)); });
+    document.querySelectorAll('[data-filtro]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-filtro') === filtroNeg)); });
+    $('sem-ant').setAttribute('aria-label', vista === 'mes' ? 'Mes anterior' : 'Semana anterior');
+    $('sem-sig').setAttribute('aria-label', vista === 'mes' ? 'Mes siguiente' : 'Semana siguiente');
+    $('dias').hidden = vista === 'mes'; $('mes').hidden = vista !== 'mes';
+    if (vista === 'mes') { pintarMes(); return; }
     var lun = lunesDe(sel), dom = sumarDias(lun, 6), a = fechaDe(lun), b = fechaDe(dom);
     $('sem-titulo').textContent = a.getMonth() === b.getMonth()
       ? a.getDate() + ' al ' + b.getDate() + ' de ' + MESES[b.getMonth()] + ' ' + b.getFullYear()
@@ -140,12 +172,26 @@
     var h = hoy(), html = '';
     for (var i = 0; i < 7; i++) {
       var f = sumarDias(lun, i), d = fechaDe(f), ev = delDia(f);
-      var pts = ev.slice(0, 6).map(function (e) { return '<i class="pt pt-' + etiqueta(e).b + '"></i>'; }).join('');
       var lbl = largo(f) + (ev.length ? ', ' + ev.length + (ev.length === 1 ? ' cosa agendada' : ' cosas agendadas') : ', libre');
       html += '<button type="button" role="tab" class="dia' + (f === h ? ' hoy' : '') + (f < h ? ' pasado' : '') + '" data-dia="' + f + '" aria-selected="' + (f === sel) + '" aria-label="' + esc(lbl) + '">' +
-        '<span class="d-sem">' + DIAS_C[d.getDay()] + '</span><span class="d-num">' + d.getDate() + '</span><span class="d-pts">' + pts + '</span></button>';
+        '<span class="d-sem">' + DIAS_C[d.getDay()] + '</span><span class="d-num">' + d.getDate() + '</span><span class="d-pts">' + puntos(ev) + '</span></button>';
     }
     $('dias').innerHTML = html;
+  }
+  function pintarMes() {
+    var d0 = fechaDe(sel), primero = iso(new Date(d0.getFullYear(), d0.getMonth(), 1)), mes = d0.getMonth();
+    $('sem-titulo').textContent = cap(MESES[mes]) + ' ' + d0.getFullYear();
+    var ini = lunesDe(primero), h = hoy(), html = '';
+    ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'].forEach(function (x) { html += '<span class="m-sem" aria-hidden="true">' + x + '</span>'; });
+    for (var i = 0; i < 42; i++) {
+      var f = sumarDias(ini, i), d = fechaDe(f);
+      if (i % 7 === 0 && i >= 28 && d.getMonth() !== mes) break;
+      var ev = delDia(f), fuera = d.getMonth() !== mes;
+      var lbl = largo(f) + (ev.length ? ', ' + ev.length + (ev.length === 1 ? ' cosa agendada' : ' cosas agendadas') : ', libre');
+      html += '<button type="button" class="m-dia' + (fuera ? ' fuera' : '') + (f === h ? ' hoy' : '') + (f < h ? ' pasado' : '') + '" data-dia="' + f + '" aria-pressed="' + (f === sel) + '" aria-label="' + esc(lbl) + '">' +
+        '<span class="m-num">' + d.getDate() + '</span><span class="d-pts">' + puntos(ev) + '</span>' + (ev.length > 1 ? '<span class="m-cuenta">' + ev.length + '</span>' : '') + '</button>';
+    }
+    $('mes').innerHTML = html;
   }
 
   function lineaDatos(e) {
@@ -160,6 +206,8 @@
         out.push('<span><b>' + esc(p.folio) + '</b> · ' + esc(p.producto || '') + ' · ' + esc(p.estado || '') + '</span>');
         out.push('<span>' + esc(METODOS[e.metodo] || '') + ' · ' + (c.saldo > 0 ? 'Por cobrar: <b>' + dinero(c.saldo) + '</b>' : '<b>Pagado</b>') + '</span>');
       } else out.push('<span>El pedido ligado ya no existe.</span>');
+    } else if (e.tipo === 'pago') {
+      out.push('<span>' + (e.dir === 'cobrar' ? 'Por cobrar' : 'Por pagar') + (num(e.monto) > 0 ? ': <b>' + dinero(e.monto) + '</b>' : '') + ' · Solo recordatorio: no se anota en Gastos ni en Pedidos</span>');
     } else if (e.tipo === 'essentia') {
       if (e.detalle) out.push('<span><b>' + esc(e.detalle) + '</b></span>');
       out.push('<span>' + (e.modo === 'local' ? 'En el local ESSENTIA' : 'Entrega a domicilio') + (num(e.cobrar) > 0 ? ' · Por cobrar: <b>' + dinero(e.cobrar) + '</b>' : '') + '</span>');
@@ -187,25 +235,29 @@
 
   function pintarDia() {
     $('dia-titulo').textContent = cap(largo(sel)) + (sel === hoy() ? ' · hoy' : '');
-    var ev = delDia(sel);
+    var ev = delDia(sel), todos = delDiaTodos(sel);
     $('dia-vacio').hidden = ev.length > 0;
-    var html = '';
-    ev.forEach(function (e, i) {
-      var et = etiqueta(e), s = aMin(e.hora), f = s + num(e.dur || 30);
-      if (i > 0) {
-        var prev = ev[i - 1], fp = aMin(prev.hora) + num(prev.dur || 30), hueco = s - fp;
-        if (hueco > 0) html += '<li class="ev-traslado" aria-hidden="true">' + durTxt(hueco) + ' libres</li>';
+    $('dia-vacio').textContent = filtroNeg !== 'ambos' && todos.length ? 'Nada de ' + NEG[filtroNeg] + ' este día.' : 'Nada agendado este día.';
+    var html = '', prevFin = null;
+    ev.forEach(function (e) {
+      var et = etiqueta(e), s = aMin(e.hora), f = s + num(e.dur || 30), conTiempo = ocupa(e);
+      if (conTiempo) {
+        if (prevFin !== null && s - prevFin > 0) html += '<li class="ev-traslado" aria-hidden="true">' + durTxt(s - prevFin) + ' libres</li>';
+        prevFin = Math.max(prevFin || 0, f);
       }
-      var ch = choquesDe(e, ev);
+      var ch = choquesDe(e, todos);
       var tel = telWA(telDe(e));
-      html += '<li class="ev e-' + et.b + (e.hecho ? ' hecho' : '') + '" data-id="' + esc(e.id) + '">' +
-        '<div class="ev-cab"><span class="ev-hora">' + aHora(s) + '–' + aHora(f) + '</span><span class="tag ' + et.c + '">' + esc(et.t) + '</span>' + (e.hecho ? '<span class="tag tag-ok">✓ Hecho</span>' : '') + '</div>' +
+      var hora = !e.hora ? 'Todo el día' : conTiempo ? aHora(s) + '–' + aHora(f) : aHora(s);
+      var atras = arrastrado(e) ? '<span class="tag tag-alerta">Atrasado · era del ' + esc(corta(e.fecha)) + '</span>' : '';
+      var lblHecho = e.tipo === 'pago' ? (e.hecho ? 'Deshacer' : e.dir === 'cobrar' ? 'Marcar cobrado' : 'Marcar pagado') : (e.hecho ? 'Deshacer' : 'Marcar hecho');
+      html += '<li class="ev e-' + et.b + (e.hecho ? ' hecho' : '') + (arrastrado(e) ? ' atrasado' : '') + (conTiempo || e.tipo === 'ocupado' ? '' : ' sin-tiempo') + '" data-id="' + esc(e.id) + '">' +
+        '<div class="ev-cab"><span class="ev-hora">' + hora + '</span><span class="tag ' + et.c + '">' + esc(et.t) + '</span>' + atras + (e.hecho ? '<span class="tag tag-ok">✓ ' + (e.tipo === 'pago' ? (e.dir === 'cobrar' ? 'Cobrado' : 'Pagado') : 'Hecho') + '</span>' : '') + '</div>' +
         '<div class="ev-quien">' + esc(quien(e)) + '</div>' +
         '<div class="ev-datos">' + lineaDatos(e) + '</div>' +
         ch.map(function (c) { return '<div class="ev-choque">⚠ ' + esc(textoChoque(c)) + '</div>'; }).join('') +
         '<div class="ev-acciones">' +
           (tel.length >= 12 && e.tipo !== 'ocupado' ? '<a class="btn btn-verde btn-mini" target="_blank" rel="noopener" href="https://wa.me/' + tel + '?text=' + encodeURIComponent(mensajeWA(e)) + '">' + (vaEnCamino(e) ? 'Ya estoy en camino' : 'Confirmar por WhatsApp') + '</a>' : '') +
-          (e.tipo !== 'ocupado' ? '<button type="button" class="btn btn-claro btn-mini" data-hecho="' + esc(e.id) + '">' + (e.hecho ? 'Deshacer' : 'Marcar hecho') + '</button>' : '') +
+          (e.tipo !== 'ocupado' ? '<button type="button" class="btn btn-claro btn-mini" data-hecho="' + esc(e.id) + '">' + lblHecho + '</button>' : '') +
           '<button type="button" class="btn btn-claro btn-mini" data-editar="' + esc(e.id) + '">Editar</button>' +
         '</div></li>';
     });
@@ -249,8 +301,16 @@
 
   /* ---------- eventos de la vista ---------- */
   $('dias').addEventListener('click', function (ev) { var b = ev.target.closest('[data-dia]'); if (b) { sel = b.getAttribute('data-dia'); pintar(); } });
-  $('sem-ant').addEventListener('click', function () { sel = sumarDias(sel, -7); pintar(); });
-  $('sem-sig').addEventListener('click', function () { sel = sumarDias(sel, 7); pintar(); });
+  $('mes').addEventListener('click', function (ev) { var b = ev.target.closest('[data-dia]'); if (b) { sel = b.getAttribute('data-dia'); pintar(); } });
+  function moverMes(n) { var d = fechaDe(sel), dia = d.getDate(), x = new Date(d.getFullYear(), d.getMonth() + n, 1); x.setDate(Math.min(dia, new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate())); sel = iso(x); }
+  $('sem-ant').addEventListener('click', function () { if (vista === 'mes') moverMes(-1); else sel = sumarDias(sel, -7); pintar(); });
+  $('sem-sig').addEventListener('click', function () { if (vista === 'mes') moverMes(1); else sel = sumarDias(sel, 7); pintar(); });
+  document.querySelector('.cal-herr').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-vista]');
+    if (b) { vista = b.getAttribute('data-vista'); localStorage.setItem(KVISTA, vista); pintar(); return; }
+    b = ev.target.closest('[data-filtro]');
+    if (b) { filtroNeg = b.getAttribute('data-filtro'); localStorage.setItem(KFILTRO, filtroNeg); pintar(); }
+  });
   $('btn-hoy').addEventListener('click', function () { sel = hoy(); pintar(); });
   $('btn-nuevo').addEventListener('click', function () { abrir(null, {}); });
   $('margen').value = String(margen);
@@ -317,8 +377,16 @@
       '<span>' + (p.tel ? 'WhatsApp ' + esc(p.tel) + ' · ' : '') + (c.saldo > 0 ? 'Por cobrar: <b>' + dinero(c.saldo) + '</b>' : 'Pagado') + '</span>' +
       (p.ubicacion ? '<span>📍 ' + esc(p.ubicacion) + '</span>' : '');
   }
+  function negSel() { var r = document.querySelector('input[name="neg"]:checked'); return r ? r.value : 'r'; }
+  function dirSel() { var r = document.querySelector('input[name="dir"]:checked'); return r ? r.value : 'pagar'; }
+  var PH = { reunion: 'Ej. Reunión con proveedor de losas', pago: 'Ej. Proveedor de losas, renta, Ricardo (resto del pedido)', pendiente: 'Ej. Comprar resina, subir fotos a Facebook', recordatorio: 'Ej. Renovar dominio, llamar a la imprenta' };
   function visibles() {
     var t = tipoSel(), extra = [];
+    var sinT = SIN_TIEMPO.indexOf(t) >= 0;
+    $('caja-dur').hidden = sinT;
+    $('caja-hora').hidden = sinT && $('m-todo').checked;
+    if (PH[t]) { $('m-asunto').placeholder = PH[t]; $('lbl-asunto').textContent = t === 'pago' ? 'Concepto' : t === 'reunion' ? 'Asunto' : '¿Qué es?'; }
+    if (t === 'reunion') extra.push('reunion-lugar');
     if (t === 'essentia' && modoSel() === 'domicilio') extra.push('essentia-dom');
     if (t === 'entrega_r' && $('m-metodo').value !== 'recoge') extra.push('entrega_r-dom');
     document.querySelectorAll('#form .grupo').forEach(function (g) {
@@ -341,12 +409,18 @@
       var p = pedidoPorId(e.pedidoId); if (p) { e.cliente = p.cliente || ''; e.tel = p.tel || ''; }
     }
     if (t === 'ocupado') { e.razon = $('m-razon').value.trim(); e.cliente = ''; e.tel = ''; }
+    if (t === 'reunion' || SIN_TIEMPO.indexOf(t) >= 0) {
+      e.negocio = negSel(); e.asunto = $('m-asunto').value.trim(); e.cliente = ''; e.tel = '';
+      if (t === 'reunion') e.lugar = $('m-lugar').value.trim();
+      if (t === 'pago') { e.dir = dirSel(); e.monto = num($('m-monto').value); }
+      if (SIN_TIEMPO.indexOf(t) >= 0) { e.todoDia = $('m-todo').checked; if (e.todoDia) e.hora = ''; }
+    }
     return e;
   }
   function revisar() {
     visibles();
     var e = leerForm(), box = $('m-avisos'), html = '';
-    if (e.fecha && e.hora && e.tipo) {
+    if (e.fecha && e.hora && e.tipo && ocupa(e)) {
       var lista = vivos().filter(function (o) { return o.fecha === e.fecha; });
       choquesDe(e, lista).forEach(function (c) { html += '<div class="aviso ' + (c.directo ? 'aviso-alerta' : 'aviso-aviso') + '"><b>⚠ ' + esc(textoChoque(c)) + '</b></div>'; });
       var fh = fueraDeHorario(e); if (fh) html += '<div class="aviso aviso-aviso">' + esc(fh) + '</div>';
@@ -363,13 +437,16 @@
     var t = d.tipo || pre.tipo || 'cita_r';
     setRadio('tipo', t);
     $('m-fecha').value = d.fecha || pre.fecha || sel;
-    $('m-hora').value = d.hora || pre.hora || sugerirHora($('m-fecha').value);
+    $('m-hora').value = d.hora || pre.hora || (SIN_TIEMPO.indexOf(t) >= 0 ? '' : sugerirHora($('m-fecha').value)) || sugerirHora($('m-fecha').value);
     $('m-dur').value = String(d.dur || DUR_DEF[t]); durTocada = !!e;
     $('m-cliente').value = d.cliente || ''; $('m-tel').value = d.tel || '';
     $('m-motivo').value = d.motivo || 'Diseñar placa'; $('m-asesor').value = d.asesor || '';
     setRadio('modo-e', d.modo || 'domicilio');
     $('m-detalle').value = d.detalle || ''; $('m-cobrar').value = d.cobrar ? d.cobrar : '';
     $('m-lugar').value = d.lugar || ''; $('m-razon').value = d.razon || ''; $('m-notas').value = d.notas || '';
+    setRadio('neg', d.negocio || pre.negocio || (filtroNeg === 'e' ? 'e' : 'r'));
+    $('m-asunto').value = d.asunto || ''; setRadio('dir', d.dir || 'pagar'); $('m-monto').value = d.monto ? d.monto : '';
+    $('m-todo').checked = e ? (!!d.todoDia || (SIN_TIEMPO.indexOf(t) >= 0 && !d.hora)) : false;
     opcionesPedido(d.pedidoId || pre.pedidoId || '');
     $('m-metodo').value = d.metodo || 'recoge';
     if (!e && pre.pedidoId) desdePedido();
@@ -393,6 +470,7 @@
 
   $('form').addEventListener('change', function (ev) {
     var t = ev.target;
+    if (t.id === 'm-todo' && !t.checked && !$('m-hora').value) $('m-hora').value = sugerirHora($('m-fecha').value);
     if (t.name === 'tipo' && !durTocada) $('m-dur').value = String(DUR_DEF[t.value] || 30);
     if (t.id === 'm-dur') durTocada = true;
     if (t.id === 'm-pedido') { desdePedido(); infoPedido(); }
@@ -415,7 +493,8 @@
     var e = leerForm(), falta = '';
     if (!e.tipo) falta = 'Elige qué vas a agendar.';
     else if (!e.fecha) falta = 'Pon la fecha.';
-    else if (!e.hora) falta = 'Pon la hora.';
+    else if (!e.hora && !(SIN_TIEMPO.indexOf(e.tipo) >= 0 && e.todoDia)) falta = SIN_TIEMPO.indexOf(e.tipo) >= 0 ? 'Pon la hora o marca «Sin hora».' : 'Pon la hora.';
+    else if ((e.tipo === 'reunion' || SIN_TIEMPO.indexOf(e.tipo) >= 0) && !e.asunto) falta = e.tipo === 'pago' ? 'Escribe el concepto del pago.' : 'Escribe de qué se trata.';
     else if (e.tipo === 'entrega_r' && !e.pedidoId) falta = 'Elige el pedido.';
     else if ((e.tipo === 'cita_r' || e.tipo === 'essentia') && !e.cliente) falta = 'Escribe el nombre del cliente.';
     if (falta) { alert(falta); return; }
@@ -439,7 +518,27 @@
     if (e.metodo && p.metodoEntrega !== e.metodo) { p.metodoEntrega = e.metodo; cambio = true; }
     if (e.lugar && p.ubicacion !== e.lugar) { p.ubicacion = e.lugar; cambio = true; }
     if (cambio) guardar(KP, lista);
+    // La nota de venta toma la misma fecha (si no, al abrir Pedidos la nota regresaría la fecha anterior)
+    if (p.notaId) {
+      var notas = leer(KN, []), n = Array.isArray(notas) ? notas.find(function (x) { return x && x.id === p.notaId; }) : null;
+      if (n && n.entrega !== e.fecha) { n.entrega = e.fecha; guardar(KN, notas); }
+    }
   }
+
+  // Al abrir: la entrega de cada pedido queda en la fecha del pedido (si la cambiaste en Pedidos o en la nota),
+  // y se quitan las entregas de pedidos cancelados o borrados. Nunca se crea un evento nuevo.
+  function reconciliar() {
+    var lista = pedidos(); if (!lista.length) return;
+    var cambio = false, ahora = new Date().toISOString();
+    eventos.forEach(function (e) {
+      if (!e || e.borrado || e.tipo !== 'entrega_r') return;
+      var p = pedidoPorId(e.pedidoId);
+      if (!p || p.estado === 'Cancelado') { e.borrado = true; e.editado = ahora; cambio = true; return; }
+      if (!e.hecho && p.entrega && e.fecha !== p.entrega) { e.fecha = p.entrega; e.editado = ahora; cambio = true; }
+    });
+    if (cambio) guardarEventos();
+  }
+  reconciliar();
 
   pintar();
 })();

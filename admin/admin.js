@@ -21,6 +21,7 @@
   var agenda = leer('recoovare_agenda', []); if (!Array.isArray(agenda)) agenda = [];
   var apuntes = leer('admin_apuntes', []); if (!Array.isArray(apuntes)) apuntes = [];
   agenda = agenda.filter(function (e) { return e && !e.borrado && e.fecha; });
+  var SIN_TIEMPO = ['pago', 'pendiente', 'recordatorio'];
 
   function activo(p) { return p.estado !== 'Entregado' && p.estado !== 'Cancelado'; }
   function saldo(p) {
@@ -29,14 +30,27 @@
     return Math.max(0, total - pagado);
   }
   function pedidoPorId(id) { return pedidos.find(function (p) { return p.id === id; }) || null; }
+  // Igual que la agenda: entregas de pedidos cancelados o borrados no se muestran; la fecha la manda el pedido.
+  // Pendientes sin hacer de días pasados se muestran hoy como atrasados.
+  agenda = agenda.filter(function (e) {
+    if (e.tipo !== 'entrega_r' || !pedidos.length) return true;
+    var p = pedidoPorId(e.pedidoId); return p && p.estado !== 'Cancelado';
+  }).map(function (e) {
+    if (e.tipo === 'entrega_r' && !e.hecho) { var p = pedidoPorId(e.pedidoId); if (p && p.entrega && p.entrega !== e.fecha) e = Object.assign({}, e, { fecha: p.entrega }); }
+    if (e.tipo === 'pendiente' && !e.hecho && e.fecha < HOY) e = Object.assign({}, e, { fecha: HOY, atrasadoDe: e.fecha });
+    return e;
+  });
   function etiqueta(e) {
     if (e.tipo === 'cita_r') return { t: 'Cita de diseño', n: 'r' };
     if (e.tipo === 'entrega_r') return { t: e.metodo === 'instalacion' ? 'Instalación' : e.metodo === 'recoge' ? 'Recoge en el local' : 'Entrega', n: 'r' };
     if (e.tipo === 'essentia') return { t: e.modo === 'local' ? 'Visita al local' : 'Entrega', n: 'e' };
-    return { t: 'Ocupado', n: 'o' };
+    if (e.tipo === 'ocupado') return { t: 'Ocupado', n: 'o' };
+    var n = e.negocio === 'e' ? 'e' : 'r';
+    return { t: { reunion: 'Reunión', pendiente: 'Pendiente', recordatorio: 'Recordatorio', pago: e.dir === 'cobrar' ? 'Cobrar' + (num(e.monto) ? ' ' + dinero(e.monto) : '') : 'Pagar' + (num(e.monto) ? ' ' + dinero(e.monto) : '') }[e.tipo] || 'Evento', n: n };
   }
   function quien(e) {
     if (e.tipo === 'ocupado') return e.razon || '';
+    if (e.tipo === 'reunion' || SIN_TIEMPO.indexOf(e.tipo) >= 0) return e.asunto || '';
     if (e.tipo === 'entrega_r') { var p = pedidoPorId(e.pedidoId); return p ? (p.cliente || 'Sin nombre') + (p.folio ? ' · ' + p.folio : '') : (e.cliente || ''); }
     return e.cliente || '';
   }
@@ -54,7 +68,7 @@
   var agendados = {}; agenda.forEach(function (e) { if (e.tipo === 'entrega_r' && !e.hecho) agendados[e.pedidoId] = 1; });
   var acordadasSinAgendar = activos.filter(function (p) { return p.entrega && p.entrega >= HOY && p.entrega <= FIN7 && !agendados[p.id]; });
   var sinAgendar = activos.filter(function (p) { return !agendados[p.id]; });
-  var deHoy = agenda.filter(function (e) { return e.fecha === HOY; }).sort(function (a, b) { return aMin(a.hora) - aMin(b.hora); });
+  var deHoy = agenda.filter(function (e) { return e.fecha === HOY; }).sort(function (a, b) { return (a.hora ? 1 : 0) - (b.hora ? 1 : 0) || aMin(a.hora) - aMin(b.hora); });
   var conSaldo = pedidos.filter(function (p) { return p.estado !== 'Cancelado' && saldo(p) > 0; });
   var porCobrar = conSaldo.reduce(function (s, p) { return s + saldo(p); }, 0);
   var atrasados = activos.filter(function (p) { return p.entrega && p.entrega < HOY; });
@@ -82,7 +96,7 @@
   /* ---------- próximas actividades ---------- */
   var minAhora = ahora.getHours() * 60 + ahora.getMinutes();
   var proximas = agenda.filter(function (e) { return e.fecha > HOY || (e.fecha === HOY); })
-    .sort(function (a, b) { return a.fecha.localeCompare(b.fecha) || aMin(a.hora) - aMin(b.hora); });
+    .sort(function (a, b) { return a.fecha.localeCompare(b.fecha) || (a.hora ? 1 : 0) - (b.hora ? 1 : 0) || aMin(a.hora) - aMin(b.hora); });
   var hoyTodas = proximas.filter(function (e) { return e.fecha === HOY; });
   var futuras = proximas.filter(function (e) { return e.fecha > HOY && !e.hecho; }).slice(0, Math.max(3, 7 - hoyTodas.length));
   var lista = hoyTodas.concat(futuras);
@@ -90,12 +104,12 @@
   $('eventos').innerHTML = lista.length ? lista.map(function (e) {
     var et = etiqueta(e), cab = '';
     if (e.fecha !== fechaPrev) { fechaPrev = e.fecha; cab = '<li class="ad-dia">' + (e.fecha === HOY ? 'Hoy' : e.fecha === sumarDias(HOY, 1) ? 'Mañana' : corta(e.fecha)) + '</li>'; }
-    var pasado = e.fecha === HOY && aMin(e.hora) + num(e.dur || 30) < minAhora;
+    var pasado = e.fecha === HOY && !!e.hora && SIN_TIEMPO.indexOf(e.tipo) < 0 && aMin(e.hora) + num(e.dur || 30) < minAhora;
     return cab + '<li class="ad-ev' + (e.hecho ? ' hecho' : pasado ? ' pasado' : '') + '"><a href="../pedidos/agenda/#' + e.fecha + '">' +
-      '<span class="ad-hora">' + esc(String(e.hora || '').slice(0, 5)) + '</span>' +
+      '<span class="ad-hora">' + (e.hora ? esc(String(e.hora).slice(0, 5)) : '<small>Día</small>') + '</span>' +
       '<span class="ad-tag t-' + et.n + '">' + (et.n === 'r' ? 'RECOOVARE' : et.n === 'e' ? 'ESSENTIA' : 'Ocupado') + '</span>' +
       '<span class="ad-txt"><b>' + esc(et.t) + '</b>' + (quien(e) ? ' · ' + esc(quien(e)) : '') + '</span>' +
-      (e.hecho ? '<span class="ad-ok">Hecho</span>' : '') + '</a></li>';
+      (e.atrasadoDe ? '<span class="ad-atr">Atrasado</span>' : '') + (e.hecho ? '<span class="ad-ok">Hecho</span>' : '') + '</a></li>';
   }).join('') : '<li class="ad-vacio">No tienes nada agendado de hoy en adelante.</li>';
 
   if (sinAgendar.length) {

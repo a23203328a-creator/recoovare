@@ -173,6 +173,7 @@
     if (!p || p.estado === nuevo) return;
     S.hist(p, 'Estado: ' + p.estado + ' → ' + nuevo);
     p.estado = nuevo; guardarTodo();
+    if (S.ajustarEntrega) S.ajustarEntrega(p);
   }
   document.querySelector('.contenedor').addEventListener('change', function (e) {
     var s = e.target.closest('[data-cambiar-estado]'); if (!s) return;
@@ -415,7 +416,9 @@
     var i = pedidos.findIndex(function (x) { return x.id === actual.id; });
     if (i >= 0) pedidos[i] = actual; else pedidos.unshift(actual);
     var id = actual.id;
-    guardarTodo(); cerrar(); pintar();
+    guardarTodo();
+    if (S.ajustarEntrega) S.ajustarEntrega(pedidos.find(function (x) { return x.id === id; }));
+    cerrar(); pintar();
     if (nuevo) { filtro.kpi = ''; filtro.estado = 'todos'; pintar(); }
     if (vista === 'pedidos') abrirFicha(id);
   });
@@ -425,8 +428,11 @@
     if (!actual) return;
     if (!confirm('¿Borrar el pedido ' + actual.folio + '? No se puede deshacer.')) return;
     if (actual.notaId) { var ign = leer(S.KI, []); ign.push(actual.notaId); guardar(S.KI, ign); }
-    pedidos = pedidos.filter(function (x) { return x.id !== actual.id; });
-    guardarTodo(); cerrar(); pintar();
+    var idBorrado = actual.id;
+    pedidos = pedidos.filter(function (x) { return x.id !== idBorrado; });
+    guardarTodo();
+    if (S.quitarDeAgenda) S.quitarDeAgenda(idBorrado);
+    cerrar(); pintar();
   });
   if ($('btn-nuevo')) $('btn-nuevo').addEventListener('click', function () { abrir(null); });
 

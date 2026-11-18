@@ -64,6 +64,8 @@
       '.ma-hoja .ma-it:hover{background:#F1F2F5}' +
       '.ma-hoja .ma-it[aria-current]{background:#111318;color:#fff}' +
       'body.con-menu .nube-pill{bottom:calc(80px + env(safe-area-inset-bottom))!important}' +
+      'body.con-menu:has(.modal:not([hidden])) .ma-abajo,body.con-menu:has(.modal:not([hidden])) .ma-hoja{display:none!important}' +
+      'body.con-menu:has(.modal:not([hidden])) .nube-pill{bottom:12px!important}' +
       'body.con-menu .toast{bottom:calc(80px + env(safe-area-inset-bottom))!important}' +
       'body.con-menu .acciones-panel{bottom:calc(66px + env(safe-area-inset-bottom))!important}' +
     '}' +

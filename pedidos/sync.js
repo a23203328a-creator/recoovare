@@ -66,6 +66,34 @@
     guardar(KF, folio);
     guardar(KINIT, true);
   }
+  /* ---------- la fecha de entrega queda igual en el pedido, su nota y su evento de la agenda ---------- */
+  var KA = 'recoovare_agenda', KN = 'recoovare_notas';
+  // Mueve (o quita, si se canceló o borró) el evento de entrega de la agenda ligado a estos pedidos.
+  // Un pedido tiene un solo evento de entrega: se mueve ese mismo, nunca se crea otro.
+  function alinearAgenda(lista, borrados) {
+    var ag = leer(KA, null); if (!Array.isArray(ag)) return false;
+    var cambio = false, ahora = new Date().toISOString();
+    ag.forEach(function (e) {
+      if (!e || e.borrado || e.tipo !== 'entrega_r') return;
+      if (borrados && borrados.indexOf(e.pedidoId) >= 0) { e.borrado = true; e.editado = ahora; cambio = true; return; }
+      var p = (lista || []).find(function (x) { return x.id === e.pedidoId; }); if (!p) return;
+      if (p.estado === 'Cancelado') { e.borrado = true; e.editado = ahora; cambio = true; return; }
+      if (!e.hecho && p.entrega && e.fecha !== p.entrega) { e.fecha = p.entrega; e.editado = ahora; cambio = true; }
+    });
+    if (cambio) guardar(KA, ag);
+    return cambio;
+  }
+  // Después de cambiar un pedido a mano (Pedidos o Agenda): su nota toma la misma fecha y su entrega se mueve en la agenda
+  function ajustarEntrega(p, desdeAgenda) {
+    if (!p) return;
+    if (p.notaId && p.entrega) {
+      var notas = leer(KN, []);
+      var n = Array.isArray(notas) ? notas.find(function (x) { return x && x.id === p.notaId; }) : null;
+      if (n && n.entrega !== p.entrega) { n.entrega = p.entrega; guardar(KN, notas); }
+    }
+    if (!desdeAgenda) alinearAgenda([p]);
+  }
+  function quitarDeAgenda(id) { alinearAgenda([], [id]); }
   function desdeNota(nota) {
     if (!nota || !nota.folio) return null;
     inicializar();
@@ -121,6 +149,7 @@
       });
       p.pagos = deNota.concat(manuales);
       guardar(K, lista);
+      alinearAgenda([p]);
       return p;
     }
     if (num(nota.anticipo) > 0) deNota.push({ fecha: fechaN, monto: num(nota.anticipo), metodo: nota.metodo || 'Efectivo', concepto: 'Anticipo (nota ' + nota.folio + ')', origen: 'nota' });
@@ -131,6 +160,7 @@
     }
     p.pagos = deNota.concat(manuales);
     guardar(K, lista);
+    alinearAgenda([p]);
     return p;
   }
   function sincronizarNotas() {
@@ -175,5 +205,5 @@
     };
   })();
   window.RecoovareImg = Img;
-  window.RecoovareSync = { migrar: migrar, hist: hist, ORDEN: ORDEN, reglaActual: reglaActual, inicializar: inicializar, K: K, KF: KF, KI: KI, leer: leer, guardar: guardar, num: num, nuevoFolio: nuevoFolio, pedidoVacio: pedidoVacio, desdeNota: desdeNota, sincronizarNotas: sincronizarNotas };
+  window.RecoovareSync = { migrar: migrar, hist: hist, ORDEN: ORDEN, reglaActual: reglaActual, inicializar: inicializar, K: K, KF: KF, KI: KI, leer: leer, guardar: guardar, num: num, nuevoFolio: nuevoFolio, pedidoVacio: pedidoVacio, desdeNota: desdeNota, sincronizarNotas: sincronizarNotas, ajustarEntrega: ajustarEntrega, alinearAgenda: alinearAgenda, quitarDeAgenda: quitarDeAgenda };
 })();

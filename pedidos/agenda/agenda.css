@@ -77,3 +77,38 @@
 .pedido-info b { color: var(--texto); }
 .m-avisos { display: flex; flex-direction: column; gap: 8px; }
 .m-avisos:empty { display: none; }
+
+/* herramientas del calendario */
+.cal-herr { display: flex; flex-wrap: wrap; gap: 8px 12px; justify-content: space-between; }
+.seg { display: inline-flex; background: var(--fondo); border: 1px solid var(--borde); border-radius: 12px; padding: 3px; gap: 2px; }
+.seg button { font: inherit; font-size: 14px; font-weight: 700; min-height: 38px; padding: 6px 12px; border: 0; border-radius: 9px; background: none; color: var(--suave); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.seg button[aria-pressed="true"] { background: #fff; color: var(--tinta); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+/* mes */
+.mes { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.m-sem { font-size: 12px; font-weight: 700; color: var(--suave); text-align: center; padding: 2px 0 4px; }
+.m-dia { position: relative; font: inherit; border: 1.5px solid var(--borde); background: #fff; border-radius: 10px; min-height: 64px; padding: 6px 4px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: var(--texto); }
+.m-dia:hover { border-color: var(--borde-fuerte); }
+.m-num { font-weight: 800; font-size: 15px; }
+.m-dia.fuera { background: var(--fondo); color: var(--suave); opacity: .7; }
+.m-dia.pasado:not([aria-pressed="true"]) .m-num { opacity: .55; }
+.m-dia.hoy .m-num { color: var(--essentia); }
+.m-dia[aria-pressed="true"] { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+.m-dia[aria-pressed="true"] .m-num { color: #fff; }
+.m-dia[aria-pressed="true"] .pt-r { background: #E9C6B2; } .m-dia[aria-pressed="true"] .pt-e { background: #8FB2FF; } .m-dia[aria-pressed="true"] .pt-o { background: #C9CED8; }
+.m-cuenta { position: absolute; top: 4px; right: 6px; font-size: 11px; font-weight: 800; color: var(--suave); }
+.m-dia[aria-pressed="true"] .m-cuenta { color: #C9CED8; }
+/* tipos nuevos */
+.tipo.t-n span, .tipo.t-n input:checked + span { border-left-color: var(--borde-fuerte); }
+.ev.sin-tiempo { border-style: dashed; border-left-style: solid; }
+.ev.atrasado { border-color: #F1B8B1; }
+.check-todo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; cursor: pointer; min-height: 40px; }
+.check-todo input { width: 20px; height: 20px; min-height: 0; accent-color: var(--tinta); }
+@media (max-width: 560px) {
+  .tipos .tipo small { display: none; }
+  .tipo span { padding: 9px 10px; }
+  .cal-herr .seg { width: 100%; }
+  .cal-herr .seg button { flex: 1; justify-content: center; padding: 6px 6px; font-size: 13px; }
+  .m-dia { min-height: 52px; padding: 5px 2px; border-radius: 8px; }
+  .m-num { font-size: 14px; }
+  .m-cuenta { display: none; }
+}

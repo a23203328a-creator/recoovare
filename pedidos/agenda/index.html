@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="../panel.css?v=1">
-<link rel="stylesheet" href="agenda.css?v=1">
+<link rel="stylesheet" href="agenda.css?v=2">
 </head>
 <body>
 
@@ -33,7 +33,19 @@
       <button type="button" class="btn btn-claro btn-flecha" id="sem-sig" aria-label="Semana siguiente">›</button>
       <button type="button" class="btn btn-claro btn-mini" id="btn-hoy">Hoy</button>
     </div>
+    <div class="cal-herr">
+      <div class="seg" role="group" aria-label="Ver por">
+        <button type="button" data-vista="semana" aria-pressed="true">Semana</button>
+        <button type="button" data-vista="mes" aria-pressed="false">Mes</button>
+      </div>
+      <div class="seg" role="group" aria-label="Mostrar negocio">
+        <button type="button" data-filtro="ambos" aria-pressed="true">Ambos</button>
+        <button type="button" data-filtro="r" aria-pressed="false"><i class="pt pt-r"></i>RECOOVARE</button>
+        <button type="button" data-filtro="e" aria-pressed="false"><i class="pt pt-e"></i>ESSENTIA</button>
+      </div>
+    </div>
     <div class="dias" id="dias" role="tablist" aria-label="Días de la semana"></div>
+    <div class="mes" id="mes" aria-label="Días del mes" hidden></div>
     <div class="leyenda" aria-hidden="true">
       <span><i class="pt pt-r"></i>RECOOVARE</span><span><i class="pt pt-e"></i>ESSENTIA</span><span><i class="pt pt-o"></i>Ocupado</span>
     </div>
@@ -98,14 +110,41 @@
       <label class="tipo t-r"><input type="radio" name="tipo" value="entrega_r"><span><b>Entrega RECOOVARE</b><small>Entrega o instalación de un pedido</small></span></label>
       <label class="tipo t-e"><input type="radio" name="tipo" value="essentia"><span><b>ESSENTIA</b><small>Entrega a domicilio o visita al local</small></span></label>
       <label class="tipo t-o"><input type="radio" name="tipo" value="ocupado"><span><b>Ocupado</b><small>Bloquear un horario</small></span></label>
+      <label class="tipo t-n"><input type="radio" name="tipo" value="reunion"><span><b>Reunión</b><small>Con proveedor, cliente o equipo</small></span></label>
+      <label class="tipo t-n"><input type="radio" name="tipo" value="pago"><span><b>Pago o cobro</b><small>Recordatorio de dinero</small></span></label>
+      <label class="tipo t-n"><input type="radio" name="tipo" value="pendiente"><span><b>Pendiente</b><small>Algo por hacer ese día</small></span></label>
+      <label class="tipo t-n"><input type="radio" name="tipo" value="recordatorio"><span><b>Recordatorio</b><small>Un aviso para no olvidar</small></span></label>
     </fieldset>
+
+    <!-- Reunión, pago, pendiente y recordatorio: de qué negocio es y qué es -->
+    <div class="grupo" data-para="reunion pago pendiente recordatorio">
+      <div class="opciones" role="radiogroup" aria-label="Negocio">
+        <label><input type="radio" name="neg" value="r" checked><span>RECOOVARE</span></label>
+        <label><input type="radio" name="neg" value="e"><span>ESSENTIA</span></label>
+      </div>
+      <div class="campo"><label for="m-asunto" id="lbl-asunto">¿Qué es?</label><input id="m-asunto" autocomplete="off"></div>
+    </div>
+    <div class="grupo" data-para="pago">
+      <div class="fila">
+        <div class="opciones" role="radiogroup" aria-label="Pagar o cobrar">
+          <label><input type="radio" name="dir" value="pagar" checked><span>Tengo que pagar</span></label>
+          <label><input type="radio" name="dir" value="cobrar"><span>Me tienen que pagar</span></label>
+        </div>
+        <div class="campo"><label for="m-monto">Monto ($)</label><input id="m-monto" type="number" min="0" step="1" inputmode="decimal" placeholder="0"></div>
+      </div>
+      <p class="ayuda">Solo es recordatorio: no se anota en Gastos ni en Pedidos.</p>
+    </div>
 
     <div class="fila">
       <div class="campo"><label for="m-fecha">Fecha</label><input id="m-fecha" type="date" required></div>
-      <div class="campo"><label for="m-hora">Hora</label><input id="m-hora" type="time" step="300" required></div>
-      <div class="campo"><label for="m-dur">Duración</label>
+      <div class="campo" id="caja-hora"><label for="m-hora">Hora</label><input id="m-hora" type="time" step="300"></div>
+      <div class="campo" id="caja-dur"><label for="m-dur">Duración</label>
         <select id="m-dur"><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">1 hora</option><option value="90">1 h 30 min</option><option value="120">2 horas</option><option value="180">3 horas</option></select>
       </div>
+    </div>
+
+    <div class="grupo" data-para="pago pendiente recordatorio">
+      <label class="check-todo"><input type="checkbox" id="m-todo"> Sin hora (todo el día)</label>
     </div>
 
     <!-- Entrega RECOOVARE: pedido -->
@@ -147,7 +186,7 @@
       <div class="campo"><label for="m-cobrar">Por cobrar al entregar ($)</label><input id="m-cobrar" type="number" min="0" step="1" inputmode="decimal" placeholder="0 si ya pagó"></div>
     </div>
 
-    <div class="grupo" data-para="essentia-dom entrega_r-dom">
+    <div class="grupo" data-para="essentia-dom entrega_r-dom reunion-lugar">
       <div class="campo"><label for="m-lugar">Dirección o link de ubicación</label><input id="m-lugar" autocomplete="off" placeholder="Calle, colonia o link de Google Maps"></div>
     </div>
 
@@ -169,8 +208,8 @@
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script src="../../datos.js?v=202611141105"></script>
-<script src="../../admin/menu.js?v=1"></script>
+<script src="../../admin/menu.js?v=2"></script>
 <script src="../nube.js?v=4"></script>
-<script>RecoovareNube.iniciar(['agenda.js?v=2']);</script>
+<script>RecoovareNube.iniciar(['agenda.js?v=3']);</script>
 </body>
 </html>
