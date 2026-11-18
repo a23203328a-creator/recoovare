@@ -16,3 +16,8 @@
   Cache-Control: no-cache
 /guia/*
   Cache-Control: no-cache
+/sw-admin.js
+  Cache-Control: no-cache
+/app.webmanifest
+  Cache-Control: no-cache
+  Content-Type: application/manifest+json

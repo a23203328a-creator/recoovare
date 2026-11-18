@@ -204,6 +204,12 @@ Entra a **https://recoovare.pages.dev/pedidos/gastos/** (privada). Reemplaza la 
 
 ## Panel de administración
 
+**Instalarlo como app** (ícono "Recoovare" que abre directo en el panel, sin barra del navegador):
+- Android (Chrome): abre https://recoovare.pages.dev/admin/, menú ⋮ → "Instalar app" o "Agregar a la pantalla principal".
+- iPhone (Safari): abre el mismo link, botón Compartir → "Agregar a inicio".
+- Computadora (Chrome o Edge): ícono de instalar en la barra de direcciones, o menú → "Instalar Recoovare Admin".
+La primera vez que la abras como app te pedirá el código de tu correo (el inicio de sesión dura 1 semana).
+
 Entra a **https://recoovare.pages.dev/admin/** (privado, mismo inicio de sesión que Pedidos). Es tu página de inicio para los dos negocios.
 
 - Arriba: pedidos activos, bocetos pendientes (por hacer y por aprobar), entregas de los próximos 7 días, lo que tienes hoy y lo que falta cobrar. Todo sale de tus datos reales; toca una tarjeta para ir a ese apartado.

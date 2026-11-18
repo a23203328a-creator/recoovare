@@ -106,4 +106,6 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrar(); });
   }
   if (document.body) montar(); else document.addEventListener('DOMContentLoaded', montar);
+  // App instalable (Recoovare Admin)
+  if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('/sw-admin.js', { scope: '/' }).catch(function () {}); }); }
 })();
