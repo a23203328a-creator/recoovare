@@ -210,6 +210,7 @@ Entra a **https://recoovare.pages.dev/admin/** (privado, mismo inicio de sesión
 - **Buscador** arriba del panel: escribe un nombre, teléfono, folio (RC-0014, R-0010) o concepto y te muestra lo que coincide en Pedidos, Notas de venta, Agenda, Apuntes y Gastos. Toca un resultado para abrirlo (Enter abre el primero; en la computadora, la tecla / pone el cursor en el buscador).
 - "Hoy y próximas actividades" (agenda de ESSENTIA y RECOOVARE) y "Pedidos que requieren atención".
 - Menú en todas las páginas privadas: a la izquierda en la computadora y abajo en el celular (en "Más" están Gastos, Apuntes y Catálogo).
+- **Ventas de RECOOVARE**: eliges el mes con ‹ › y ves ventas (con la comparación contra el mes anterior), cobrado a clientes, tu parte, lo que tu mamá te pagó, lo que te debe y las comisiones por pagar. Abajo, las ventas y tu parte de los últimos 6 meses (toca una barra para ir a ese mes) y por quién llegó cada venta (directo o qué asesor). Son las mismas cuentas que «Reparto y comisiones» en Pedidos.
 - **Apuntes** (/admin/apuntes/): anotaciones sin fecha. Crear, editar, marcar como importante (★), buscar y borrar (pide confirmación). Se guardan en línea.
 
 ---

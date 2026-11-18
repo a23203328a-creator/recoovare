@@ -607,4 +607,5 @@
   var q = new URLSearchParams(location.search).get('abrir');
   pintar();
   if (q && porId(q)) abrirFicha(q);
+  if (new URLSearchParams(location.search).get('vista') === 'reparto') ponerVista('reparto');
 })();

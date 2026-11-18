@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="../pedidos/panel.css?v=1">
-<link rel="stylesheet" href="admin.css?v=3">
+<link rel="stylesheet" href="admin.css?v=4">
 </head>
 <body>
 
@@ -53,6 +53,29 @@
     </section>
   </div>
 
+  <section class="panel ad-ventas" id="ventas" aria-labelledby="ventas-tit" hidden>
+    <div class="panel-cab">
+      <h2 id="ventas-tit">Ventas de RECOOVARE</h2>
+      <div class="ad-mes">
+        <button type="button" class="btn btn-claro btn-mini" id="v-ant" aria-label="Mes anterior">‹</button>
+        <span id="v-mes">—</span>
+        <button type="button" class="btn btn-claro btn-mini" id="v-sig" aria-label="Mes siguiente">›</button>
+      </div>
+    </div>
+    <div class="ad-vk" id="v-kpis"></div>
+    <div class="ad-v-dos">
+      <div>
+        <h3 class="ad-sub">Últimos 6 meses</h3>
+        <div class="ad-meses" id="v-meses"></div>
+      </div>
+      <div>
+        <h3 class="ad-sub">Por quién llegó la venta</h3>
+        <ul class="ad-vend" id="v-vend"></ul>
+      </div>
+    </div>
+    <p class="ayuda">Mismas cuentas que «Reparto y comisiones» en Pedidos. Las ventas cuentan por la fecha del pedido y lo cobrado por la fecha de cada pago. No incluye pedidos cancelados. <a href="../pedidos/?vista=reparto">Ver reparto completo</a></p>
+  </section>
+
   <section aria-labelledby="accesos-tit">
     <h2 class="ad-sec" id="accesos-tit">Accesos del panel</h2>
     <div class="ad-accesos">
@@ -84,8 +107,9 @@
   </section>
 </main>
 
+<script src="../datos.js?v=202611141105"></script>
 <script src="menu.js?v=2"></script>
 <script src="../pedidos/nube.js?v=4"></script>
-<script>RecoovareNube.iniciar(['admin.js?v=3']);</script>
+<script>RecoovareNube.iniciar(['admin.js?v=4']);</script>
 </body>
 </html>

@@ -143,6 +143,81 @@
 
   $('cargando').hidden = true; $('kpis').hidden = false; $('cuerpo').hidden = false;
 
+  /* ---------- ventas de RECOOVARE (mismas cuentas que Pedidos › Reparto y comisiones) ---------- */
+  var cfgR = Object.assign({ modo: 'porcentaje', pct: 50, fijo: 0 }, leer('recoovare_config_pedidos', {}));
+  function calcR(p) {
+    var total = num(p.precioProducto) + num(p.extras);
+    var pagado = (p.pagos || []).reduce(function (s, x) { return s + num(x.monto); }, 0);
+    var inter = num(p.intermediario && p.intermediario.monto);
+    var base = Math.max(0, num(p.precioProducto) - inter);
+    var r = p.regla || cfgR;
+    var parteCalc = r.modo === 'fijo' ? num(r.fijo) : base * num(r.pct) / 100;
+    var ajustada = p.ajuste !== null && p.ajuste !== '' && p.ajuste !== undefined;
+    var parte = ajustada ? num(p.ajuste) : parteCalc;
+    var m = p.mama || {};
+    var tieneMonto = m.monto !== null && m.monto !== '' && m.monto !== undefined;
+    var recibido = m.pagado ? (tieneMonto ? num(m.monto) : parte) : (tieneMonto ? num(m.monto) : 0);
+    var meDebe = Math.max(0, Math.round((parte - recibido) * 100) / 100);
+    return { total: total, pagado: pagado, inter: inter, parte: parte, recibido: recibido, meDebe: meDebe };
+  }
+  function mesDe(f) { return String(f || '').slice(0, 7); }
+  function moverMes(m, n) { var p = m.split('-'); var d = new Date(+p[0], +p[1] - 1 + n, 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+  function nombreMes(m) { var p = m.split('-'); return MESES[+p[1] - 1] + ' ' + p[0]; }
+  var vivosR = pedidos.filter(function (p) { return p.estado !== 'Cancelado'; });
+  var VEND = ((window.CATALOGO && window.CATALOGO.vendedores) || []);
+  var mesV = mesDe(HOY);
+  function cuentasMes(m) {
+    var del = vivosR.filter(function (p) { return mesDe(p.fecha) === m; });
+    var o = { n: del.length, ventas: 0, parte: 0, mama: 0, cobrado: 0 };
+    del.forEach(function (p) { var c = calcR(p); o.ventas += c.total; o.parte += c.parte; o.mama += c.recibido; });
+    vivosR.forEach(function (p) { (p.pagos || []).forEach(function (x) { if (mesDe(x.fecha) === m) o.cobrado += num(x.monto); }); });
+    o.lista = del; return o;
+  }
+  function pintarVentas() {
+    if (!pedidos.length) return;
+    $('ventas').hidden = false;
+    var c = cuentasMes(mesV), ant = cuentasMes(moverMes(mesV, -1));
+    var mamaDebe = vivosR.reduce(function (s, p) { return s + calcR(p).meDebe; }, 0);
+    var comPend = vivosR.reduce(function (s, p) { return s + (p.intermediario && !p.intermediario.pagado ? num(p.intermediario.monto) : 0); }, 0);
+    $('v-mes').textContent = nombreMes(mesV);
+    $('v-sig').disabled = mesV >= mesDe(HOY);
+    var comp = '';
+    if (ant.ventas > 0) { var pct = Math.round((c.ventas - ant.ventas) / ant.ventas * 100); comp = (pct >= 0 ? '▲ ' : '▼ ') + Math.abs(pct) + '% vs. ' + MESES[+moverMes(mesV, -1).split('-')[1] - 1]; }
+    var k = function (t, v, sub, cls, alc) { return '<div class="ad-v' + (cls ? ' ' + cls : '') + '"><span>' + t + (alc ? ' <em>' + alc + '</em>' : '') + '</span><strong>' + v + '</strong><small>' + sub + '</small></div>'; };
+    $('v-kpis').innerHTML =
+      k('Ventas', dinero(c.ventas), c.n + (c.n === 1 ? ' pedido' : ' pedidos') + (comp ? ' · ' + comp : ''), comp.indexOf('▼') === 0 ? 'baja' : comp ? 'sube' : '') +
+      k('Cobrado a clientes', dinero(c.cobrado), 'Pagos recibidos en el mes') +
+      k('Mi parte', dinero(c.parte), 'De los pedidos del mes') +
+      k('Mi mamá me pagó', dinero(c.mama), 'De los pedidos del mes') +
+      k('Mi mamá me debe', dinero(mamaDebe), 'Saldo pendiente conmigo', mamaDebe > 0 ? 'rojo' : 'verde', 'Total') +
+      k('Comisiones por pagar', dinero(comPend), 'A asesores', comPend > 0 ? 'ambar' : '', 'Total');
+    // últimos 6 meses
+    var meses = [], i; for (i = 5; i >= 0; i--) meses.push(moverMes(mesV, -i));
+    var datos = meses.map(function (m) { var x = cuentasMes(m); return { m: m, v: x.ventas, p: x.parte }; });
+    var max = Math.max.apply(null, datos.map(function (d) { return d.v; }).concat([1]));
+    $('v-meses').innerHTML = datos.map(function (d) {
+      return '<button type="button" class="ad-mb' + (d.m === mesV ? ' sel' : '') + '" data-mes="' + d.m + '" aria-label="' + esc(nombreMes(d.m) + ': ventas ' + dinero(d.v) + ', mi parte ' + dinero(d.p)) + '">' +
+        '<span class="ad-mb-val">' + (d.v ? dinero(d.v) : '—') + '</span>' +
+        '<span class="ad-mb-col"><i class="v" style="height:' + Math.max(d.v ? 4 : 0, d.v / max * 100) + '%"></i><i class="p" style="height:' + Math.max(d.p ? 3 : 0, d.p / max * 100) + '%"></i></span>' +
+        '<span class="ad-mb-mes">' + MESES[+d.m.split('-')[1] - 1].slice(0, 3) + '</span></button>';
+    }).join('') + '<p class="ad-ley"><i class="v"></i>Ventas <i class="p"></i>Mi parte</p>';
+    // por quién llegó
+    var grupos = {};
+    c.lista.forEach(function (p) {
+      var i2 = p.intermediario || {}, v = VEND.find(function (x) { return x.codigo === i2.codigo || (i2.nombre && x.nombre.toLowerCase() === String(i2.nombre).trim().toLowerCase()); });
+      var key = v ? v.nombre : (i2.nombre ? i2.nombre : 'Directo (tú)');
+      grupos[key] = grupos[key] || { n: 0, v: 0, com: 0 }; grupos[key].n++; grupos[key].v += calcR(p).total; grupos[key].com += num(i2.monto);
+    });
+    var gl = Object.keys(grupos).map(function (k2) { return { k: k2, d: grupos[k2] }; }).sort(function (a, b) { return b.d.v - a.d.v; });
+    $('v-vend').innerHTML = gl.length ? gl.map(function (g) {
+      return '<li><span><b>' + esc(g.k) + '</b><small>' + g.d.n + (g.d.n === 1 ? ' pedido' : ' pedidos') + (g.d.com ? ' · comisión ' + dinero(g.d.com) : '') + '</small></span><b>' + dinero(g.d.v) + '</b></li>';
+    }).join('') : '<li class="ad-vacio">Sin ventas este mes.</li>';
+  }
+  $('v-ant').addEventListener('click', function () { mesV = moverMes(mesV, -1); pintarVentas(); });
+  $('v-sig').addEventListener('click', function () { if (mesV < mesDe(HOY)) { mesV = moverMes(mesV, 1); pintarVentas(); } });
+  $('v-meses').addEventListener('click', function (e) { var b = e.target.closest('[data-mes]'); if (b) { mesV = b.getAttribute('data-mes'); pintarVentas(); } });
+  pintarVentas();
+
   /* ---------- buscador general ---------- */
   function norm(t) { return String(t == null ? '' : t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
   function digitos(t) { return String(t || '').replace(/\D/g, ''); }
