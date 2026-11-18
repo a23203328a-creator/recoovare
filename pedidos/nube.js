@@ -5,7 +5,7 @@
    - Sin internet: sigue funcionando aquí y sube los cambios al regresar.
    ===================================================================== */
 (function () {
-  var SYNC = ['recoovare_pedidos', 'recoovare_folio_pedidos', 'recoovare_pedidos_ignorados', 'recoovare_config_pedidos', 'recoovare_pedidos_init', 'recoovare_notas', 'recoovare_folio', 'recoovare_agenda', 'essentia_gastos', 'essentia_ganancias', 'essentia_reparto'];
+  var SYNC = ['recoovare_pedidos', 'recoovare_folio_pedidos', 'recoovare_pedidos_ignorados', 'recoovare_config_pedidos', 'recoovare_pedidos_init', 'recoovare_notas', 'recoovare_folio', 'recoovare_agenda', 'essentia_gastos', 'essentia_ganancias', 'essentia_reparto', 'admin_apuntes'];
   var KB = 'recoovare_nube_base', KP = 'recoovare_nube_pendiente', KIP = 'recoovare_nube_imgs_pendientes', KIS = 'recoovare_nube_imgs_subidas';
   var API = '/api';
   var origSet = Storage.prototype.setItem;
@@ -17,6 +17,7 @@
   /* ---------- indicador ---------- */
   var pill = document.createElement('div');
   pill.setAttribute('role', 'status');
+  pill.className = 'nube-pill';
   pill.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:50;font:700 13px Nunito,system-ui,sans-serif;padding:6px 12px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.12);background:#fff;color:#5E4E45;border:1px solid #E8E0D8;max-width:calc(100vw - 24px)';
   function indicar(t, tipo) {
     pill.textContent = t;

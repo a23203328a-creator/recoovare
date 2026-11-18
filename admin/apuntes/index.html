@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Apuntes – Administración</title>
+<link rel="icon" href="../../fotos/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="../../pedidos/panel.css?v=1">
+<link rel="stylesheet" href="../admin.css?v=1">
+</head>
+<body>
+
+<header class="barra">
+  <div class="barra-in">
+    <h1><small>ESSENTIA · RECOOVARE</small>Apuntes</h1>
+    <button type="button" class="btn btn-claro" id="nuevo" style="background:#fff">+ Nuevo apunte</button>
+  </div>
+</header>
+
+<main class="contenedor">
+  <div class="ap-herr">
+    <label class="sr" for="buscar">Buscar en tus apuntes</label>
+    <input type="search" id="buscar" placeholder="Buscar en tus apuntes" autocomplete="off">
+    <div class="ap-filtros" role="group" aria-label="Mostrar">
+      <button type="button" data-f="todos" aria-pressed="true">Todos</button>
+      <button type="button" data-f="imp" aria-pressed="false">★ Importantes</button>
+    </div>
+  </div>
+  <p class="ayuda" id="cuenta"></p>
+  <div class="ap-lista" id="lista"></div>
+</main>
+
+<div class="modal ap-modal" id="modal" hidden>
+  <form class="modal-caja" id="form" role="dialog" aria-modal="true" aria-labelledby="m-titulo" novalidate>
+    <div class="modal-cab">
+      <h2 id="m-titulo">Nuevo apunte</h2>
+      <button type="button" class="btn btn-claro btn-mini" id="m-cerrar">Cerrar</button>
+    </div>
+    <div class="campo">
+      <label for="m-tit">Título</label>
+      <input id="m-tit" type="text" maxlength="120" placeholder="Proveedor de resina">
+    </div>
+    <div class="campo">
+      <label for="m-texto">Apunte</label>
+      <textarea id="m-texto" placeholder="Escribe aquí lo que quieras guardar"></textarea>
+      <p class="ayuda" id="m-error" style="color:var(--alerta)" hidden>Escribe un título o el apunte.</p>
+    </div>
+    <label class="ap-check"><input type="checkbox" id="m-imp"> ★ Marcar como importante</label>
+    <p class="ayuda" id="m-fechas"></p>
+    <div class="modal-acciones">
+      <button type="button" class="btn btn-rojo" id="m-borrar">Borrar</button>
+      <div class="der"><button type="submit" class="btn btn-principal">Guardar</button></div>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="../menu.js?v=1"></script>
+<script src="../../pedidos/nube.js?v=4"></script>
+<script>RecoovareNube.iniciar(['apuntes.js?v=1']);</script>
+</body>
+</html>

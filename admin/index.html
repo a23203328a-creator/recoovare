@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Administración – ESSENTIA y RECOOVARE</title>
+<link rel="icon" href="../fotos/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="../pedidos/panel.css?v=1">
+<link rel="stylesheet" href="admin.css?v=1">
+</head>
+<body>
+
+<header class="barra">
+  <div class="barra-in">
+    <h1><small id="saludo-fecha">—</small><span id="saludo">Hola</span></h1>
+  </div>
+</header>
+
+<main class="contenedor">
+  <p class="cargando" id="cargando">Cargando tus datos…</p>
+
+  <section class="ad-kpis" id="kpis" aria-label="Resumen" hidden></section>
+  <div class="ad-aviso" id="aviso" hidden></div>
+
+  <div class="ad-dos" id="cuerpo" hidden>
+    <section class="panel" aria-labelledby="hoy-tit">
+      <div class="panel-cab">
+        <h2 id="hoy-tit">Hoy y próximas actividades</h2>
+        <a class="btn btn-claro btn-mini" href="../pedidos/agenda/">Ver agenda</a>
+      </div>
+      <ul class="ad-eventos" id="eventos"></ul>
+      <div class="ad-pie" id="sin-agendar" hidden></div>
+    </section>
+
+    <section class="panel" aria-labelledby="bocetos-tit">
+      <div class="panel-cab">
+        <h2 id="bocetos-tit">Pedidos que requieren atención</h2>
+        <a class="btn btn-claro btn-mini" href="../pedidos/">Ver pedidos</a>
+      </div>
+      <ul class="ad-lista" id="atencion"></ul>
+    </section>
+  </div>
+
+  <section aria-labelledby="accesos-tit">
+    <h2 class="ad-sec" id="accesos-tit">Accesos del panel</h2>
+    <div class="ad-accesos">
+      <a class="ad-acceso" href="../pedidos/">
+        <span class="ad-ico r"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></span>
+        <span><b>Pedidos</b><small>RECOOVARE · estados, pagos y entregas</small></span>
+      </a>
+      <a class="ad-acceso" href="../pedidos/agenda/">
+        <span class="ad-ico x"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>
+        <span><b>Agenda general</b><small>RECOOVARE y ESSENTIA</small></span>
+      </a>
+      <a class="ad-acceso" href="../notas/">
+        <span class="ad-ico r"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span>
+        <span><b>Notas de venta</b><small>RECOOVARE · tickets y bocetos</small></span>
+      </a>
+      <a class="ad-acceso" href="/?v=recoovare" target="_blank" rel="noopener">
+        <span class="ad-ico r"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></svg></span>
+        <span><b>Catálogo</b><small>RECOOVARE · se abre en otra pestaña</small></span>
+      </a>
+      <a class="ad-acceso" href="../pedidos/gastos/">
+        <span class="ad-ico e"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h5v4h-5a2 2 0 0 1 0-4z"/><path d="M3 9h14"/></svg></span>
+        <span><b>Gastos de ESSENTIA</b><small>Gastos, utilidad y reparto</small></span>
+      </a>
+      <a class="ad-acceso" href="apuntes/">
+        <span class="ad-ico x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M8 12h8M8 16h6"/></svg></span>
+        <span><b>Apuntes</b><small id="apuntes-sub">Anotaciones administrativas</small></span>
+      </a>
+    </div>
+  </section>
+</main>
+
+<script src="menu.js?v=1"></script>
+<script src="../pedidos/nube.js?v=4"></script>
+<script>RecoovareNube.iniciar(['admin.js?v=1']);</script>
+</body>
+</html>
