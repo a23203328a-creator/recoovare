@@ -238,7 +238,7 @@ En el menú: **Tarjetas ESSENTIA** (privado, https://recoovare.pages.dev/pedidos
 
 Página privada: `/pedidos/interesados/` (también en el menú y en el panel).
 
-- Anota clientes que esperan un perfume (solo botellas completas): nombre, teléfono, perfume, precio que se le dio, fecha aproximada de llegada, de dónde llegó y notas.
+- Anota clientes que esperan un perfume (solo botellas completas): nombre, teléfono, perfume, precio que se le dio, anticipo (opcional), fecha aproximada de llegada, de dónde llegó y notas.
 - La lista se agrupa por perfume. Cuando te llega, toca **Ya llegó** y luego **Avisar**: abre WhatsApp con el mensaje listo y lo marca como "Avisado".
 - Estados: Esperando, Avisado, Vendido y Ya no le interesa.
 - "Lo más pedido" muestra qué perfumes tienen más clientes esperando.

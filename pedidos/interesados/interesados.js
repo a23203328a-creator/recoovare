@@ -36,7 +36,11 @@
 
   function mensaje(x) {
     var n = primerNombre(x.nombre), saludo = 'Hola' + (n ? ' ' + n : '') + ', ';
-    if (x.llego) return saludo + 'ya me llegó el ' + x.perfume + ' que me pediste' + (num(x.precio) ? ' (' + dinero(x.precio) + ')' : '') + '. ¿Te lo aparto?';
+    if (x.llego) {
+      var ant = num(x.anticipo), falta = num(x.precio) - ant;
+      if (ant) return saludo + 'ya me llegó el ' + x.perfume + ' que apartaste. ' + (num(x.precio) ? (falta > 0 ? 'Con tu anticipo de ' + dinero(ant) + ' te faltan ' + dinero(falta) + '. ' : 'Ya está pagado completo. ') : '') + '¿Cuándo pasas por él o te lo envío?';
+      return saludo + 'ya me llegó el ' + x.perfume + ' que me pediste' + (num(x.precio) ? ' (' + dinero(x.precio) + ')' : '') + '. ¿Te lo aparto?';
+    }
     return saludo + 'te escribo por el ' + x.perfume + '. ' + (x.llega && x.llega >= hoy() ? 'Me llega aproximadamente el ' + larga(x.llega) + ' y' : 'Aún no me llega, pero') + ' en cuanto lo tenga te aviso.';
   }
 
@@ -46,9 +50,10 @@
     var porAvisar = esperando.filter(function (x) { return x.llego; });
     var mes = hoy().slice(0, 7), vendMes = v.filter(function (x) { return x.estado === 'vendido' && String(x.vendido || x.editado || '').slice(0, 7) === mes; });
     var perfumesAct = {}; act.forEach(function (x) { perfumesAct[norm(x.perfume)] = 1; });
+    var antTot = act.reduce(function (s, x) { return s + num(x.anticipo); }, 0);
     var k = function (t, val, sub, cls) { return '<div class="in-kpi' + (cls ? ' ' + cls : '') + '"><span>' + t + '</span><strong>' + val + '</strong><small>' + sub + '</small></div>'; };
     $('kpis').innerHTML =
-      k('Esperando', act.length, Object.keys(perfumesAct).length + ' ' + (Object.keys(perfumesAct).length === 1 ? 'perfume' : 'perfumes')) +
+      k('Esperando', act.length, Object.keys(perfumesAct).length + ' ' + (Object.keys(perfumesAct).length === 1 ? 'perfume' : 'perfumes') + (antTot ? ' · ' + dinero(antTot) + ' en anticipos' : '')) +
       k('Ya llegó, falta avisar', porAvisar.length, porAvisar.length ? 'Avísales por WhatsApp' : 'Nadie pendiente', porAvisar.length ? 'ambar' : '') +
       k('Avisados', act.filter(function (x) { return x.estado === 'avisado'; }).length, 'Esperando su respuesta') +
       k('Vendidos este mes', vendMes.length, vendMes.length ? dinero(vendMes.reduce(function (s, x) { return s + num(x.precio); }, 0)) : 'De esta lista', vendMes.length ? 'verde' : '');
@@ -93,8 +98,9 @@
         '<div class="in-gacc">' + (esperan && !g.llego ? '<button type="button" class="btn btn-claro btn-mini" data-llego="' + esc(norm(g.nom)) + '">Ya llegó</button>' : '') +
         '<button type="button" class="btn btn-claro btn-mini" data-agregar="' + esc(g.nom) + '">+ Cliente</button></div></div>' +
         '<ul class="in-lista">' + g.l.map(function (x) {
-          var det = [x.tel ? telBonito(x.tel) : 'Sin teléfono', num(x.precio) ? dinero(x.precio) : '', x.origen, 'Desde ' + corta(String(x.creado || hoy()).slice(0, 10))].filter(Boolean).join(' · ');
-          return '<li><button type="button" class="in-cli" data-editar="' + esc(x.id) + '"><b>' + esc(x.nombre || 'Sin nombre') + '<span class="in-est ' + x.estado + '">' + EST[x.estado] + '</span></b><small>' + esc(det) + '</small>' + (x.notas ? '<small class="nota">' + esc(x.notas) + '</small>' : '') + '</button>' +
+          var ant = num(x.anticipo), falta = num(x.precio) - ant;
+          var det = [x.tel ? telBonito(x.tel) : 'Sin teléfono', num(x.precio) ? dinero(x.precio) : '', ant ? 'Anticipo ' + dinero(ant) + (num(x.precio) && x.estado !== 'vendido' ? (falta > 0 ? ' · resta ' + dinero(falta) : ' · pagado completo') : '') : '', x.origen, 'Desde ' + corta(String(x.creado || hoy()).slice(0, 10))].filter(Boolean).join(' · ');
+          return '<li><button type="button" class="in-cli" data-editar="' + esc(x.id) + '"><b>' + esc(x.nombre || 'Sin nombre') + '<span class="in-est ' + x.estado + '">' + EST[x.estado] + '</span></b><small>' + esc(det) + '</small>' + (x.notas ? '<small class="nota">' + esc(x.notas) + '</small>' : '') + (ant && x.estado === 'no' ? '<small class="in-ojo">Dejó ' + dinero(ant) + ' de anticipo: devuélveselo o acuérdalo con él.</small>' : '') + '</button>' +
             '<span class="in-acc">' + (x.tel && activo(x) ? '<button type="button" class="btn btn-mini in-wa" data-wa="' + esc(x.id) + '">' + (x.llego ? 'Avisar' : 'WhatsApp') + '</button>' : '') +
             (activo(x) ? '<button type="button" class="btn btn-claro btn-mini" data-vendido="' + esc(x.id) + '">Vendido</button>' : '') + '</span></li>';
         }).join('') + '</ul></section>';
@@ -110,7 +116,7 @@
     $('m-nombre').value = x ? x.nombre || '' : '';
     $('m-tel').value = x ? x.tel || '' : '';
     $('m-perfume').value = x ? x.perfume || '' : perfume || '';
-    $('m-precio').value = x && num(x.precio) ? x.precio : '';
+    $('m-precio').value = x && num(x.precio) ? x.precio : ''; $('m-anticipo').value = x && num(x.anticipo) ? x.anticipo : ''; resta();
     var otro = !x && perfume ? vivos().find(function (y) { return norm(y.perfume) === norm(perfume) && activo(y) && y.llega; }) : null;
     $('m-llega').value = x ? x.llega || '' : otro ? otro.llega : '';
     setRadio('m-origen', x ? x.origen || 'WhatsApp' : 'WhatsApp');
@@ -122,17 +128,22 @@
     $('modal').hidden = false;
     setTimeout(function () { (perfume && !x ? $('m-nombre') : x ? $('m-nombre') : $('m-nombre')).focus(); }, 30);
   }
+  function resta() {
+    var p = num($('m-precio').value), a = num($('m-anticipo').value);
+    $('m-resta').textContent = a > 0 && p > 0 ? (a >= p ? 'Ya pagó completo.' : 'Le falta pagar ' + dinero(p - a) + '.') : '';
+  }
+  $('m-precio').addEventListener('input', resta); $('m-anticipo').addEventListener('input', resta);
   function cerrar() { $('modal').hidden = true; actual = null; }
   $('form').addEventListener('submit', function (e) {
     e.preventDefault();
     var nombre = $('m-nombre').value.trim(), perfume = $('m-perfume').value.trim().replace(/\s+/g, ' ');
-    var err = !nombre ? 'Escribe el nombre del cliente.' : !perfume ? 'Escribe qué perfume le interesa.' : '';
+    var err = !nombre ? 'Escribe el nombre del cliente.' : !perfume ? 'Escribe qué perfume le interesa.' : num($('m-anticipo').value) > 0 && num($('m-precio').value) > 0 && num($('m-anticipo').value) > num($('m-precio').value) ? 'El anticipo no puede ser mayor que el precio.' : '';
     if (err) { $('m-error').textContent = err; $('m-error').hidden = false; return; }
     // si ya existe ese perfume con otra escritura, usar la misma para agrupar bonito
     var igual = vivos().find(function (y) { return norm(y.perfume) === norm(perfume); });
     if (igual) perfume = igual.perfume;
     var ahora = new Date().toISOString(), estado = actual ? radio('m-estado') : 'esperando';
-    var datos = { nombre: nombre, tel: $('m-tel').value.trim(), perfume: perfume, precio: num($('m-precio').value) || null, llega: $('m-llega').value || '', origen: radio('m-origen'), notas: $('m-notas').value.trim(), estado: estado, editado: ahora };
+    var datos = { nombre: nombre, tel: $('m-tel').value.trim(), perfume: perfume, precio: num($('m-precio').value) || null, anticipo: num($('m-anticipo').value) || null, llega: $('m-llega').value || '', origen: radio('m-origen'), notas: $('m-notas').value.trim(), estado: estado, editado: ahora };
     if (actual) {
       var o = lista.find(function (y) { return y.id === actual.id; });
       if (estado === 'vendido' && o.estado !== 'vendido') datos.vendido = ahora;

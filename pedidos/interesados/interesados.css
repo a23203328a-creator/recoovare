@@ -55,3 +55,4 @@
   .in-acc { justify-content: flex-start; }
   .in-kpi strong { font-size: 22px; }
 }
+.in-cli .in-ojo { color: var(--alerta); font-weight: 700; }
