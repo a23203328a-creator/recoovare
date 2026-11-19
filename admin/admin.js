@@ -260,6 +260,17 @@
     return { txt: [a.titulo, a.texto].join(' '), tel: a.texto, folio: [], orden: a.editado || a.creado || '', href: 'apuntes/?abrir=' + encodeURIComponent(a.id),
       tit: (a.importante ? '★ ' : '') + (a.titulo || 'Sin título'), sub: String(a.texto || '').replace(/\s+/g, ' ').slice(0, 90) };
   }));
+  var interesados = leer('essentia_interesados', []); if (!Array.isArray(interesados)) interesados = [];
+  var EST_I = { esperando: 'Esperando', avisado: 'Avisado', vendido: 'Vendido', no: 'Ya no le interesa' };
+  grupo('interesados', 'Interesados ESSENTIA', interesados.filter(function (x) { return x && !x.borrado; }).map(function (x) {
+    return { txt: [x.nombre, x.perfume, x.notas, x.origen].join(' '), tel: x.tel, folio: [], orden: x.editado || x.creado || '', href: '../pedidos/interesados/?abrir=' + encodeURIComponent(x.id),
+      tit: (x.nombre || 'Sin nombre') + ' · ' + (x.perfume || ''), sub: [EST_I[x.estado] || '', x.llego && (x.estado === 'esperando' || x.estado === 'avisado') ? 'Ya llegó' : '', x.tel || ''].filter(Boolean).join(' · ') };
+  }));
+  (function () {
+    var esp = interesados.filter(function (x) { return x && !x.borrado && (x.estado === 'esperando' || x.estado === 'avisado'); });
+    var falta = esp.filter(function (x) { return x.llego && x.estado === 'esperando'; }).length;
+    if (esp.length) $('interesados-sub').textContent = esp.length + (esp.length === 1 ? ' cliente esperando' : ' clientes esperando') + (falta ? ' · ' + falta + ' por avisar' : '');
+  })();
   grupo('gastos', 'Gastos ESSENTIA', gastos.filter(function (g) { return g && !g.borrado; }).map(function (g) {
     return { txt: [g.concepto, g.categoria, g.notas, g.pago, g.negocio].join(' '), tel: '', folio: [], orden: g.fecha || '', href: '../pedidos/gastos/?abrir=' + encodeURIComponent(g.id),
       tit: (g.concepto || 'Gasto') + ' · ' + dinero(g.monto), sub: [g.fecha ? corta(g.fecha) : '', g.categoria, g.negocio === 'RECOOVARE' ? 'RECOOVARE' : ''].filter(Boolean).join(' · ') };

@@ -234,6 +234,16 @@ En el menú: **Tarjetas ESSENTIA** (privado, https://recoovare.pages.dev/pedidos
 
 ---
 
+## Interesados de ESSENTIA
+
+Página privada: `/pedidos/interesados/` (también en el menú y en el panel).
+
+- Anota clientes que esperan un perfume (solo botellas completas): nombre, teléfono, perfume, precio que se le dio, fecha aproximada de llegada, de dónde llegó y notas.
+- La lista se agrupa por perfume. Cuando te llega, toca **Ya llegó** y luego **Avisar**: abre WhatsApp con el mensaje listo y lo marca como "Avisado".
+- Estados: Esperando, Avisado, Vendido y Ya no le interesa.
+- "Lo más pedido" muestra qué perfumes tienen más clientes esperando.
+- No crea recordatorios en la Agenda ni movimientos de dinero. Se guarda en línea y aparece en el buscador del panel.
+
 ## Asesores de ventas
 
 - Cada asesor tiene su link corto: `recoovare.pages.dev/CODIGO` (ej. `recoovare.pages.dev/soemy`). Cada link corto es una carpeta con su `index.html` (copia la carpeta `soemy`, renómbrala con el código nuevo y cambia `soemy` por el código dentro del archivo). Ahí los pedidos, "¿Ya tienes tu diseño?" y las citas llegan a SU WhatsApp, con su nombre al final del mensaje. Arriba sale "Te atiende …".

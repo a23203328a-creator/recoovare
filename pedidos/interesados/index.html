@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Interesados – ESSENTIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="../panel.css?v=1">
+<link rel="stylesheet" href="interesados.css?v=1">
+<link rel="manifest" href="/app.webmanifest">
+<meta name="theme-color" content="#111318">
+<link rel="apple-touch-icon" href="/fotos/app-apple-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Recoovare">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+</head>
+<body>
+
+<header class="barra">
+  <div class="barra-in">
+    <h1><small>ESSENTIA</small>Interesados</h1>
+    <button type="button" class="btn btn-principal in-nuevo" id="nuevo">+ Interesado</button>
+  </div>
+</header>
+
+<main class="contenedor">
+  <section class="in-kpis" id="kpis" aria-label="Resumen"></section>
+
+  <div class="in-dos">
+    <div>
+      <div class="in-herr">
+        <label class="sr" for="buscar">Buscar</label>
+        <input type="search" id="buscar" placeholder="Buscar cliente, teléfono o perfume" autocomplete="off">
+        <div class="in-filtros" role="group" aria-label="Mostrar">
+          <button type="button" data-f="activos" aria-pressed="true">Pendientes</button>
+          <button type="button" data-f="vendido" aria-pressed="false">Vendidos</button>
+          <button type="button" data-f="no" aria-pressed="false">Ya no le interesa</button>
+          <button type="button" data-f="todos" aria-pressed="false">Todos</button>
+        </div>
+      </div>
+      <div id="grupos"></div>
+    </div>
+
+    <aside class="panel in-top" aria-labelledby="top-tit">
+      <h2 id="top-tit">Lo más pedido</h2>
+      <p class="ayuda">Perfumes con más clientes esperando. Te ayuda a decidir qué pedir.</p>
+      <ol id="top"></ol>
+    </aside>
+  </div>
+</main>
+
+<div class="modal" id="modal" hidden>
+  <form class="modal-caja" id="form" role="dialog" aria-modal="true" aria-labelledby="m-tit" novalidate>
+    <div class="modal-cab"><h2 id="m-tit">Nuevo interesado</h2><button type="button" class="btn btn-claro btn-mini" data-cerrar>Cerrar</button></div>
+    <div class="fila">
+      <div class="campo"><label for="m-nombre">Nombre</label><input id="m-nombre" autocomplete="off" placeholder="Memo"></div>
+      <div class="campo"><label for="m-tel">Teléfono (WhatsApp)</label><input id="m-tel" type="tel" inputmode="tel" autocomplete="off" placeholder="999 123 4567"></div>
+    </div>
+    <div class="campo"><label for="m-perfume">Perfume</label><input id="m-perfume" list="perfumes" autocomplete="off" placeholder="Afnan 9PM Night Out"><datalist id="perfumes"></datalist></div>
+    <div class="fila">
+      <div class="campo"><label for="m-precio">Precio que le diste ($, opcional)</label><input id="m-precio" type="number" min="0" step="1" inputmode="decimal" placeholder="1200"></div>
+      <div class="campo"><label for="m-llega">Llega aprox. (opcional)</label><input id="m-llega" type="date"></div>
+    </div>
+    <fieldset class="grupo-op"><legend class="label">¿De dónde llegó?</legend>
+      <div class="opciones" id="m-origen">
+        <label><input type="radio" name="m-origen" value="WhatsApp" checked><span>WhatsApp</span></label>
+        <label><input type="radio" name="m-origen" value="Facebook"><span>Facebook</span></label>
+        <label><input type="radio" name="m-origen" value="Instagram"><span>Instagram</span></label>
+        <label><input type="radio" name="m-origen" value="En persona"><span>En persona</span></label>
+        <label><input type="radio" name="m-origen" value="Otro"><span>Otro</span></label>
+      </div>
+    </fieldset>
+    <fieldset class="grupo-op" id="m-estado-c"><legend class="label">Estado</legend>
+      <div class="opciones">
+        <label><input type="radio" name="m-estado" value="esperando" checked><span>Esperando</span></label>
+        <label><input type="radio" name="m-estado" value="avisado"><span>Avisado</span></label>
+        <label><input type="radio" name="m-estado" value="vendido"><span>Vendido</span></label>
+        <label><input type="radio" name="m-estado" value="no"><span>Ya no le interesa</span></label>
+      </div>
+    </fieldset>
+    <div class="campo"><label for="m-notas">Notas (opcional)</label><textarea id="m-notas" rows="2" placeholder="Lo quiere para regalo antes del 24"></textarea></div>
+    <p class="ayuda" id="m-fechas"></p>
+    <p class="error" id="m-error" hidden></p>
+    <div class="modal-acciones">
+      <button type="button" class="btn btn-rojo" id="m-borrar" hidden>Borrar</button>
+      <div class="der"><button type="submit" class="btn btn-principal">Guardar</button></div>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="../../admin/menu.js?v=5"></script>
+<script src="../nube.js?v=6"></script>
+<script>RecoovareNube.iniciar(['interesados.js?v=1']);</script>
+</body>
+</html>

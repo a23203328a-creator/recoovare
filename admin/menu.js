@@ -14,6 +14,7 @@
     ventas: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
     gastos: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h5v4h-5a2 2 0 0 1 0-4z"/><path d="M3 9h14"/>',
     tarjetas: '<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9.5h19M6 15h4"/>',
+    interesados: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.7.8 2.7 2.5 3 5.2"/>',
     apuntes: '<path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M8 12h8M8 16h6"/>',
     catalogo: '<path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/>',
     mas: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
@@ -26,6 +27,7 @@
     { k: 'ventas', t: 'Notas de venta', corto: 'Ventas', href: '/notas/', re: /^\/notas/ },
     { k: 'gastos', t: 'Gastos ESSENTIA', href: '/pedidos/gastos/', re: /^\/pedidos\/gastos/ },
     { k: 'tarjetas', t: 'Tarjetas ESSENTIA', href: '/pedidos/tarjetas/', re: /^\/pedidos\/tarjetas/ },
+    { k: 'interesados', t: 'Interesados ESSENTIA', href: '/pedidos/interesados/', re: /^\/pedidos\/interesados/ },
     { k: 'apuntes', t: 'Apuntes', href: '/admin/apuntes/', re: /^\/admin\/apuntes/ },
     { k: 'catalogo', t: 'Catálogo', href: '/?v=recoovare', externo: true }
   ];
