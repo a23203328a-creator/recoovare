@@ -173,6 +173,27 @@
       k('Próximo vencimiento', prox ? (prox.vencido ? 'Vencido' : prox.dias === 0 ? 'Hoy' : prox.dias === 1 ? 'Mañana' : 'En ' + prox.dias + ' días') : '—',
         prox ? esc(prox.t.nombre) + ' · ' + dinero(prox.aPagar) + ' · ' + corta(prox.limite) : 'Nada pendiente', prox ? (prox.vencido || prox.dias <= 3 ? 'rojo' : prox.dias <= 7 ? 'ambar' : '') : '');
 
+    // próximos pagos (por fecha límite)
+    var prox2 = [];
+    calcs.forEach(function (r) {
+      if (r.k >= 0 && r.aPagar > 0) prox2.push({ r: r, fecha: r.limite, monto: r.aPagar, est: false });
+      if (r.proxCorte && r.periodo > 0) prox2.push({ r: r, fecha: limiteDe(r.t, r.proxCorte), monto: r.periodo, est: true, corte: r.proxCorte });
+    });
+    prox2.sort(function (a, b) { return a.fecha.localeCompare(b.fecha) || (a.est - b.est); });
+    $('prox-sec').hidden = !prox2.length;
+    if (prox2.length) {
+      var conf = r2(prox2.filter(function (x) { return !x.est; }).reduce(function (s2, x) { return s2 + x.monto; }, 0));
+      $('prox').innerHTML = prox2.map(function (x) {
+        var dd = diasEntre(hoy(), x.fecha), d0 = fechaDe(x.fecha);
+        var cls = x.est ? 'est' : (dd <= 3 ? 'r' : dd <= 7 ? 'a' : '');
+        var cuando = dd < 0 ? 'Vencido hace ' + (-dd) + (dd === -1 ? ' día' : ' días') : dd === 0 ? 'Vence hoy' : dd === 1 ? 'Vence mañana' : 'Faltan ' + dd + ' días';
+        return '<li class="' + cls + '"><span class="fch"><b>' + d0.getDate() + '</b><small>' + MESES[d0.getMonth()].slice(0, 3) + '</small></span>' +
+          '<span class="qui"><b>' + esc(x.r.t.nombre) + (x.r.t.ult ? ' ···· ' + esc(x.r.t.ult) : '') + '</b><small>' + (x.est ? 'Estimado · corta el ' + corta(x.corte) : cuando) + '</small></span>' +
+          '<span class="cuanto"><b>' + dinero(x.monto) + '</b><small>' + (x.est ? 'hasta hoy' : 'sin intereses') + '</small></span>' +
+          '<span class="acc">' + (x.est ? '' : '<button type="button" class="btn btn-claro btn-mini" data-pagar="' + esc(x.r.t.id) + '" data-monto="' + x.monto + '">Pagar</button>') + '</span></li>';
+      }).join('') + (conf ? '<li class="tot"><span>Total de cortes ya cerrados</span><span>' + dinero(conf) + '</span></li>' : '');
+    }
+
     // tarjetas
     $('tarjetas').innerHTML = ts.length ? calcs.map(function (r) {
       var t = r.t, est, cls;

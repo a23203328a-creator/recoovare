@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="../panel.css?v=1">
-<link rel="stylesheet" href="tarjetas.css?v=3">
+<link rel="stylesheet" href="tarjetas.css?v=4">
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#111318">
 <link rel="apple-touch-icon" href="/fotos/app-apple-180.png">
@@ -33,6 +33,12 @@
 
 <main class="contenedor">
   <section class="tj-kpis" id="kpis" aria-label="Resumen"></section>
+
+  <section class="panel tj-prox" aria-labelledby="prox-tit" id="prox-sec" hidden>
+    <h2 id="prox-tit">Próximos pagos</h2>
+    <p class="ayuda">Ordenados por fecha límite. Los "estimados" son de cortes que aún no cierran y pueden subir si haces más compras.</p>
+    <ul class="tj-prox-l" id="prox"></ul>
+  </section>
 
   <section aria-labelledby="t-tit">
     <h2 class="tj-sec" id="t-tit">Tus tarjetas</h2>
@@ -160,6 +166,6 @@
 
 <script src="../../admin/menu.js?v=4"></script>
 <script src="../nube.js?v=5"></script>
-<script>RecoovareNube.iniciar(['tarjetas.js?v=5']);</script>
+<script>RecoovareNube.iniciar(['tarjetas.js?v=6']);</script>
 </body>
 </html>
