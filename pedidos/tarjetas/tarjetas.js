@@ -126,7 +126,24 @@
         var dif = Object.keys(datos).some(function (k2) { return e[k2] !== datos[k2]; }) || e.borrado;
         if (dif) { Object.assign(e, datos); e.borrado = false; e.editado = ahora; cambio = true; }
       }
+      // Aviso para anotar el estado de cuenta: el día siguiente al corte (pendiente: si no lo anotas, sigue saliendo como atrasado)
+      avisoEstado(r.t, r.corte, !!r.estado);
     });
+    calcs.forEach(function (r) {
+      if (r.t.borrado || !r.proxCorte) return;
+      if (r.periodo > 0 || r.deuda > 0) avisoEstado(r.t, r.proxCorte, false);
+    });
+    function avisoEstado(t, corte, listo) {
+      var id = 'tje-' + t.id + '-' + corte; vigentes[id] = 1;
+      var e = ag.find(function (x) { return x.id === id; });
+      var datos = { tipo: 'pendiente', negocio: 'e', asunto: 'Anotar estado de cuenta ' + nombreT(t) + ' (corte ' + corta(corte) + ')', fecha: sumarDias(corte, 1), hora: '', todoDia: true, dur: 15, tarjetaId: t.id, notas: 'Revisa en la app del banco el pago para no generar intereses y el pago mínimo, y anótalos en Tarjetas → Anotar estado de cuenta. Se marca hecho solo al anotarlo.' };
+      if (listo) datos.hecho = true;
+      if (!e) { e = Object.assign({ id: id, creado: ahora, hecho: false }, datos); ag.push(e); cambio = true; }
+      else {
+        var dif = Object.keys(datos).some(function (k2) { return e[k2] !== datos[k2]; }) || e.borrado;
+        if (dif) { Object.assign(e, datos); e.borrado = false; e.editado = ahora; cambio = true; }
+      }
+    }
     // recordatorios viejos de una tarjeta (cambió su corte o se borró): se quitan si aún no pasan
     ag.forEach(function (e) {
       if (!e || e.borrado || !e.tarjetaId || vigentes[e.id] || e.hecho) return;
