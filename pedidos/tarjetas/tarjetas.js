@@ -289,6 +289,12 @@
   function cerrar() { document.querySelectorAll('.modal').forEach(function (m) { m.hidden = true; }); actual = null; }
   function radio(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ''; }
   function setRadio(name, v) { document.querySelectorAll('input[name="' + name + '"]').forEach(function (r) { r.checked = r.value === String(v); }); }
+  // Meses de la compra: de la lista o "Otro" con número
+  function msiSel() { var v = radio('mc-msi'); if (v !== 'otro') return +v || 0; var n = Math.round(num($('mc-otro').value)); return n >= 2 ? n : 0; }
+  function msiPoner(n) {
+    n = +n || 0; var fijos = ['0', '3', '6', '9', '12', '18', '24'], esFijo = fijos.indexOf(String(n)) >= 0;
+    setRadio('mc-msi', esFijo ? n : 'otro'); $('mc-otro').value = esFijo ? '' : n; $('mc-otro-c').hidden = esFijo;
+  }
   function error(id, t) { $(id).textContent = t; $(id).hidden = !t; }
   function opcionesTarjeta(sel, v) {
     var ts = vivas(tarjetas);
@@ -345,7 +351,7 @@
 
   // Compra
   function infoCompra() {
-    var monto = num($('mc-monto').value), n = +radio('mc-msi'), t = tarjetaPorId($('mc-tarjeta').value), f = $('mc-fecha').value;
+    var monto = num($('mc-monto').value), n = msiSel(), t = tarjetaPorId($('mc-tarjeta').value), f = $('mc-fecha').value;
     if (!t || !f || !monto) { $('mc-info').textContent = ''; return; }
     var cortes = cortesDe(t, f), i = indiceCorte(cortes, f), C = cortes[i];
     $('mc-info').textContent = (n ? n + ' mensualidades de ' + dinero(mensualidades({ monto: monto, msi: n })[0]) + '. La primera' : 'Esta compra') + ' entra en el corte del ' + larga(C) + ' y se paga a más tardar el ' + larga(limiteDe(t, C)) + '.';
@@ -356,12 +362,13 @@
     $('mc-tit').textContent = c ? 'Editar compra' : 'Nueva compra';
     opcionesTarjeta('mc-tarjeta', c ? c.tarjetaId : tarjetaId || $('f-tarjeta').value);
     $('mc-monto').value = c ? c.monto : ''; $('mc-fecha').value = c ? c.fecha : hoy(); $('mc-concepto').value = c ? c.concepto || '' : '';
-    setRadio('mc-msi', c ? +c.msi || 0 : 0);
+    msiPoner(c ? c.msi : 0);
     $('mc-borrar').hidden = !c; error('mc-error', ''); infoCompra();
     abrirModal('modal-compra'); setTimeout(function () { $('mc-monto').focus(); }, 30);
   }
   ['mc-monto', 'mc-fecha', 'mc-tarjeta'].forEach(function (id) { $(id).addEventListener('input', infoCompra); $(id).addEventListener('change', infoCompra); });
-  $('mc-msi').addEventListener('change', infoCompra);
+  $('mc-msi').addEventListener('change', function () { var o = radio('mc-msi') === 'otro'; $('mc-otro-c').hidden = !o; if (o) $('mc-otro').focus(); infoCompra(); });
+  $('mc-otro').addEventListener('input', infoCompra);
   $('form-compra').addEventListener('submit', function (e) {
     e.preventDefault();
     var monto = r2(num($('mc-monto').value)), f = $('mc-fecha').value, concepto = $('mc-concepto').value.trim(), tid = $('mc-tarjeta').value;
@@ -369,7 +376,8 @@
     if (!(monto > 0)) return error('mc-error', 'Escribe el monto de la compra.');
     if (!f) return error('mc-error', 'Pon la fecha de la compra.');
     if (!concepto) return error('mc-error', 'Escribe qué compraste.');
-    var datos = { tarjetaId: tid, monto: monto, fecha: f, concepto: concepto, msi: +radio('mc-msi') || 0, editado: new Date().toISOString() };
+    if (radio('mc-msi') === 'otro' && !msiSel()) return error('mc-error', 'Escribe cuántos meses (2 o más).');
+    var datos = { tarjetaId: tid, monto: monto, fecha: f, concepto: concepto, msi: msiSel(), editado: new Date().toISOString() };
     var nuevo = !actual;
     if (actual) Object.assign(compras.find(function (x) { return x.id === actual.id; }), datos);
     else compras.push(Object.assign({ id: uid('c'), creado: datos.editado }, datos));

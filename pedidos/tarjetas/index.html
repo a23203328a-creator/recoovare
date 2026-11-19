@@ -116,7 +116,9 @@
         <label><input type="radio" name="mc-msi" value="12"><span>12 MSI</span></label>
         <label><input type="radio" name="mc-msi" value="18"><span>18 MSI</span></label>
         <label><input type="radio" name="mc-msi" value="24"><span>24 MSI</span></label>
+        <label><input type="radio" name="mc-msi" value="otro"><span>Otro</span></label>
       </div>
+      <div class="campo" id="mc-otro-c" hidden style="margin-top:8px;max-width:220px"><label for="mc-otro">¿Cuántos meses?</label><input id="mc-otro" type="number" min="2" max="60" step="1" inputmode="numeric" placeholder="Ej. 5"></div>
     </fieldset>
     <p class="ayuda" id="mc-info"></p>
     <p class="error" id="mc-error" hidden></p>
@@ -157,6 +159,6 @@
 
 <script src="../../admin/menu.js?v=4"></script>
 <script src="../nube.js?v=5"></script>
-<script>RecoovareNube.iniciar(['tarjetas.js?v=3']);</script>
+<script>RecoovareNube.iniciar(['tarjetas.js?v=4']);</script>
 </body>
 </html>
