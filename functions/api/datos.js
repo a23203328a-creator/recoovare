@@ -1,5 +1,5 @@
 // Datos de pedidos, notas, agenda y gastos de ESSENTIA: GET los entrega todos; PUT guarda los que cambiaron.
-const CLAVES = ['recoovare_pedidos', 'recoovare_folio_pedidos', 'recoovare_pedidos_ignorados', 'recoovare_config_pedidos', 'recoovare_pedidos_init', 'recoovare_notas', 'recoovare_folio', 'recoovare_agenda', 'essentia_gastos', 'essentia_ganancias', 'essentia_reparto', 'admin_apuntes'];
+const CLAVES = ['recoovare_pedidos', 'recoovare_folio_pedidos', 'recoovare_pedidos_ignorados', 'recoovare_config_pedidos', 'recoovare_pedidos_init', 'recoovare_notas', 'recoovare_folio', 'recoovare_agenda', 'essentia_gastos', 'essentia_ganancias', 'essentia_reparto', 'admin_apuntes', 'essentia_tarjetas', 'essentia_tarjeta_compras', 'essentia_tarjeta_pagos', 'essentia_tarjeta_estados'];
 const json = (o, s) => new Response(JSON.stringify(o), { status: s || 200, headers: { 'content-type': 'application/json' } });
 
 export async function onRequestGet({ env }) {

@@ -88,6 +88,17 @@
       deHoy.length ? (pendHoy ? pendHoy + (pendHoy === 1 ? ' por hacer' : ' por hacer') : 'Todo hecho') : 'Agenda libre', pendHoy ? 'azul' : '') +
     kpi('../pedidos/', 'Por cobrar', dinero(porCobrar), conSaldo.length + (conSaldo.length === 1 ? ' pedido con saldo' : ' pedidos con saldo'), porCobrar > 0 ? 'rojo' : '');
 
+  // Pagos de tarjeta (los pone Tarjetas en la agenda): vencen en 7 días o menos
+  var tarj = agenda.filter(function (e) { return e.tarjetaId && e.tipo === 'pago' && !e.hecho && e.fecha <= FIN7; })
+    .sort(function (a, b) { return a.fecha.localeCompare(b.fecha); });
+  if (tarj.length) {
+    $('aviso-tj').hidden = false;
+    $('aviso-tj').innerHTML = '<b>Pago de tarjeta:</b> ' + tarj.map(function (e) {
+      var d = Math.round((fechaDe(e.fecha) - fechaDe(HOY)) / 86400000);
+      return esc(String(e.asunto || '').replace(/^Tarjeta /, '')) + ' ' + dinero(e.monto) + ' ' + (d < 0 ? '(vencido)' : d === 0 ? 'vence hoy' : d === 1 ? 'vence mañana' : 'vence en ' + d + ' días');
+    }).join(' · ') + ' <a href="../pedidos/tarjetas/">Ver tarjetas</a>';
+    if (tarj.some(function (e) { return Math.round((fechaDe(e.fecha) - fechaDe(HOY)) / 86400000) <= 3; })) $('aviso-tj').classList.add('urgente');
+  }
   if (atrasados.length) {
     $('aviso').hidden = false;
     $('aviso').innerHTML = '<b>' + atrasados.length + (atrasados.length === 1 ? ' pedido ya pasó' : ' pedidos ya pasaron') + ' su fecha de entrega.</b> <a href="../pedidos/">Revisarlos</a>';

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="../pedidos/panel.css?v=1">
-<link rel="stylesheet" href="admin.css?v=4">
+<link rel="stylesheet" href="admin.css?v=5">
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#111318">
 <link rel="apple-touch-icon" href="/fotos/app-apple-180.png">
@@ -40,6 +40,7 @@
 
   <section class="ad-kpis" id="kpis" aria-label="Resumen" hidden></section>
   <div class="ad-aviso" id="aviso" hidden></div>
+  <div class="ad-aviso ad-aviso-tj" id="aviso-tj" hidden></div>
 
   <div class="ad-dos" id="cuerpo" hidden>
     <section class="panel" aria-labelledby="hoy-tit">
@@ -106,6 +107,10 @@
         <span class="ad-ico e"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h5v4h-5a2 2 0 0 1 0-4z"/><path d="M3 9h14"/></svg></span>
         <span><b>Gastos de ESSENTIA</b><small>Gastos, utilidad y reparto</small></span>
       </a>
+      <a class="ad-acceso" href="../pedidos/tarjetas/">
+        <span class="ad-ico e"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9.5h19M6 15h4"/></svg></span>
+        <span><b>Tarjetas de ESSENTIA</b><small>Cortes, pagos y meses sin intereses</small></span>
+      </a>
       <a class="ad-acceso" href="apuntes/">
         <span class="ad-ico x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M8 12h8M8 16h6"/></svg></span>
         <span><b>Apuntes</b><small id="apuntes-sub">Anotaciones administrativas</small></span>
@@ -115,8 +120,8 @@
 </main>
 
 <script src="../datos.js?v=202611141105"></script>
-<script src="menu.js?v=3"></script>
-<script src="../pedidos/nube.js?v=4"></script>
-<script>RecoovareNube.iniciar(['admin.js?v=4']);</script>
+<script src="menu.js?v=4"></script>
+<script src="../pedidos/nube.js?v=5"></script>
+<script>RecoovareNube.iniciar(['admin.js?v=5']);</script>
 </body>
 </html>

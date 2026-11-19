@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tarjetas – ESSENTIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="../panel.css?v=1">
+<link rel="stylesheet" href="tarjetas.css?v=1">
+<link rel="manifest" href="/app.webmanifest">
+<meta name="theme-color" content="#111318">
+<link rel="apple-touch-icon" href="/fotos/app-apple-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Recoovare">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+</head>
+<body>
+
+<header class="barra">
+  <div class="barra-in">
+    <h1><small>ESSENTIA</small>Tarjetas</h1>
+    <div class="tj-acciones">
+      <button type="button" class="btn btn-claro" id="btn-tarjeta" style="background:#fff">+ Tarjeta</button>
+      <button type="button" class="btn btn-claro" id="btn-pago" style="background:#fff">+ Pago</button>
+      <button type="button" class="btn btn-principal tj-compra" id="btn-compra">+ Compra</button>
+    </div>
+  </div>
+</header>
+
+<main class="contenedor">
+  <section class="tj-kpis" id="kpis" aria-label="Resumen"></section>
+
+  <section aria-labelledby="t-tit">
+    <h2 class="tj-sec" id="t-tit">Tus tarjetas</h2>
+    <div class="tj-grid" id="tarjetas"></div>
+  </section>
+
+  <div class="tj-dos">
+    <section class="panel" aria-labelledby="msi-tit">
+      <h2 id="msi-tit">Meses sin intereses activos</h2>
+      <ul class="tj-lista" id="msi"></ul>
+    </section>
+    <section class="panel" aria-labelledby="proy-tit">
+      <h2 id="proy-tit">Lo que pagarás de MSI cada mes</h2>
+      <p class="ayuda">Suma de las mensualidades, por mes de la fecha límite de pago.</p>
+      <div class="tj-proy" id="proy"></div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="mov-tit">
+    <div class="panel-cab">
+      <h2 id="mov-tit">Movimientos</h2>
+      <div class="tj-filtros">
+        <select id="f-tarjeta" aria-label="Filtrar por tarjeta"><option value="">Todas las tarjetas</option></select>
+        <select id="f-tipo" aria-label="Filtrar por tipo"><option value="">Compras y pagos</option><option value="compra">Solo compras</option><option value="pago">Solo pagos</option></select>
+      </div>
+    </div>
+    <ul class="tj-lista" id="movs"></ul>
+    <button type="button" class="btn btn-claro btn-mini" id="mas-movs" hidden>Ver más</button>
+  </section>
+  <p class="ayuda">Solo se guardan los últimos 4 dígitos de cada tarjeta. Los cálculos son estimados: el estado de cuenta del banco siempre manda (puede incluir comisiones o intereses). Este apartado no se suma a Gastos ESSENTIA.</p>
+</main>
+
+<!-- Tarjeta -->
+<div class="modal" id="modal-tarjeta" hidden>
+  <form class="modal-caja" id="form-tarjeta" role="dialog" aria-modal="true" aria-labelledby="mt-tit" novalidate>
+    <div class="modal-cab"><h2 id="mt-tit">Nueva tarjeta</h2><button type="button" class="btn btn-claro btn-mini" data-cerrar>Cerrar</button></div>
+    <div class="fila">
+      <div class="campo"><label for="mt-nombre">Nombre</label><input id="mt-nombre" list="bancos" autocomplete="off" placeholder="BBVA"><datalist id="bancos"><option value="Invex Volaris"><option value="Invex Walmart"><option value="Plata Card"><option value="HSBC Zero"><option value="BBVA"><option value="DiDi Card"></datalist></div>
+      <div class="campo"><label for="mt-ult">Últimos 4 dígitos</label><input id="mt-ult" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="4417" autocomplete="off"></div>
+    </div>
+    <div class="fila">
+      <div class="campo"><label for="mt-corte">Día de corte</label><input id="mt-corte" type="number" min="1" max="31" inputmode="numeric" placeholder="28"></div>
+      <div class="campo"><label for="mt-limite">Límite de crédito ($, opcional)</label><input id="mt-limite" type="number" min="0" step="1" inputmode="decimal" placeholder="20000"></div>
+    </div>
+    <fieldset class="grupo-op"><legend class="label">Fecha límite de pago</legend>
+      <div class="opciones">
+        <label><input type="radio" name="mt-modo" value="dias" checked><span>Días después del corte</span></label>
+        <label><input type="radio" name="mt-modo" value="dia"><span>Un día fijo del mes</span></label>
+      </div>
+    </fieldset>
+    <div class="campo" id="mt-caja-dias"><label for="mt-dias">Días después del corte</label><input id="mt-dias" type="number" min="1" max="60" inputmode="numeric" value="20"></div>
+    <div class="campo" id="mt-caja-dia" hidden><label for="mt-dia">Día del mes para pagar</label><input id="mt-dia" type="number" min="1" max="31" inputmode="numeric" placeholder="25"></div>
+    <p class="ayuda" id="mt-ejemplo"></p>
+    <p class="error" id="mt-error" hidden></p>
+    <div class="modal-acciones"><button type="button" class="btn btn-rojo" id="mt-borrar">Borrar tarjeta</button><div class="der"><button type="submit" class="btn btn-principal">Guardar</button></div></div>
+  </form>
+</div>
+
+<!-- Compra -->
+<div class="modal" id="modal-compra" hidden>
+  <form class="modal-caja" id="form-compra" role="dialog" aria-modal="true" aria-labelledby="mc-tit" novalidate>
+    <div class="modal-cab"><h2 id="mc-tit">Nueva compra</h2><button type="button" class="btn btn-claro btn-mini" data-cerrar>Cerrar</button></div>
+    <div class="campo"><label for="mc-tarjeta">Tarjeta</label><select id="mc-tarjeta"></select></div>
+    <div class="fila">
+      <div class="campo"><label for="mc-monto">Monto total ($)</label><input id="mc-monto" class="monto" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="campo"><label for="mc-fecha">Fecha de la compra</label><input id="mc-fecha" type="date"></div>
+    </div>
+    <div class="campo"><label for="mc-concepto">Concepto</label><input id="mc-concepto" autocomplete="off" placeholder="Perfumes Mercado Libre"></div>
+    <fieldset class="grupo-op"><legend class="label">Forma</legend>
+      <div class="opciones" id="mc-msi">
+        <label><input type="radio" name="mc-msi" value="0" checked><span>Contado</span></label>
+        <label><input type="radio" name="mc-msi" value="3"><span>3 MSI</span></label>
+        <label><input type="radio" name="mc-msi" value="6"><span>6 MSI</span></label>
+        <label><input type="radio" name="mc-msi" value="9"><span>9 MSI</span></label>
+        <label><input type="radio" name="mc-msi" value="12"><span>12 MSI</span></label>
+        <label><input type="radio" name="mc-msi" value="18"><span>18 MSI</span></label>
+        <label><input type="radio" name="mc-msi" value="24"><span>24 MSI</span></label>
+      </div>
+    </fieldset>
+    <p class="ayuda" id="mc-info"></p>
+    <p class="error" id="mc-error" hidden></p>
+    <div class="modal-acciones"><button type="button" class="btn btn-rojo" id="mc-borrar">Borrar</button><div class="der"><button type="submit" class="btn btn-principal">Guardar</button></div></div>
+  </form>
+</div>
+
+<!-- Pago -->
+<div class="modal" id="modal-pago" hidden>
+  <form class="modal-caja" id="form-pago" role="dialog" aria-modal="true" aria-labelledby="mp-tit" novalidate>
+    <div class="modal-cab"><h2 id="mp-tit">Registrar pago a tarjeta</h2><button type="button" class="btn btn-claro btn-mini" data-cerrar>Cerrar</button></div>
+    <div class="campo"><label for="mp-tarjeta">Tarjeta</label><select id="mp-tarjeta"></select></div>
+    <div class="fila">
+      <div class="campo"><label for="mp-monto">Monto pagado ($)</label><input id="mp-monto" class="monto" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="campo"><label for="mp-fecha">Fecha del pago</label><input id="mp-fecha" type="date"></div>
+    </div>
+    <div class="campo"><label for="mp-nota">Nota (opcional)</label><input id="mp-nota" autocomplete="off" placeholder="Transferencia desde cuenta ESSENTIA"></div>
+    <p class="ayuda" id="mp-info"></p>
+    <p class="error" id="mp-error" hidden></p>
+    <div class="modal-acciones"><button type="button" class="btn btn-rojo" id="mp-borrar">Borrar</button><div class="der"><button type="submit" class="btn btn-principal">Guardar</button></div></div>
+  </form>
+</div>
+
+<!-- Estado de cuenta -->
+<div class="modal" id="modal-estado" hidden>
+  <form class="modal-caja" id="form-estado" role="dialog" aria-modal="true" aria-labelledby="me-tit" novalidate>
+    <div class="modal-cab"><h2 id="me-tit">Estado de cuenta</h2><button type="button" class="btn btn-claro btn-mini" data-cerrar>Cerrar</button></div>
+    <p class="ayuda" id="me-info"></p>
+    <div class="campo"><label for="me-monto">Pago para no generar intereses ($)</label><input id="me-monto" class="monto" type="number" min="0" step="0.01" inputmode="decimal"></div>
+    <div class="campo"><label for="me-minimo">Pago mínimo ($, opcional)</label><input id="me-minimo" type="number" min="0" step="0.01" inputmode="decimal"></div>
+    <p class="ayuda">Usamos la cifra del banco en lugar del cálculo para este corte.</p>
+    <p class="error" id="me-error" hidden></p>
+    <div class="modal-acciones"><button type="button" class="btn btn-rojo" id="me-borrar">Quitar</button><div class="der"><button type="submit" class="btn btn-principal">Guardar</button></div></div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="../../admin/menu.js?v=4"></script>
+<script src="../nube.js?v=5"></script>
+<script>RecoovareNube.iniciar(['tarjetas.js?v=1']);</script>
+</body>
+</html>

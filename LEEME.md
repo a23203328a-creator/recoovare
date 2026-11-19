@@ -221,6 +221,19 @@ Entra a **https://recoovare.pages.dev/admin/** (privado, mismo inicio de sesión
 
 ---
 
+## Tarjetas de ESSENTIA
+
+En el menú: **Tarjetas ESSENTIA** (privado, https://recoovare.pages.dev/pedidos/tarjetas/). No se suma a Gastos ESSENTIA.
+
+- **+ Tarjeta**: nombre, solo los últimos 4 dígitos, día de corte, fecha de pago ("X días después del corte" o "un día fijo del mes") y límite (opcional). Te muestra un ejemplo de corte y fecha límite para que confirmes que está bien.
+- **+ Compra**: fecha, concepto, monto y si es de contado o a 3, 6, 9, 12, 18 o 24 MSI. Te dice en qué corte entra y cuándo se paga. En MSI cada mes cuenta solo la mensualidad.
+- **+ Pago**: lo que pagaste a la tarjeta. Desde cada tarjeta, "+ Pago" ya trae el monto a pagar.
+- **Anotar estado de cuenta** (opcional): el "pago para no generar intereses" del banco. Manda sobre el cálculo y te avisa si hay diferencia (comisiones, intereses o compras sin anotar).
+- Ves por tarjeta: cuánto pagar y cuándo vence (en rojo si faltan 3 días o menos o ya venció), lo que llevas en el periodo, el próximo corte y el disponible. Abajo: MSI activos (mensualidad, cuántas van y cuánto falta), lo que pagarás de MSI los próximos 6 meses y todos los movimientos.
+- La **fecha límite** de cada corte aparece sola en la **Agenda** como "Pago ESSENTIA" y en el **panel de inicio** cuando faltan 7 días o menos. Al pagar, se marca como pagado. Si cambias el corte, se mueve (no se duplica).
+
+---
+
 ## Asesores de ventas
 
 - Cada asesor tiene su link corto: `recoovare.pages.dev/CODIGO` (ej. `recoovare.pages.dev/soemy`). Cada link corto es una carpeta con su `index.html` (copia la carpeta `soemy`, renómbrala con el código nuevo y cambia `soemy` por el código dentro del archivo). Ahí los pedidos, "¿Ya tienes tu diseño?" y las citas llegan a SU WhatsApp, con su nombre al final del mensaje. Arriba sale "Te atiende …".
