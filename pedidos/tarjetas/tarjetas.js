@@ -92,7 +92,7 @@
       var C = cortes[k];
       r.corte = C; r.limite = limiteDe(t, C);
       r.calculado = Math.max(0, r2(cargosHasta(k) - pagosHasta(C)));
-      var est = vivas(estados).find(function (e) { return e.tarjetaId === t.id && e.corte === C; }) || null;
+      var est = t.compartida ? null : vivas(estados).find(function (e) { return e.tarjetaId === t.id && e.corte === C; }) || null;
       r.estado = est;
       r.aPagar = est ? Math.max(0, r2(num(est.monto) - pagosDespues(C))) : Math.max(0, r2(cargosHasta(k) - pagado));
       r.diferencia = est ? r2(num(est.monto) - r.calculado) : 0;
@@ -127,10 +127,10 @@
         if (dif) { Object.assign(e, datos); e.borrado = false; e.editado = ahora; cambio = true; }
       }
       // Aviso para anotar el estado de cuenta: el día siguiente al corte (pendiente: si no lo anotas, sigue saliendo como atrasado)
-      avisoEstado(r.t, r.corte, !!r.estado);
+      if (!r.t.compartida) avisoEstado(r.t, r.corte, !!r.estado);
     });
     calcs.forEach(function (r) {
-      if (r.t.borrado || !r.proxCorte) return;
+      if (r.t.borrado || r.t.compartida || !r.proxCorte) return;
       if (r.periodo > 0 || r.deuda > 0) avisoEstado(r.t, r.proxCorte, false);
     });
     function avisoEstado(t, corte, listo) {
@@ -148,7 +148,7 @@
     ag.forEach(function (e) {
       if (!e || e.borrado || !e.tarjetaId || vigentes[e.id] || e.hecho) return;
       var t = tarjetaPorId(e.tarjetaId);
-      if (!t || t.borrado || e.fecha >= h) { e.borrado = true; e.editado = ahora; cambio = true; }
+      if (!t || t.borrado || e.fecha >= h || (t.compartida && /^tje-/.test(e.id))) { e.borrado = true; e.editado = ahora; cambio = true; }
     });
     if (cambio) { try { localStorage.setItem(KA, JSON.stringify(ag)); } catch (e2) {} }
   }
@@ -186,7 +186,7 @@
       var reglas = 'Corte día ' + t.corte + ' · ' + (t.modo === 'dia' ? 'paga el día ' + t.diaPago : 'paga ' + (t.dias || 20) + ' días después');
       var uso = num(t.limite) ? Math.max(0, Math.min(100, r.deuda / num(t.limite) * 100)) : 0;
       return '<article class="tj-card">' +
-        '<div class="tj-card-cab"><h3>' + esc(nombreT(t)) + '</h3><button type="button" class="btn btn-claro btn-mini" data-editar-t="' + esc(t.id) + '">Editar</button></div>' +
+        '<div class="tj-card-cab"><h3>' + esc(nombreT(t)) + (t.compartida ? '<span class="tj-comp">Compartida</span>' : '') + '</h3><button type="button" class="btn btn-claro btn-mini" data-editar-t="' + esc(t.id) + '">Editar</button></div>' +
         '<small>' + esc(reglas) + '</small>' +
         (r.k >= 0 && (r.calculado || r.estado || r.aPagar) ?
           '<p class="tj-monto">' + dinero(r.aPagar) + '</p><small>' + (r.aPagar > 0 ? 'Pago sin intereses · vence ' + larga(r.limite) : 'Corte del ' + corta(r.corte) + ' pagado') + '</small>' :
@@ -194,11 +194,11 @@
         '<span class="tj-tag ' + cls + '">' + est + '</span>' +
         (r.estado ? (Math.abs(r.diferencia) >= 1 ? '<p class="tj-dif">El banco dice ' + dinero(r.estado.monto) + ' y el cálculo ' + dinero(r.calculado) + ': diferencia de ' + dinero(Math.abs(r.diferencia)) + '. Revisa comisiones, intereses o compras sin anotar.</p>' : '<p class="tj-ok">✓ Cuadra con tu estado de cuenta</p>') : '') +
         (r.proxCorte ? '<small class="tj-per">Este periodo llevas <b>' + dinero(r.periodo) + '</b> · próximo corte ' + corta(r.proxCorte) + '</small>' : '') +
-        (num(t.limite) ? '<div class="tj-bar" aria-hidden="true"><i style="width:' + uso + '%"></i></div><small>Disponible ' + dinero(r.disponible) + ' de ' + dinero(t.limite) + '</small>' : '<small>Deuda total ' + dinero(r.deuda) + '</small>') +
+        (num(t.limite) && !t.compartida ? '<div class="tj-bar" aria-hidden="true"><i style="width:' + uso + '%"></i></div><small>Disponible ' + dinero(r.disponible) + ' de ' + dinero(t.limite) + '</small>' : '<small>Deuda total ' + dinero(r.deuda) + '</small>') +
         '<div class="tj-card-acc">' +
           '<button type="button" class="btn btn-claro btn-mini" data-pagar="' + esc(t.id) + '"' + (r.aPagar > 0 ? ' data-monto="' + r.aPagar + '"' : '') + '>+ Pago</button>' +
           '<button type="button" class="btn btn-claro btn-mini" data-comprar="' + esc(t.id) + '">+ Compra</button>' +
-          (r.k >= 0 ? '<button type="button" class="btn btn-claro btn-mini" data-estado="' + esc(t.id) + '">' + (r.estado ? 'Estado de cuenta ✓' : 'Anotar estado de cuenta') + '</button>' : '') +
+          (r.k >= 0 && !t.compartida ? '<button type="button" class="btn btn-claro btn-mini" data-estado="' + esc(t.id) + '">' + (r.estado ? 'Estado de cuenta ✓' : 'Anotar estado de cuenta') + '</button>' : '') +
         '</div></article>';
     }).join('') : '<div class="tj-vacio"><b>Agrega tus tarjetas</b><p>Con el día de corte y la fecha de pago, aquí verás cuánto pagar, cuándo vence y tus meses sin intereses.</p><button type="button" class="btn btn-principal" id="vacio-tarjeta">+ Tarjeta</button></div>';
 
@@ -316,7 +316,7 @@
     actual = t;
     $('mt-tit').textContent = t ? 'Editar tarjeta' : 'Nueva tarjeta';
     $('mt-nombre').value = t ? t.nombre : ''; $('mt-ult').value = t ? t.ult || '' : '';
-    $('mt-corte').value = t ? t.corte : ''; $('mt-limite').value = t && t.limite ? t.limite : '';
+    $('mt-corte').value = t ? t.corte : ''; $('mt-limite').value = t && t.limite ? t.limite : ''; $('mt-compartida').checked = !!(t && t.compartida);
     setRadio('mt-modo', t ? t.modo || 'dias' : 'dias'); $('mt-dias').value = t ? t.dias || 20 : 20; $('mt-dia').value = t && t.diaPago ? t.diaPago : '';
     $('mt-borrar').hidden = !t; error('mt-error', ''); ejemploTarjeta();
     abrirModal('modal-tarjeta'); setTimeout(function () { $('mt-nombre').focus(); }, 30);
@@ -332,7 +332,7 @@
     if (!(corte >= 1 && corte <= 31)) return error('mt-error', 'El día de corte va del 1 al 31.');
     if (modo === 'dias' && !(dias >= 1 && dias <= 60)) return error('mt-error', 'Pon cuántos días después del corte se paga.');
     if (modo === 'dia' && !(dia >= 1 && dia <= 31)) return error('mt-error', 'El día de pago va del 1 al 31.');
-    var datos = { nombre: nombre, ult: ult, corte: corte, modo: modo, dias: modo === 'dias' ? dias : 20, diaPago: modo === 'dia' ? dia : null, limite: num($('mt-limite').value) || null, editado: new Date().toISOString() };
+    var datos = { nombre: nombre, ult: ult, corte: corte, modo: modo, dias: modo === 'dias' ? dias : 20, diaPago: modo === 'dia' ? dia : null, limite: num($('mt-limite').value) || null, compartida: $('mt-compartida').checked, editado: new Date().toISOString() };
     var nuevo = !actual;
     if (actual) Object.assign(tarjetaPorId(actual.id), datos);
     else tarjetas.push(Object.assign({ id: uid('t'), creado: datos.editado }, datos));

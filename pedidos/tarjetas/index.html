@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="../panel.css?v=1">
-<link rel="stylesheet" href="tarjetas.css?v=2">
+<link rel="stylesheet" href="tarjetas.css?v=3">
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#111318">
 <link rel="apple-touch-icon" href="/fotos/app-apple-180.png">
@@ -92,6 +92,7 @@
     <div class="campo" id="mt-caja-dias"><label for="mt-dias">Días después del corte</label><input id="mt-dias" type="number" min="1" max="60" inputmode="numeric" value="20"></div>
     <div class="campo" id="mt-caja-dia" hidden><label for="mt-dia">Día del mes para pagar</label><input id="mt-dia" type="number" min="1" max="31" inputmode="numeric" placeholder="25"></div>
     <p class="ayuda" id="mt-ejemplo"></p>
+    <label class="tj-check"><input type="checkbox" id="mt-compartida"><span><b>Tarjeta compartida</b><small>Otras personas también compran con ella. Solo se cuentan las compras que tú anotes y no se pide el estado de cuenta del banco.</small></span></label>
     <p class="error" id="mt-error" hidden></p>
     <div class="modal-acciones"><button type="button" class="btn btn-rojo" id="mt-borrar">Borrar tarjeta</button><div class="der"><button type="submit" class="btn btn-principal">Guardar</button></div></div>
   </form>
@@ -159,6 +160,6 @@
 
 <script src="../../admin/menu.js?v=4"></script>
 <script src="../nube.js?v=5"></script>
-<script>RecoovareNube.iniciar(['tarjetas.js?v=4']);</script>
+<script>RecoovareNube.iniciar(['tarjetas.js?v=5']);</script>
 </body>
 </html>
