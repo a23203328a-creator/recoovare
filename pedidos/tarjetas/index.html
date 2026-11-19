@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="../panel.css?v=1">
-<link rel="stylesheet" href="tarjetas.css?v=1">
+<link rel="stylesheet" href="tarjetas.css?v=2">
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#111318">
 <link rel="apple-touch-icon" href="/fotos/app-apple-180.png">
@@ -50,6 +50,12 @@
       <div class="tj-proy" id="proy"></div>
     </section>
   </div>
+
+  <section class="panel" aria-labelledby="mes-tit">
+    <h2 id="mes-tit">Lo que pagarás cada mes</h2>
+    <p class="ayuda">Total a pagar para no generar intereses, por mes de la fecha límite. Incluye compras de contado y mensualidades de MSI ya anotadas; las compras nuevas se irán sumando.</p>
+    <div class="tj-tabla-wrap"><table class="tj-tabla" id="por-mes"></table></div>
+  </section>
 
   <section class="panel" aria-labelledby="mov-tit">
     <div class="panel-cab">
@@ -151,6 +157,6 @@
 
 <script src="../../admin/menu.js?v=4"></script>
 <script src="../nube.js?v=5"></script>
-<script>RecoovareNube.iniciar(['tarjetas.js?v=2']);</script>
+<script>RecoovareNube.iniciar(['tarjetas.js?v=3']);</script>
 </body>
 </html>

@@ -58,3 +58,26 @@
   .tj-mes .v { font-size: 9.5px; } .tj-mes .col { height: 90px; }
   .tj-filtros, .tj-filtros select { width: 100%; }
 }
+
+/* Lo que pagarás cada mes */
+.tj-tabla-wrap { overflow-x: auto; }
+.tj-tabla { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tj-tabla th, .tj-tabla td { padding: 10px 8px; border-bottom: 1px solid var(--linea, #e5e5e5); text-align: left; vertical-align: top; }
+.tj-tabla th { font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--suave); }
+.tj-tabla .n { text-align: right; white-space: nowrap; }
+.tj-tabla td.mes { font-weight: 700; text-transform: capitalize; white-space: nowrap; }
+.tj-tabla td.tot { font-weight: 800; font-size: 15.5px; }
+.tj-tabla .des { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.tj-tabla .des span { display: flex; justify-content: space-between; gap: 10px; }
+.tj-tabla .des small { color: var(--suave); }
+.tj-tabla tfoot td { font-weight: 800; border-bottom: 0; }
+.tj-tabla tr.actual td.mes::after { content: ' · este mes'; font-weight: 500; color: var(--suave); text-transform: none; font-size: 12px; }
+@media (max-width: 560px) {
+  .tj-tabla thead { display: none; }
+  .tj-tabla th.msi, .tj-tabla td.msi { display: none; }
+  .tj-tabla tr { display: grid; grid-template-columns: 1fr auto; border-bottom: 1px solid var(--linea, #e5e5e5); padding: 8px 0; }
+  .tj-tabla td { border: 0; padding: 2px 4px; }
+  .tj-tabla td:last-child { grid-column: 1 / -1; }
+  .tj-tabla .des { padding: 4px 0 0 10px; }
+  .tj-tabla tfoot tr { border-bottom: 0; }
+}

@@ -228,6 +228,46 @@
       return '<div class="tj-mes"><span class="v">' + (v ? dinero(v) : '—') + '</span><span class="col"><i style="height:' + (v ? Math.max(4, v / max * 100) : 0) + '%"></i></span><span class="m">' + MESES[+m.slice(5) - 1].slice(0, 3) + '</span></div>';
     }).join('');
 
+    // lo que pagarás cada mes (por mes de la fecha límite)
+    var mesAct = h.slice(0, 7), tabla = {};
+    function sumar(m, r, monto, msiM) {
+      if (monto <= 0.009) return;
+      if (m < mesAct) m = mesAct; // vencido: se paga ya
+      var f = tabla[m] || (tabla[m] = { tot: 0, msi: 0, tj: {} });
+      f.tot = r2(f.tot + monto); f.msi = r2(f.msi + (msiM || 0));
+      f.tj[r.t.id] = r2((f.tj[r.t.id] || 0) + monto);
+    }
+    calcs.forEach(function (r) {
+      // corte ya cerrado: lo que falta pagar de él
+      if (r.k >= 0 && r.aPagar > 0) sumar(r.limite.slice(0, 7), r, r.aPagar, Math.min(r.aPagar, r.msiPorCorte[r.k] || 0));
+      // pagos adelantados (de más) se descuentan de los siguientes cortes
+      var credito = r.estado ? 0 : Math.max(0, r2(r.pagado - r.cargos.slice(0, r.k + 1).reduce(function (s, x) { return s + x; }, 0)));
+      r.cortes.forEach(function (C, i) {
+        if (i <= r.k || !r.cargos[i]) return;
+        var v = r.cargos[i], q = Math.min(v, credito); credito = r2(credito - q); v = r2(v - q);
+        sumar(limiteDe(r.t, C).slice(0, 7), r, v, Math.min(v, r.msiPorCorte[i]));
+      });
+    });
+    var mesesT = Object.keys(tabla).sort();
+    if (!mesesT.length) $('por-mes').innerHTML = '<tbody><tr><td class="tj-nada">No tienes pagos pendientes en tus tarjetas.</td></tr></tbody>';
+    else {
+      var lista = [], dm = fechaDe(mesAct + '-01'), ult = mesesT[mesesT.length - 1];
+      while (iso(dm).slice(0, 7) <= ult) { lista.push(iso(dm).slice(0, 7)); dm.setMonth(dm.getMonth() + 1); }
+      var gran = 0, granMsi = 0;
+      $('por-mes').innerHTML = '<thead><tr><th>Mes</th><th class="n">Total</th><th class="n msi">De MSI</th><th>Por tarjeta</th></tr></thead><tbody>' +
+        lista.map(function (m) {
+          var f = tabla[m] || { tot: 0, msi: 0, tj: {} }; gran += f.tot; granMsi += f.msi;
+          var y = +m.slice(0, 4), nom = MESES[+m.slice(5) - 1] + (y !== new Date().getFullYear() ? ' ' + y : '');
+          var des = ts.filter(function (t) { return f.tj[t.id]; }).map(function (t) {
+            var r = calcs.find(function (x) { return x.t.id === t.id; });
+            var C = r.cortes.find(function (c) { var l = limiteDe(t, c); return l.slice(0, 7) === m || (m === mesAct && l.slice(0, 7) < m && c === r.corte); });
+            var lim = C ? limiteDe(t, C) : '';
+            return '<span><b>' + esc(t.nombre) + '</b><span>' + dinero(f.tj[t.id]) + (lim ? ' <small>· ' + corta(lim) + '</small>' : '') + '</span></span>';
+          }).join('');
+          return '<tr' + (m === mesAct ? ' class="actual"' : '') + '><td class="mes">' + nom + '</td><td class="n tot">' + (f.tot ? dinero(f.tot) : '—') + '</td><td class="n msi">' + (f.msi ? dinero(f.msi) : '—') + '</td><td>' + (des ? '<div class="des">' + des + '</div>' : '<small>Nada por pagar</small>') + '</td></tr>';
+        }).join('') + '</tbody><tfoot><tr><td>Total</td><td class="n">' + dinero(gran) + '</td><td class="n msi">' + dinero(granMsi) + '</td><td></td></tr></tfoot>';
+    }
+
     // movimientos
     var ft = $('f-tarjeta').value, fx = $('f-tipo').value;
     var sel = $('f-tarjeta'), opciones = '<option value="">Todas las tarjetas</option>' + ts.map(function (t) { return '<option value="' + esc(t.id) + '">' + esc(nombreT(t)) + '</option>'; }).join('');
