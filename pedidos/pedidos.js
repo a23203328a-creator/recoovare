@@ -182,8 +182,17 @@
   document.querySelector('.contenedor').addEventListener('click', function (e) {
     if (e.target.closest('select')) return;
     var a = e.target.closest('[data-ver]'); if (a) { abrirFicha(a.getAttribute('data-ver')); return; }
+    var mp = e.target.closest('[data-mamapago]'); if (mp) { marcarMama(porId(mp.getAttribute('data-mamapago'))); return; }
     var r = e.target.closest('[data-editar]'); if (r) abrir(r.getAttribute('data-editar'));
   });
+  // Botón rápido en Reparto: mi mamá ya me pagó / aún no
+  function marcarMama(p) {
+    if (!p) return;
+    var c = calc(p), yaPago = c.parte > 0 && c.meDebe <= 0;
+    if (yaPago) { p.mama = { pagado: false, fecha: '', monto: null }; S.hist(p, 'Mi parte: marcada como no pagada'); }
+    else { p.mama = { pagado: true, fecha: hoy(), monto: null }; S.hist(p, 'Mi parte: mi mamá me pagó ' + dinero(c.parte)); }
+    guardarTodo(); pintarReparto();
+  }
 
   /* ---------- ficha del pedido ---------- */
   var fichaId = null;
@@ -476,19 +485,44 @@
     }).sort(function (a, b) { return (b.fecha || '').localeCompare(a.fecha || '') || (b.folio || '').localeCompare(a.folio || ''); });
     $('r-vacio').hidden = lista.length > 0;
     var estMi = function (c) { return '<span class="tag ' + (c.estadoMi === 'Pagado' ? 'b-liquidado' : c.estadoMi === 'Pago parcial' ? 'b-parcial' : c.estadoMi === 'Por cobrar a mi mamá' ? 't-hoy' : 't-normal') + '">' + esc(c.estadoMi) + '</span>'; };
+    var btnMama = function (p, c) {
+      if (!(c.parte > 0)) return '';
+      var ya = c.meDebe <= 0;
+      return '<button type="button" class="btn btn-mini btn-mama ' + (ya ? 'si' : 'no') + '" data-mamapago="' + esc(p.id) + '" title="' + (ya ? 'Toca para marcar como no pagado' : 'Toca cuando tu mamá te pague') + '">' + (ya ? '✓ Pagado' : 'No pagado') + '</button>';
+    };
     $('r-tbody').innerHTML = lista.map(function (p) {
       var c = calc(p);
       return '<tr data-editar="' + esc(p.id) + '"><td class="folio">' + esc(p.folio) + '</td><td>' + fechaCorta(p.fecha) + '</td><td>' + esc(p.cliente || '–') + '</td>' +
         '<td class="num">' + dinero(p.precioProducto) + '</td><td class="num">' + (c.inter ? '−' + dinero(c.inter) : '–') + '</td><td class="num"><b>' + dinero(c.parte) + '</b></td>' +
-        '<td>' + (p.ajuste !== null && p.ajuste !== undefined && p.ajuste !== '' ? 'Ajustada' : textoRegla(reglaDe(p))) + '</td><td>' + estMi(c) + '</td><td class="num' + (c.meDebe > 0 ? ' debe' : '') + '">' + dinero(c.meDebe) + '</td></tr>';
+        '<td>' + (p.ajuste !== null && p.ajuste !== undefined && p.ajuste !== '' ? 'Ajustada' : textoRegla(reglaDe(p))) + '</td><td>' + estMi(c) + '</td><td class="num' + (c.meDebe > 0 ? ' debe' : '') + '">' + dinero(c.meDebe) + '</td><td class="centro">' + btnMama(p, c) + '</td></tr>';
     }).join('');
     $('r-tarjetas').innerHTML = lista.map(function (p) {
       var c = calc(p);
       return '<li class="tarjeta"><div class="t-arriba"><strong>' + esc(p.folio + ' · ' + (p.cliente || 'Sin nombre')) + '</strong>' + estMi(c) + '</div>' +
         '<div class="t-montos"><div>Mi parte<b>' + dinero(c.parte) + '</b></div><div class="' + (c.meDebe > 0 ? 'debe' : '') + '">Me debe<b>' + dinero(c.meDebe) + '</b></div></div>' +
-        '<button type="button" class="btn btn-claro" data-editar="' + esc(p.id) + '">Editar reparto</button></li>';
+        '<div class="t-botones">' + btnMama(p, c) + '<button type="button" class="btn btn-claro btn-mini" data-editar="' + esc(p.id) + '">Editar reparto</button></div></li>';
     }).join('');
+    pintarMamaPagos(vivos);
     pintarAsesores();
+  }
+  // Resumen de lo que mi mamá ya me pagó (por fecha en que me pagó)
+  function pintarMamaPagos(vivos) {
+    var pagos = vivos.map(function (p) { var c = calc(p); return { p: p, c: c, f: (p.mama && p.mama.fecha) || p.fecha || '' }; }).filter(function (x) { return x.c.recibido > 0; });
+    var total = pagos.reduce(function (s, x) { return s + x.c.recibido; }, 0);
+    var perT = pagos.filter(function (x) { return enPeriodo(x.f); }).reduce(function (s, x) { return s + x.c.recibido; }, 0);
+    var completos = pagos.filter(function (x) { return x.c.meDebe <= 0; }).length;
+    var debe = vivos.reduce(function (s, p) { return s + calc(p).meDebe; }, 0), nDebe = vivos.filter(function (p) { return calc(p).meDebe > 0; }).length;
+    var per = NOMBRE_PER[filtro.periodo];
+    var k = function (t, v, sub, alc, cls) { return '<div class="kpi' + (cls ? ' ' + cls : '') + '"><span class="alcance">' + alc + '</span><span>' + t + '</span><strong>' + v + '</strong><small>' + sub + '</small></div>'; };
+    $('mp-kpis').innerHTML =
+      k('Me ha pagado', dinero(total), completos + (completos === 1 ? ' pedido pagado' : ' pedidos pagados'), 'Todo el historial', 'verde') +
+      k('Me pagó', dinero(perT), 'Por la fecha en que me pagó', per) +
+      k('Me falta cobrar', dinero(debe), nDebe + (nDebe === 1 ? ' pedido sin pagar' : ' pedidos sin pagar'), 'Todo el historial', debe > 0 ? 'rojo' : 'verde');
+    var meses = {};
+    pagos.forEach(function (x) { var m = String(x.f).slice(0, 7); if (m) meses[m] = (meses[m] || 0) + x.c.recibido; });
+    var ms = Object.keys(meses).sort().reverse().slice(0, 6);
+    var NM = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    $('mp-meses').innerHTML = ms.length ? ms.map(function (m) { return '<li><span>' + NM[+m.slice(5) - 1] + ' ' + m.slice(0, 4) + '</span><b>' + dinero(meses[m]) + '</b></li>'; }).join('') : '<li class="vacio-mp">Todavía no hay pagos de tu mamá registrados. Usa el botón "No pagado" de cada pedido cuando te pague.</li>';
   }
   function deAsesor(p, v) { var i = p.intermediario || {}; return i.codigo === v.codigo || (i.nombre || '').trim().toLowerCase() === v.nombre.toLowerCase(); }
   function pintarAsesores() {

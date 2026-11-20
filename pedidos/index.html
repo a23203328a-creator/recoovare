@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="pedidos.css?v=4">
+<link rel="stylesheet" href="pedidos.css?v=5">
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#111318">
 <link rel="apple-touch-icon" href="/fotos/app-apple-180.png">
@@ -96,6 +96,14 @@
     </section>
 
     <section class="panel">
+      <div class="panel-cab"><h2>Lo que mi mamá ya me pagó</h2></div>
+      <section class="kpis kpis-3" id="mp-kpis" aria-label="Pagos de mi mamá"></section>
+      <h3 class="mp-sub">Por mes en que me pagó</h3>
+      <ul class="mp-meses" id="mp-meses"></ul>
+      <p class="ayuda">Marca cada pedido con el botón <b>No pagado / ✓ Pagado</b> de la tabla de abajo. Se guarda con la fecha de hoy; si fue otro día o te pagó solo una parte, usa "Editar reparto".</p>
+    </section>
+
+    <section class="panel">
       <div class="panel-cab"><h2>Mi parte por pedido</h2>
         <div class="campo campo-linea"><label for="f-mama">Mostrar</label>
           <select id="f-mama"><option value="todos">Todos</option><option value="debe">Mi mamá me debe</option><option value="pagado">Ya me pagó</option></select>
@@ -103,7 +111,7 @@
       </div>
       <div class="tabla-caja">
         <table class="tabla tabla-reparto">
-          <thead><tr><th scope="col">Folio</th><th scope="col">Fecha</th><th scope="col">Cliente</th><th scope="col" class="num">Precio producto</th><th scope="col" class="num">Comisión</th><th scope="col" class="num">Mi parte</th><th scope="col">Regla</th><th scope="col">Pago de mi mamá</th><th scope="col" class="num">Me debe</th></tr></thead>
+          <thead><tr><th scope="col">Folio</th><th scope="col">Fecha</th><th scope="col">Cliente</th><th scope="col" class="num">Precio producto</th><th scope="col" class="num">Comisión</th><th scope="col" class="num">Mi parte</th><th scope="col">Regla</th><th scope="col">Pago de mi mamá</th><th scope="col" class="num">Me debe</th><th scope="col" class="centro">¿Me pagó?</th></tr></thead>
           <tbody id="r-tbody"></tbody>
         </table>
       </div>
@@ -254,6 +262,6 @@
 <script src="../datos.js?v=202611141105"></script>
 <script src="../admin/menu.js?v=5"></script>
 <script src="nube.js?v=6"></script>
-<script>RecoovareNube.iniciar(['sync.js?v=5', 'pedidos.js?v=9']);</script>
+<script>RecoovareNube.iniciar(['sync.js?v=5', 'pedidos.js?v=10']);</script>
 </body>
 </html>
